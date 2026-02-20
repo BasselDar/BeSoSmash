@@ -1,11 +1,15 @@
-<nav class="w-full max-w-3xl flex justify-center gap-4 mb-8 z-10">
+<nav class="w-full max-w-3xl flex justify-center gap-6 mb-12 z-10 mt-4">
     <a href="/classic"
-        class="px-6 py-2 rounded-lg font-bold border-2 transition-all <%= activePage === 'classic' ? 'bg-rose-600 border-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.5)]' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white' %>">
-        ⏱️ CLASSIC SPRINT
+        class="px-8 py-3 rounded-full font-black tracking-widest text-sm border-2 transition-all duration-300 relative overflow-hidden group <%= activePage === 'classic' ? 'bg-rose-500/20 border-rose-500 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.4),inset_0_0_15px_rgba(244,63,94,0.2)]' : 'bg-slate-900/50 border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-500 hover:bg-slate-800' %>">
+        <span class="relative z-10 flex items-center gap-2">
+            <span class="<%= activePage === 'classic' ? 'animate-pulse' : '' %>">⏱️</span> CLASSIC SPRINT
+        </span>
     </a>
 
     <a href="/blitz"
-        class="px-6 py-2 rounded-lg font-bold border-2 transition-all <%= activePage === 'blitz' ? 'bg-purple-600 border-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.5)]' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white' %>">
-        ⚡ BLITZ MODE
+        class="px-8 py-3 rounded-full font-black tracking-widest text-sm border-2 transition-all duration-300 relative overflow-hidden group <%= activePage === 'blitz' ? 'bg-purple-500/20 border-purple-500 text-purple-300 shadow-[0_0_20px_rgba(168,85,247,0.4),inset_0_0_15px_rgba(168,85,247,0.2)]' : 'bg-slate-900/50 border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-500 hover:bg-slate-800' %>">
+        <span class="relative z-10 flex items-center gap-2">
+            <span class="<%= activePage === 'blitz' ? 'animate-pulse' : '' %>">⚡</span> BLITZ MODE
+        </span>
     </a>
 </nav>

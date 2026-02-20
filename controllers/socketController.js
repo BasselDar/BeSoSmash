@@ -31,10 +31,12 @@ module.exports = (io) => {
             const now = Date.now();
 
             // RATE LIMIT: Block macros faster than 50ms
-            if (game && game.isActive && (now - game.lastPressTime > 50)) {
-                game.score++;
-                game.lastPressTime = now;
-                socket.emit('scoreUpdate', game.score);
+            if (game && game.isActive) {
+                if (game.score === 0 || (now - game.lastPressTime > 50)) {
+                    game.score++;
+                    game.lastPressTime = now;
+                    socket.emit('scoreUpdate', game.score);
+                }
             }
         });
 

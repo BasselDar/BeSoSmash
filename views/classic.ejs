@@ -8,20 +8,63 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    animation: {
+                        'gradient-x': 'gradient-x 15s ease infinite',
+                    },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         /* A little custom CSS for the arcade glow */
         .neon-glow {
-            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
         }
 
         .box-glow {
-            box-shadow: 0 0 15px currentColor;
+            box-shadow: 0 0 15px currentColor, inset 0 0 10px currentColor;
+        }
+
+        body {
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #0f172a);
+            background-size: 400% 400%;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 
 <body
-    class="bg-slate-950 text-white font-mono flex flex-col items-center min-h-screen p-5 transition-colors duration-100">
+    class="text-white font-sans flex flex-col items-center min-h-screen p-5 transition-colors duration-100 animate-gradient-x overflow-x-hidden">
 
     <header class="text-center mt-8 mb-6 z-10">
         <h1
@@ -31,74 +74,121 @@
         <p class="text-slate-400 mt-2 tracking-widest text-sm">GLOBAL KEYBOARD DESTRUCTION EVENT</p>
     </header>
     <%- include('partials/nav') %>
-        <div id="game-container" class="w-full max-w-3xl text-center mb-8 z-10">
+        <div class="w-full max-w-3xl mb-8 relative">
+            <!-- Wrapper just for the shake animation -->
+            <div class="rounded-3xl" style="margin: -20px; padding: 20px;">
+                <div id="game-container" class="w-full text-center z-10">
 
-            <div id="setup-panel" class="mb-5 bg-slate-900/80 p-8 rounded-2xl border border-slate-700 backdrop-blur-sm">
-                <h2 class="text-2xl font-bold text-yellow-400 mb-6">ENTER THE ARENA</h2>
-                <div class="flex justify-center items-center gap-4">
-                    <input type="text" id="username" placeholder="CODENAME" maxlength="12"
-                        class="bg-slate-800 border-2 border-slate-600 text-white text-2xl p-4 rounded-xl text-center w-64 focus:outline-none focus:border-rose-500 uppercase transition-all uppercase font-bold">
-                    <button onclick="startGame('classic')"
-                        class="bg-rose-600 hover:bg-rose-500 text-white font-black py-4 px-8 rounded-xl text-2xl box-glow text-rose-500 hover:scale-105 transition-transform active:scale-95">
-                        RAGE
-                    </button>
+                    <div id="setup-panel" class="mb-5 glass-panel p-10 rounded-3xl relative overflow-hidden group">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                        </div>
+                        <h2 class="text-3xl font-black text-yellow-400 mb-8 tracking-wider">ENTER THE ARENA</h2>
+                        <div class="flex justify-center items-center gap-6">
+                            <input type="text" id="username" placeholder="CODENAME" maxlength="12"
+                                class="bg-black/50 border border-slate-600/50 text-white text-3xl p-5 rounded-2xl text-center w-72 focus:outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/30 uppercase transition-all font-black shadow-inner">
+                            <button onclick="startGame('classic')"
+                                class="bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-500 hover:to-orange-400 text-white font-black py-5 px-10 rounded-2xl text-3xl shadow-[0_0_20px_rgba(225,29,72,0.6)] hover:shadow-[0_0_35px_rgba(225,29,72,0.8)] hover:scale-105 transition-all duration-300 active:scale-95 border border-white/20 relative overflow-hidden group/btn">
+                                <span class="relative z-10">RAGE</span>
+                                <div
+                                    class="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="smash-zone"
+                        class="hidden relative glass-panel border-4 border-dashed border-rose-500/50 rounded-3xl p-8 flex flex-col items-center justify-center select-none box-glow text-rose-500 h-96 transition-all">
+
+                        <div class="absolute top-6 left-8 text-left">
+                            <p class="text-slate-400/80 text-sm font-bold tracking-widest uppercase">KPS (Keys/Sec)</p>
+                            <p id="kps-display"
+                                class="text-4xl font-mono font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">
+                                0.0</p>
+                        </div>
+
+                        <div class="absolute top-6 right-8 text-right flex flex-col items-end">
+                            <div
+                                class="flex items-center gap-2 bg-rose-500/20 px-3 py-1 rounded-full border border-rose-500/30 mb-2">
+                                <span class="text-rose-400 animate-pulse">⏱️</span>
+                                <span id="timer-display"
+                                    class="font-mono font-black text-xl text-rose-300 w-12 text-right">5.0s</span>
+                            </div>
+                        </div>
+
+                        <div class="absolute bottom-6 right-8 text-right">
+                            <p class="text-slate-400/80 text-sm font-bold tracking-widest uppercase">CURRENT RANK</p>
+                            <p id="rank-display" class="text-3xl font-black text-slate-300 neon-glow">NOVICE</p>
+                        </div>
+
+                        <h2 id="status-text"
+                            class="text-4xl font-black text-white mix-blend-overlay opacity-80 mt-12 tracking-widest">
+                            SMASH YOUR
+                            KEYBOARD!
+                        </h2>
+                        <div id="score-display"
+                            class="text-[12rem] font-mono font-black text-white leading-none tracking-tighter neon-glow mt-4">
+                            0
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div id="smash-zone"
-                class="hidden relative bg-slate-900 border-4 border-dashed border-rose-500 rounded-3xl p-8 flex flex-col items-center justify-center select-none box-glow text-rose-500 h-80">
-
-                <div class="absolute top-4 left-6 text-left">
-                    <p class="text-slate-400 text-sm font-bold">KPS (Keys/Sec)</p>
-                    <p id="kps-display" class="text-3xl font-black text-yellow-400">0.0</p>
-                </div>
-
-                <div class="absolute top-4 right-6 text-right">
-                    <p class="text-slate-400 text-sm font-bold">CURRENT RANK</p>
-                    <p id="rank-display" class="text-2xl font-black text-slate-300 neon-glow">NOVICE</p>
-                </div>
-
-                <h2 id="status-text" class="text-3xl font-bold text-rose-500 animate-bounce mt-8">SMASH YOUR KEYBOARD!
-                </h2>
-                <div id="score-display"
-                    class="text-[9rem] font-black text-white leading-none tracking-tighter neon-glow mt-4">0</div>
             </div>
         </div>
 
-        <div class="w-full max-w-lg bg-slate-900/80 border border-slate-700 p-6 rounded-2xl backdrop-blur-sm z-10">
-            <h3 class="text-2xl font-black text-yellow-400 mb-4 border-b border-slate-700 pb-3 flex justify-between">
-                <span>🏆 HALL OF CHAOS</span>
-                <span class="text-sm font-normal text-slate-400 self-end">Live Cache</span>
+        <div class="w-full max-w-lg glass-panel p-8 rounded-3xl z-10 relative overflow-hidden">
+            <div
+                class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-yellow-400/50 to-transparent">
+            </div>
+            <h3
+                class="text-3xl font-black text-yellow-400 mb-6 border-b border-white/10 pb-4 flex justify-between items-baseline">
+                <span class="tracking-wide">🏆 HALL OF CHAOS</span>
+                <span
+                    class="text-xs font-bold text-emerald-400 tracking-widest uppercase bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20 shadow-[0_0_10px_rgba(52,211,153,0.2)] flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Live
+                </span>
             </h3>
-            <ul id="leaderboard-list" class="space-y-3">
+            <ul id="leaderboard-list" class="space-y-4">
                 <% leaders.forEach((player, index)=> { %>
                     <li
-                        class="flex justify-between items-center p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700 transition-colors border border-slate-700/50">
-                        <span class="font-bold text-lg flex items-center gap-3">
-                            <% if(index===0) { %><span class="text-2xl">🥇</span> <span class="text-yellow-400">
+                        class="flex justify-between items-center p-4 rounded-xl bg-black/50 hover:bg-black/80 hover:scale-[1.02] transform transition-all duration-300 border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)] group relative overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700">
+                        </div>
+                        <span class="font-bold text-xl flex items-center gap-4">
+                            <% if(index===0) { %><span
+                                    class="text-3xl drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">🥇</span> <span
+                                    class="text-yellow-400 font-black tracking-wide">
                                     <%= player.name %>
                                 </span>
-                                <% } else if(index===1) { %><span class="text-2xl">🥈</span> <span
-                                        class="text-slate-300">
+                                <% } else if(index===1) { %><span
+                                        class="text-3xl drop-shadow-[0_0_8px_rgba(203,213,225,0.5)]">🥈</span> <span
+                                        class="text-slate-300 font-bold tracking-wide">
                                         <%= player.name %>
                                     </span>
-                                    <% } else if(index===2) { %><span class="text-2xl">🥉</span> <span
-                                            class="text-amber-600">
+                                    <% } else if(index===2) { %><span
+                                            class="text-3xl drop-shadow-[0_0_8px_rgba(217,119,6,0.5)]">🥉</span> <span
+                                            class="text-amber-500 font-bold tracking-wide">
                                             <%= player.name %>
                                         </span>
-                                        <% } else { %><span class="text-slate-500 w-8 text-center">#<%= index + 1 %>
-                                                    </span> <span class="text-slate-400">
+                                        <% } else { %><span class="text-slate-600 font-mono text-xl w-8 text-center">#
+                                                <%= index + 1 %>
+                                            </span> <span
+                                                class="text-slate-400 tracking-wide group-hover:text-slate-200 transition-colors">
                                                 <%= player.name %>
                                             </span>
                                             <% } %>
                         </span>
-                        <span class="font-black text-xl text-rose-400">
+                        <span
+                            class="font-mono font-black text-3xl text-rose-400 group-hover:text-rose-300 group-hover:drop-shadow-[0_0_8px_rgba(244,63,94,0.6)] transition-all">
                             <%= player.score %>
                         </span>
                     </li>
                     <% }); %>
             </ul>
         </div>
+        <div id="toast-container"
+            class="fixed top-10 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-3 pointer-events-none"></div>
         <script src="/js/game.js"></script>
 </body>
 
