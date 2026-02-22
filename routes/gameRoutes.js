@@ -8,5 +8,6 @@ router.get('/', (req, res) => res.redirect('/classic'));
 
 router.get('/classic', httpController.renderClassic);
 router.get('/blitz', httpController.renderBlitz);
+router.get('/api/leaderboard', httpController.getLeaderboardApi);
 
 module.exports = router;
