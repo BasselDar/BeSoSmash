@@ -5,9 +5,10 @@ let waitingForKey = false;
 let gameStartTime = 0;
 let currentMode = 'classic';
 let localScore = 0;
-let lastLocalPressTime = 0;
 let timerInterval;
 let gameDuration = 5000;
+let keyBuffer = [];
+let tickInterval;
 
 // Leaderboard State
 let currentLeaderboardPage = 1;
@@ -62,7 +63,7 @@ function startGame(mode) {
     currentMode = mode;
     gameDuration = mode === 'blitz' ? 2000 : 5000;
     localScore = 0;
-    lastLocalPressTime = 0;
+    keyBuffer = [];
     const name = document.getElementById('username').value.trim();
     if (!name) return showToast("ENTER A CODENAME!");
 
@@ -82,7 +83,22 @@ function startGame(mode) {
     document.addEventListener('keydown', handleFirstKey);
 }
 
-socket.on('gameStarted', () => {
+function handleFirstKey(e) {
+    if (!waitingForKey || e.repeat) return;
+    if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab", "Enter"].indexOf(e.code) > -1) {
+        e.preventDefault();
+    }
+
+    waitingForKey = false;
+    document.removeEventListener('keydown', handleFirstKey);
+    document.getElementById('status-text').innerText = "SMASH YOUR KEYBOARD!";
+    document.getElementById('status-text').classList.remove('animate-pulse');
+
+    const name = document.getElementById('username').value.trim();
+    socket.emit('startGame', { name: name, mode: currentMode });
+
+    // OPTIMISTIC START
+    // Start locally immediately instead of waiting for server gameStarted event
     active = true;
     gameStartTime = Date.now();
     document.addEventListener('keydown', handleKey);
@@ -99,25 +115,28 @@ socket.on('gameStarted', () => {
         }
         if (remaining <= 0) {
             clearInterval(timerInterval);
+            clearInterval(tickInterval);
+
+            // Final Buffer Flush (Ensure we capture latency-delayed keys up to 0.0s)
+            if (keyBuffer.length > 0) {
+                socket.emit('keyPressBatch', keyBuffer);
+                keyBuffer = [];
+            }
+            active = false;
         }
     }, 50);
-});
 
-function handleFirstKey(e) {
-    if (!waitingForKey || e.repeat) return;
-    if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab", "Enter"].indexOf(e.code) > -1) {
-        e.preventDefault();
-    }
+    // Start Tick Loop (10Hz)
+    clearInterval(tickInterval);
+    tickInterval = setInterval(() => {
+        if (!active) return clearInterval(tickInterval);
+        if (keyBuffer.length > 0) {
+            socket.emit('keyPressBatch', keyBuffer);
+            keyBuffer = []; // Empty the buffer
+        }
+    }, 100);
 
-    waitingForKey = false;
-    document.removeEventListener('keydown', handleFirstKey);
-    document.getElementById('status-text').innerText = "SMASH YOUR KEYBOARD!";
-    document.getElementById('status-text').classList.remove('animate-pulse');
-
-    const name = document.getElementById('username').value.trim();
-    socket.emit('startGame', { name: name, mode: currentMode });
-
-    processLocalKeyPress();
+    processLocalKeyPress(e.code);
 }
 
 function triggerVisuals() {
@@ -170,19 +189,19 @@ function handleKey(e) {
     }
     if (e.repeat) return;
 
-    processLocalKeyPress();
+    processLocalKeyPress(e.code);
 }
 
-function processLocalKeyPress() {
-    const now = Date.now();
-    // Simulate server 50ms rate limit to prevent rubberbanding
-    if (localScore === 0 || (now - lastLocalPressTime > 50)) {
-        localScore++;
-        lastLocalPressTime = now;
-        updateScoreParams(localScore);
-        triggerVisuals();
-        socket.emit('keyPress'); // Async emit
-    }
+function processLocalKeyPress(keyCode) {
+    if (!keyCode) keyCode = 'Unknown';
+
+    // Add physical key to batch buffer
+    keyBuffer.push(keyCode);
+
+    // Process local score immediately for responsiveness
+    localScore++;
+    updateScoreParams(localScore);
+    triggerVisuals();
 }
 
 function updateScoreParams(score) {
@@ -219,6 +238,7 @@ socket.on('scoreUpdate', (serverScore) => {
 socket.on('gameOver', (data) => {
     active = false;
     clearInterval(timerInterval);
+    clearInterval(tickInterval);
     const timerDisplay = document.getElementById('timer-display');
     if (timerDisplay) timerDisplay.innerText = "0.0s"; // Force end
 

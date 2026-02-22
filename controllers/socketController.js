@@ -14,27 +14,24 @@ module.exports = (io) => {
                 name: data.name,
                 score: 0,
                 isActive: true,
-                lastPressTime: 0,
                 mode: data.mode // Store the mode!
             };
 
             socket.emit('gameStarted');
 
-            // Use our dynamic timer
+            // Use dynamic timer but add 1500ms grace period for final network batch to arrive
+            // The client strictly controls its own UI timer limit anyway.
             setTimeout(() => {
                 endGame(socket, io);
-            }, timerDuration);
+            }, timerDuration + 1500);
         });
 
-        socket.on('keyPress', () => {
+        socket.on('keyPressBatch', (keys) => {
             const game = activeGames[socket.id];
-            const now = Date.now();
 
-            // RATE LIMIT: Block macros faster than 50ms
             if (game && game.isActive) {
-                if (game.score === 0 || (now - game.lastPressTime > 50)) {
-                    game.score++;
-                    game.lastPressTime = now;
+                if (Array.isArray(keys) && keys.length > 0) {
+                    game.score += keys.length;
                     socket.emit('scoreUpdate', game.score);
                 }
             }
