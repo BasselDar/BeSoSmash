@@ -65,6 +65,19 @@ class ScoreModel {
         }
     }
 
+    static async getRank(score, mode = 'classic') {
+        try {
+            // ZCOUNT counts elements securely with scores bounded between standard scores
+            // Using +inf for upper limit, and treating the user's score as the lower exclusive bound.
+            // Syntax for exclusive minimum in Redis ZCOUNT is "({score}"
+            const higherScoresCount = await redisClient.zCount(`leaderboard_${mode}`, `(${score}`, '+inf');
+            return higherScoresCount + 1; // Convert to 1-based rank
+        } catch (err) {
+            console.error("Error fetching rank from Redis:", err);
+            return null;
+        }
+    }
+
     static async getPaginatedLeaderboard(mode = 'classic', page = 1, limit = 10, search = '') {
         try {
             const offset = (page - 1) * limit;

@@ -1,6 +1,12 @@
 // controllers/httpController.js
 const ScoreModel = require('../models/scoreModel');
 
+exports.renderHome = (req, res) => {
+    res.render('home', {
+        activePage: 'home'
+    });
+};
+
 exports.renderClassic = (req, res) => {
     res.render('classic', {
         activePage: 'classic'

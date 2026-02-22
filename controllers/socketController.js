@@ -49,11 +49,15 @@ async function endGame(socket, io) {
 
     game.isActive = false;
 
+    // FETCH THE UPDATED ABSOLUTE GLOBAL RANK FOR THIS SPECIFIC SCORE RUN
+    // We want to know how many players have a score strictly STRONGER than this current run.
+    const playerRank = await ScoreModel.getRank(game.score, game.mode);
+
+    // Tell the player it's over, BEFORE potentially overwriting their name's PB in the DB
+    socket.emit('gameOver', { finalScore: game.score, rank: playerRank });
+
     // PASS THE MODE TO THE DATABASE MODEL!
     await ScoreModel.save(game.name, game.score, game.mode);
-
-    // Tell the player it's over
-    socket.emit('gameOver', { finalScore: game.score });
 
     // Fetch the updated leaderboard FOR THIS SPECIFIC MODE
     const newLeaderboard = await ScoreModel.getLeaderboard(game.mode);

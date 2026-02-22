@@ -3,8 +3,8 @@ const express = require('express');
 const router = express.Router();
 const httpController = require('../controllers/httpController');
 
-// Redirect base URL to classic
-router.get('/', (req, res) => res.redirect('/classic'));
+// Render home page selection
+router.get('/', httpController.renderHome);
 
 router.get('/classic', httpController.renderClassic);
 router.get('/blitz', httpController.renderBlitz);

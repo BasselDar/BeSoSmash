@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeSoSmash 💥</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'], mono: ['"JetBrains Mono"', 'monospace'] },
+                    animation: { 'gradient-x': 'gradient-x 15s ease infinite' },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .neon-glow {
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+        }
+
+        body {
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #0f172a);
+            background-size: 400% 400%;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+
+<body
+    class="text-white font-sans flex flex-col items-center min-h-screen p-5 transition-colors duration-100 animate-gradient-x overflow-x-hidden">
+    <header class="text-center mt-12 mb-10 z-10">
+        <h1
+            class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-purple-500 to-yellow-500 neon-glow animate-pulse">
+            BeSoSmash
+        </h1>
+        <p class="text-slate-400 mt-4 tracking-widest text-lg">CHOOSE YOUR DESTRUCTION</p>
+    </header>
+
+    <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 z-10 mt-10">
+        <a href="/classic"
+            class="glass-panel p-10 rounded-3xl text-center group hover:scale-105 transition-transform duration-300 relative overflow-hidden border-2 border-slate-700/50 hover:border-rose-500 shadow-[0_0_30px_rgba(0,0,0,0.5)] hover:shadow-[0_0_40px_rgba(244,63,94,0.4)] block">
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            </div>
+            <h2 class="text-4xl font-black text-rose-400 mb-4 tracking-widest relative z-10 drop-shadow-md">CLASSIC
+                SPRINT</h2>
+            <p class="text-slate-300 font-medium tracking-wide mb-8 h-12 relative z-10">Smash keys for 5 seconds. Ascend
+                to chaos godhood.</p>
+            <span
+                class="inline-block bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-500 hover:to-orange-400 text-white font-black py-4 px-10 rounded-2xl text-2xl shadow-[0_0_15px_rgba(225,29,72,0.6)] group-hover:shadow-[0_0_25px_rgba(225,29,72,0.8)] transition-all font-mono tracking-widest relative z-10">PLAY
+                NOW ⏱️</span>
+        </a>
+
+        <a href="/blitz"
+            class="glass-panel p-10 rounded-3xl text-center group hover:scale-105 transition-transform duration-300 relative overflow-hidden border-2 border-slate-700/50 hover:border-purple-500 shadow-[0_0_30px_rgba(0,0,0,0.5)] hover:shadow-[0_0_40px_rgba(168,85,247,0.4)] block">
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            </div>
+            <h2 class="text-4xl font-black text-purple-400 mb-4 tracking-widest relative z-10 drop-shadow-md">BLITZ MODE
+            </h2>
+            <p class="text-slate-300 font-medium tracking-wide mb-8 h-12 relative z-10">2 seconds of absolute madness.
+                Only the fastest survive.</p>
+            <span
+                class="inline-block bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-500 hover:to-fuchsia-400 text-white font-black py-4 px-10 rounded-2xl text-2xl shadow-[0_0_15px_rgba(147,51,234,0.6)] group-hover:shadow-[0_0_25px_rgba(147,51,234,0.8)] transition-all font-mono tracking-widest relative z-10">PLAY
+                NOW ⚡</span>
+        </a>
+    </div>
+</body>
+
+</html>

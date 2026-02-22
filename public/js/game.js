@@ -69,6 +69,11 @@ function startGame(mode) {
 
     document.getElementById('setup-panel').classList.add('hidden');
     document.getElementById('smash-zone').classList.remove('hidden');
+
+    // Hide leaderboard during game
+    const lbSection = document.getElementById('leaderboard-section');
+    if (lbSection) lbSection.classList.add('hidden');
+
     document.getElementById('score-display').innerText = "0";
     document.getElementById('kps-display').innerText = "0.0";
     const timerDisplay = document.getElementById('timer-display');
@@ -208,10 +213,17 @@ function updateScoreParams(score) {
     document.getElementById('score-display').innerText = score;
 
     // Calculate Keys Per Second (KPS)
-    let secondsElapsed = (Date.now() - gameStartTime) / 1000;
-    if (secondsElapsed <= 0.1) secondsElapsed = 0.1; // Prevent Infinity
-    const kps = (score / secondsElapsed).toFixed(1);
-    document.getElementById('kps-display').innerText = kps;
+    if (active) {
+        let secondsElapsed = (Date.now() - gameStartTime) / 1000;
+
+        // Clamp the time to the actual game duration so KPS doesn't bleed during the end-game calculation lock
+        const maxSeconds = gameDuration / 1000;
+        if (secondsElapsed > maxSeconds) secondsElapsed = maxSeconds;
+        if (secondsElapsed <= 0.1) secondsElapsed = 0.1; // Prevent Infinity
+
+        const kps = (score / secondsElapsed).toFixed(1);
+        document.getElementById('kps-display').innerText = kps;
+    }
 
     // Update Rank
     let currentRank = ranks[0];
@@ -235,6 +247,8 @@ socket.on('scoreUpdate', (serverScore) => {
     }
 });
 
+let finalAbsoluteRank = "UNRANKED";
+
 socket.on('gameOver', (data) => {
     active = false;
     clearInterval(timerInterval);
@@ -244,6 +258,7 @@ socket.on('gameOver', (data) => {
 
     // Sync to final authoritative score from server
     localScore = data.finalScore;
+    if (data.rank) finalAbsoluteRank = `#${data.rank}`;
     updateScoreParams(localScore);
 
     document.removeEventListener('keydown', handleKey);
@@ -251,12 +266,69 @@ socket.on('gameOver', (data) => {
     document.body.style.backgroundColor = '#020617'; // Reset background
 
     setTimeout(() => {
-        document.getElementById('setup-panel').classList.remove('hidden');
         document.getElementById('smash-zone').classList.add('hidden');
         document.getElementById('status-text').innerText = "SMASH YOUR KEYBOARD!";
         document.getElementById('status-text').classList.remove('animate-pulse');
+
+        // Show Post-Game Summary Panel
+        document.getElementById('game-over-panel').classList.remove('hidden');
+        document.getElementById('final-score-display').innerText = localScore;
+
+        // Match Rank Display
+        let finalRank = ranks[0];
+        for (let r of ranks) {
+            if (localScore >= r.threshold) finalRank = r;
+        }
+        const rankEl = document.getElementById('final-rank-display');
+        rankEl.innerText = finalRank.title;
+        rankEl.className = `text-2xl font-black mt-2 ${finalRank.color}`;
+
+        // Populate new stats
+        document.getElementById('absolute-rank-display').innerText = finalAbsoluteRank;
+        const seconds = gameDuration / 1000;
+        const finalKPS = (localScore / seconds).toFixed(1);
+        document.getElementById('final-kps-display').innerHTML = `${finalKPS} <span class="text-sm">KPS</span>`;
+
+        // Unhide leaderboard and fetch specifically with current run pinned
+        const lbSection = document.getElementById('leaderboard-section');
+        if (lbSection) lbSection.classList.remove('hidden');
+
+        currentLeaderboardPage = 1;
+        fetchLeaderboard(false, {
+            name: document.getElementById('username').value.trim() || 'You',
+            score: localScore,
+            rank: data.rank
+        });
     }, 3000);
 });
+
+// Function to reset the game from summary screen back to setup
+function resetGame() {
+    document.getElementById('game-over-panel').classList.add('hidden');
+    document.getElementById('setup-panel').classList.remove('hidden');
+}
+
+// Function to copy score to clipboard
+function shareScore() {
+    const name = document.getElementById('username').value.trim() || "Someone";
+    const modeFriendly = currentMode === 'blitz' ? "Blitz Mode" : "Classic Sprint";
+    let finalRank = ranks[0];
+    for (let r of ranks) {
+        if (localScore >= r.threshold) finalRank = r;
+    }
+
+    const seconds = gameDuration / 1000;
+    const finalKPS = (localScore / seconds).toFixed(1);
+
+    const shareText = `💥 I just smashed ${localScore} keys in BeSoSmash (${modeFriendly})!\n🏆 Rank: ${finalRank.title} (${finalAbsoluteRank})\n⚡ Speed: ${finalKPS} KPS\nCan you beat my chaos? Try it out at http://localhost:3000/`;
+
+    navigator.clipboard.writeText(shareText).then(() => {
+        showToast("Score Copied to Clipboard! 📋");
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        showToast("Failed to copy score.");
+    });
+}
 
 // Real-Time Leaderboard Update (Fallback if page 1 & no search)
 socket.on('updateLeaderboard', () => {
@@ -287,11 +359,42 @@ function timeAgo(dateString) {
 }
 
 // Render Leaderboard Items
-function renderLeaderboard(data, append = false) {
+function renderLeaderboard(data, append = false, currentSession = null) {
     const list = document.getElementById('leaderboard-list');
     if (!append) list.innerHTML = '';
 
-    if (data.length === 0 && !append) {
+    // If we have a current session to highlight, inject it at the very top as a special "YOUR RUN" card
+    if (currentSession && !append) {
+        const li = document.createElement('li');
+        li.className = "flex justify-between items-center p-4 md:p-5 rounded-2xl bg-white/10 border-2 border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.3)] group relative overflow-hidden mb-6 transform scale-[1.02] z-20";
+
+        let medalHtml = `<span class="text-yellow-400 font-black font-mono text-xl w-10 text-center bg-black/50 py-1 rounded-lg">#${currentSession.rank}</span>`;
+        if (currentSession.rank === 1) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]">🥇</span>`;
+        if (currentSession.rank === 2) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(203,213,225,0.6)]">🥈</span>`;
+        if (currentSession.rank === 3) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(217,119,6,0.6)]">🥉</span>`;
+
+        const themeColor = leaderboardMode === 'blitz' ? 'purple' : 'rose';
+        li.innerHTML = `
+            <div class="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-transparent to-yellow-400/10 pointer-events-none opacity-50 border-white"></div>
+            <div class="absolute top-0 left-6 bg-yellow-400 text-black text-[10px] font-black tracking-widest px-3 py-1 rounded-b-md shadow-md z-20 uppercase">YOUR RUN</div>
+            <div class="flex items-center gap-4 md:gap-6 z-10 w-full mt-5">
+                <div class="flex items-center justify-center w-12">${medalHtml}</div>
+                <div class="flex flex-col flex-grow">
+                    <span class="font-black text-xl md:text-2xl tracking-wide text-yellow-300 drop-shadow-md uppercase">${currentSession.name} <span class="text-xs text-white/50">(Current)</span></span>
+                    <span class="text-xs font-bold text-yellow-200/70 tracking-widest uppercase flex items-center gap-1 mt-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        ${timeAgo(new Date().toISOString())}
+                    </span>
+                </div>
+                <div class="text-right z-10">
+                    <span class="font-mono font-black text-4xl text-yellow-300 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] transition-all">${currentSession.score}</span>
+                </div>
+            </div>
+        `;
+        list.appendChild(li);
+    }
+
+    if (data.length === 0 && !append && !currentSession) {
         list.innerHTML = `<li class="text-center p-8 text-slate-500 font-bold uppercase tracking-widest bg-black/30 rounded-2xl border border-white/5">No records found.</li>`;
         return;
     }
@@ -335,7 +438,7 @@ function renderLeaderboard(data, append = false) {
 }
 
 // Fetch Leaderboard API
-async function fetchLeaderboard(append = false) {
+async function fetchLeaderboard(append = false, currentSession = null) {
     if (isLeaderboardLoading) return;
     isLeaderboardLoading = true;
 
@@ -349,7 +452,7 @@ async function fetchLeaderboard(append = false) {
         const json = await res.json();
 
         hasMoreLeaderboard = json.pagination.hasMore;
-        renderLeaderboard(json.data, append);
+        renderLeaderboard(json.data, append, currentSession);
 
         // Update load more button visibility
         if (loadBtn) {
