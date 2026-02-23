@@ -11,8 +11,12 @@ module.exports = (io) => {
             // DYNAMIC TIMER: 2 seconds for Blitz, 5 seconds for Classic
             const timerDuration = data.mode === 'blitz' ? 2000 : 5000;
 
+            // Sanitize name: trim whitespace and strip HTML tags
+            const rawName = typeof data.name === 'string' ? data.name : 'Anonymous';
+            const safeName = rawName.trim().replace(/<[^>]*>/g, '').slice(0, 12) || 'Anonymous';
+
             activeGames[socket.id] = {
-                name: data.name,
+                name: safeName,
                 score: 0,
                 isActive: true,
                 mode: data.mode, // Store the mode!
@@ -33,8 +37,10 @@ module.exports = (io) => {
 
             if (game && game.isActive) {
                 if (Array.isArray(keys) && keys.length > 0) {
-                    game.score += keys.length;
-                    game.keyHistory.push(keys); // Save the physical batch of keys pressed in this 100ms tick
+                    // Cap to 8 keys per 100ms tick — human physical limit, prevents spoofing
+                    const safeBatch = keys.slice(0, 8);
+                    game.score += safeBatch.length;
+                    game.keyHistory.push(safeBatch); // Save the physical batch of keys pressed in this 100ms tick
                     socket.emit('scoreUpdate', game.score);
                 }
             }

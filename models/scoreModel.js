@@ -150,6 +150,9 @@ class ScoreModel {
             // The { GT: true } flag ensures Redis only updates the score if the new score is Greater Than the existing score.
             await redisClient.zAdd(`leaderboard_${mode}`, { score: score, value: name }, { GT: true });
 
+            // Trim to top 1000 entries to prevent unbounded growth (remove rank 1001 and below)
+            await redisClient.zRemRangeByRank(`leaderboard_${mode}`, 0, -1001);
+
         } catch (err) {
             console.error("Error saving score:", err);
         }

@@ -1,4 +1,11 @@
 
+// Always block browser default behaviour for navigation keys site-wide
+document.addEventListener('keydown', (e) => {
+    if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab", "Enter"].indexOf(e.code) > -1) {
+        e.preventDefault();
+    }
+});
+
 const socket = io();
 let active = false;
 let waitingForKey = false;
@@ -128,6 +135,8 @@ function handleFirstKey(e) {
                 keyBuffer = [];
             }
             active = false;
+            // Remove key listener immediately so Tab/Space/etc don't trigger browser defaults
+            document.removeEventListener('keydown', handleKey);
         }
     }, 50);
 
@@ -273,10 +282,20 @@ socket.on('gameOver', (data) => {
     updateScoreParams(localScore);
 
     document.removeEventListener('keydown', handleKey);
+
+    // Block all default key behaviour during the "CALCULATING" phase
+    function blockKeys(e) {
+        e.preventDefault();
+    }
+    document.addEventListener('keydown', blockKeys);
+
     document.getElementById('status-text').innerText = "CALCULATING CHAOS...";
     document.body.style.backgroundColor = '#020617'; // Reset background
 
     setTimeout(() => {
+        // Unblock keys once the results panel is visible
+        document.removeEventListener('keydown', blockKeys);
+
         document.getElementById('smash-zone').classList.add('hidden');
         document.getElementById('status-text').innerText = "SMASH YOUR KEYBOARD!";
         document.getElementById('status-text').classList.remove('animate-pulse');
@@ -366,7 +385,7 @@ function shareScore() {
         ? finalProfiles.map(p => p.title).join(" & ")
         : "The Unknown";
 
-    const textToShare = `I just hit ${localScore} keys in BeSoSmash!\nRank: ${finalRank.title} (Global: ${finalAbsoluteRank})\nSpeed: ${(localScore / (gameDuration / 1000)).toFixed(1)} KPS\nChaos: ${finalEntropy}%\nDiagnosis: ${profileText}\n\nPlay now: http://localhost:3000`;
+    const textToShare = `I just hit ${localScore} keys in BeSoSmash!\nRank: ${finalRank.title} (Global: ${finalAbsoluteRank})\nSpeed: ${(localScore / (gameDuration / 1000)).toFixed(1)} KPS\nChaos: ${finalEntropy}%\nDiagnosis: ${profileText}\n\nPlay now: ${window.location.origin}`;
 
     navigator.clipboard.writeText(textToShare).then(() => {
         showToast("Score Copied to Clipboard! 📋");
