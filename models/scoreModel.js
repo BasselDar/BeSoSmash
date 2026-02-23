@@ -68,13 +68,15 @@ class ScoreModel {
 
     static async getRank(score, mode = 'classic') {
         try {
-            // ZCOUNT counts elements securely with scores bounded between standard scores
-            // Using +inf for upper limit, and treating the user's score as the lower exclusive bound.
-            // Syntax for exclusive minimum in Redis ZCOUNT is "({score}"
-            const higherScoresCount = await redisClient.zCount(`leaderboard_${mode}`, `(${score}`, '+inf');
-            return higherScoresCount + 1; // Convert to 1-based rank
+            // Use Postgres for accurate ranking — counts rows with a strictly higher score.
+            // This is authoritative and immune to the Redis name-uniqueness collision problem.
+            const result = await pool.query(
+                `SELECT COUNT(*) FROM scores WHERE mode = $1 AND score > $2`,
+                [mode, score]
+            );
+            return parseInt(result.rows[0].count, 10) + 1; // Convert to 1-based rank
         } catch (err) {
-            console.error("Error fetching rank from Redis:", err);
+            console.error("Error fetching rank from Postgres:", err);
             return null;
         }
     }

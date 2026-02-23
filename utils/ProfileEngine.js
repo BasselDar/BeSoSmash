@@ -82,6 +82,10 @@ class ProfileEngine {
         let tabHits = 0;
         let capsLockHits = 0;
         let mathHits = 0;
+        let printScreenHits = 0;
+        let pauseHits = 0;
+        let scrollLockHits = 0;
+        let insertHits = 0;
 
         let konamiIndex = 0;
         let konamiAchieved = false;
@@ -133,6 +137,10 @@ class ProfileEngine {
                 if (key === 'Tab') tabHits++;
                 if (key === 'CapsLock') capsLockHits++;
                 if (mathOperators.has(key)) mathHits++;
+                if (key === 'PrintScreen') printScreenHits++;
+                if (key === 'Pause') pauseHits++;
+                if (key === 'ScrollLock') scrollLockHits++;
+                if (key === 'Insert') insertHits++;
 
                 if (key === 'AltLeft' || key === 'AltRight') hasAlt = true;
                 if (key === 'F4') hasF4 = true;
@@ -279,9 +287,170 @@ class ProfileEngine {
                 entropy: normalizedEntropy
             };
         }
-        if (typedString.includes('FUCK') || typedString.includes('SHIT') || typedString.includes('BITCH') || typedString.includes('DAMN') || typedString.includes('ASS')) {
+
+        // --- CALCULATOR EASTER EGGS ---
+        if (typedString.includes('80085') || typedString.toUpperCase().includes('BOOBS')) {
             return {
-                profiles: [{ title: "The Swear Jar", flavor: "Watch your language! This is a Christian Minecraft server." }],
+                profiles: [{ title: "The Calculator Kid", flavor: "80085. You are 12 years old and this is the funniest thing you have ever done. Respect." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.includes('5318008')) {
+            return {
+                profiles: [{ title: "The Upside Down Genius", flavor: "5318008 upside down. You have not changed since 4th grade and honestly neither have we." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.includes('7734')) {
+            return {
+                profiles: [{ title: "The Satanist Calculator", flavor: "7734 upside down on a calculator. Hello indeed. The dark one has been summoned via numpad." }],
+                entropy: normalizedEntropy
+            };
+        }
+
+        // --- INTERNET CULTURE ---
+        if (typedString.includes('69')) {
+            return {
+                profiles: [{ title: "Nice", flavor: "69. Every time. Never gets old. You typed it on purpose and you know it. Nice." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.includes('420')) {
+            return {
+                profiles: [{ title: "The Botanist", flavor: "420. You are either very relaxed right now or you cannot count. Possibly both." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('YOLO')) {
+            return {
+                profiles: [{ title: "The 2013 Throwback", flavor: "YOLO. You Only Live Once, which is exactly why you spent one of your precious seconds typing this." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('YEET')) {
+            return {
+                profiles: [{ title: "The Yeet Lord", flavor: "YEET. Thrown with force. No regrets. This is peak human expression and we will not debate it." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('GITGUD') || typedString.toUpperCase().includes('GIT GUD')) {
+            return {
+                profiles: [{ title: "The Dark Souls Veteran", flavor: "Git gud. You said it to yourself. In a game you are currently losing. Peak self-awareness." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('SENDNUDES') || typedString.toUpperCase().includes('SEND NUDES')) {
+            return {
+                profiles: [{ title: "The Hopeful Romantic", flavor: "Wrong window. The keyboard game cannot send nudes. Have you tried a different app?" }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('WTF')) {
+            return {
+                profiles: [{ title: "The Confused", flavor: "W-T-F. The only valid reaction to this game. We understand completely." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('OMG')) {
+            return {
+                profiles: [{ title: "The Drama Queen", flavor: "OMG. You are emotionally overwhelmed by a 5-second keyboard game. Valid, actually." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('NOOB')) {
+            return {
+                profiles: [{ title: "The Trash Talker", flavor: "You called yourself a noob mid-game. The self-awareness is both impressive and heartbreaking." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('EZ') && totalKeys <= 8) {
+            return {
+                profiles: [{ title: "The Disrespectful One", flavor: "EZ. You typed EZ with 8 keys pressed total. Bro. Please." }],
+                entropy: normalizedEntropy
+            };
+        }
+
+        // --- EXPANDED SWEAR JAR ---
+        if (typedString.toUpperCase().includes('FUCK') || typedString.toUpperCase().includes('SHIT') ||
+            typedString.toUpperCase().includes('BITCH') || typedString.toUpperCase().includes('DAMN') ||
+            typedString.toUpperCase().includes('ASS') || typedString.toUpperCase().includes('CRAP') ||
+            typedString.toUpperCase().includes('HELL') || typedString.toUpperCase().includes('BASTARD') ||
+            typedString.toUpperCase().includes('CUNT') || typedString.toUpperCase().includes('PISS')) {
+            return {
+                profiles: [{ title: "The Swear Jar", flavor: "Watch your language. This is a Muslim Minecraft server. That will be $1 per word. You owe us everything." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('NIGGA')|| typedString.toUpperCase().includes('NIGGER')|| typedString.toUpperCase().includes('NI***')) {
+            return {
+                profiles: [{ title: "The Instagram User", flavor: "You typed NI*** , Spending too much time on Instagram are we?" }],
+                entropy: normalizedEntropy
+            };
+        }
+
+
+        // --- SPACEBAR SUPREMACIST (exclusive) ---
+        if (spaceHits > 5 && spaceHits === totalKeys) {
+            return {
+                profiles: [{ title: "The Spacebar Supremacist", flavor: "Every single keypress was the spacebar. You discovered the biggest key and committed. No regrets. No thoughts. Just space." }],
+                entropy: normalizedEntropy
+            };
+        }
+
+        // --- WINDOWS KEY (exclusive — upgraded from accumulative) ---
+        if (osHits > 0 && osHits / totalKeys > 0) {
+            return {
+                profiles: [{ title: "The Start Menu Sommelier", flavor: "You pressed the Windows key mid-game. The Start Menu opened. Your score survived. Your dignity did not." }],
+                entropy: normalizedEntropy
+            };
+        }
+
+        // --- TYPED STRING EASTER EGGS ---
+        if (typedString.toUpperCase().includes('BESOSMASH')) {
+            return {
+                profiles: [{ title: "The Meta Gamer", flavor: "You typed the name of the game you are currently playing. Extremely self-aware. Extremely unhinged. We respect it." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('HELP')) {
+            return {
+                profiles: [{ title: "The Cry for Help", flavor: "H-E-L-P. In a keyboard smashing game. We cannot help you. No one can. But we appreciate the honesty." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('HELLO')) {
+            return {
+                profiles: [{ title: "The Polite Menace", flavor: "You said hello to a keyboard smashing game. That is either adorable or deeply concerning. Probably both." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('LEET') || typedString.includes('1337')) {
+            return {
+                profiles: [{ title: "The 1337 Fossil", flavor: "l33tsp34k in the year of our lord? Did you time travel from a 2004 gaming forum? Welcome back, old timer. Nothing has gotten better." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('QWERTY')) {
+            return {
+                profiles: [{ title: "The Keyboard Tourist", flavor: "You traced the top row like a tourist reading a subway map. You were not smashing. You were sightseeing." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().startsWith('GG') && totalKeys <= 5) {
+            return {
+                profiles: [{ title: "The E-Sports Veteran", flavor: "GG. Two letters. You typed GG and called it a session. Based." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('ASDF')) {
+            return {
+                profiles: [{ title: "The Home Row Devotee", flavor: "A-S-D-F. Your fingers never left home base. Touch typist? Or just too lazy to move? Either way, respect." }],
+                entropy: normalizedEntropy
+            };
+        }
+        if (typedString.toUpperCase().includes('NICE')) {
+            return {
+                profiles: [{ title: "The Nice Guy", flavor: "You typed NICE. We agree. It is, in fact, quite nice." }],
                 entropy: normalizedEntropy
             };
         }
@@ -421,7 +590,19 @@ class ProfileEngine {
             add("The IT Support", "F1, F5, F12... Are you trying to refresh the page or open the developer console? Did you try turning the keyboard off and on again?");
         }
         if (osHits > 0 && totalKeys < 5) {
-            add("The Windows Key Victim", "Start menu opened, didn't it? Skill issue.");
+            add("The Windows Key Victim", "You opened the Start Menu, the game lost focus, and you typed exactly nothing useful. Skill issue.");
+        }
+        if (printScreenHits > 0) {
+            add("The Screenshot Hoarder", "PrintScreen during a keyboard smashing game. What exactly were you trying to document? The suffering?");
+        }
+        if (pauseHits > 0) {
+            add("The System Interrupter", "You hit Pause. During a 5-second game. There is no pause in life either, but at least you tried.");
+        }
+        if (scrollLockHits > 0) {
+            add("The Scroll Lock Champion", "Scroll Lock. The loneliest key on the keyboard. It does nothing. You pressed it anyway. We see you.");
+        }
+        if (insertHits > 0) {
+            add("The Toggle Archaeologist", "Insert key. You activated Insert mode on a game that has no text cursor. Explorer of the useless. Pioneer of nothing.");
         }
         if (modifierHits / totalKeys > 0.10) {
             add("The Mod Squad", "Shift, Ctrl, Alt... You know these keys don't actually DO anything on their own, right? You're just boldly modifying nothing.");

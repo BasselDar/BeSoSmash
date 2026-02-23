@@ -79,9 +79,8 @@ async function endGame(socket, io) {
     const entropyVal = parseFloat(analysis.entropy) || 0;
     await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal);
 
-    // Fetch the updated leaderboard FOR THIS SPECIFIC MODE
-    const newLeaderboard = await ScoreModel.getLeaderboard(game.mode);
-    io.emit('updateLeaderboard', newLeaderboard);
+    // Signal all clients to re-fetch the leaderboard (client ignores the payload and hits REST API anyway)
+    io.emit('updateLeaderboard');
 
     delete activeGames[socket.id];
 }

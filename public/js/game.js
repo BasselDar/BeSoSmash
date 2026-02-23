@@ -72,7 +72,7 @@ function startGame(mode) {
     localScore = 0;
     keyBuffer = [];
     const name = document.getElementById('username').value.trim();
-    if (!name) return showToast("ENTER A CODENAME!");
+    if (!name) return showToast("ENTER A CODENAME FIRST");
 
     document.getElementById('setup-panel').classList.add('hidden');
     document.getElementById('smash-zone').classList.remove('hidden');
@@ -88,7 +88,7 @@ function startGame(mode) {
 
     document.getElementById('rank-display').innerText = ranks[0].title;
     document.getElementById('rank-display').className = `text-3xl font-black neon-glow ${ranks[0].color}`;
-    document.getElementById('status-text').innerText = "PRESS ANY KEY TO START!";
+    document.getElementById('status-text').innerText = "PRESS ANY KEY TO BEGIN";
     document.getElementById('status-text').classList.add('animate-pulse');
 
     waitingForKey = true;
@@ -103,7 +103,7 @@ function handleFirstKey(e) {
 
     waitingForKey = false;
     document.removeEventListener('keydown', handleFirstKey);
-    document.getElementById('status-text').innerText = "SMASH YOUR KEYBOARD!";
+    document.getElementById('status-text').innerText = "SMASH YOUR KEYBOARD";
     document.getElementById('status-text').classList.remove('animate-pulse');
 
     const name = document.getElementById('username').value.trim();
@@ -289,7 +289,7 @@ socket.on('gameOver', (data) => {
     }
     document.addEventListener('keydown', blockKeys);
 
-    document.getElementById('status-text').innerText = "CALCULATING CHAOS...";
+    document.getElementById('status-text').innerText = "CALCULATING...";
     document.body.style.backgroundColor = '#020617'; // Reset background
 
     setTimeout(() => {
@@ -297,7 +297,7 @@ socket.on('gameOver', (data) => {
         document.removeEventListener('keydown', blockKeys);
 
         document.getElementById('smash-zone').classList.add('hidden');
-        document.getElementById('status-text').innerText = "SMASH YOUR KEYBOARD!";
+        document.getElementById('status-text').innerText = "SMASH YOUR KEYBOARD";
         document.getElementById('status-text').classList.remove('animate-pulse');
 
         // Show Post-Game Summary Panel
@@ -388,7 +388,7 @@ function shareScore() {
     const textToShare = `I just hit ${localScore} keys in BeSoSmash!\nRank: ${finalRank.title} (Global: ${finalAbsoluteRank})\nSpeed: ${(localScore / (gameDuration / 1000)).toFixed(1)} KPS\nChaos: ${finalEntropy}%\nDiagnosis: ${profileText}\n\nPlay now: ${window.location.origin}`;
 
     navigator.clipboard.writeText(textToShare).then(() => {
-        showToast("Score Copied to Clipboard! 📋");
+        showToast("COPIED TO CLIPBOARD");
     }).catch(err => {
         console.error('Failed to copy text: ', err);
         showToast("Failed to copy score.");
