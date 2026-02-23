@@ -67,12 +67,11 @@ async function endGame(socket, io) {
         entropy: analysis.entropy
     });
 
-    // Calculate KPS
-    const gameDurationSeconds = game.mode === 'blitz' ? 2 : 5;
-    const kps = (game.score / gameDurationSeconds).toFixed(1);
-
-    // PASS THE MODE AND NEW METRICS TO THE DATABASE MODEL!
-    await ScoreModel.save(game.name, game.score, game.mode, analysis.entropy, kps);
+    // PASS THE MODE TO THE DATABASE MODEL!
+    const timerDuration = game.mode === 'blitz' ? 2 : 5;
+    const kps = parseFloat((game.score / timerDuration).toFixed(1));
+    const entropyVal = parseFloat(analysis.entropy) || 0;
+    await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal);
 
     // Fetch the updated leaderboard FOR THIS SPECIFIC MODE
     const newLeaderboard = await ScoreModel.getLeaderboard(game.mode);

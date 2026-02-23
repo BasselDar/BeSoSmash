@@ -16,15 +16,12 @@ const initDB = async () => {
                 name VARCHAR(50) NOT NULL,
                 score INTEGER NOT NULL,
                 mode VARCHAR(20) DEFAULT 'classic',
-                entropy NUMERIC(5,2) DEFAULT 0.0,
-                kps NUMERIC(5,1) DEFAULT 0.0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
-        // Migration: add mode column if it doesn't exist
         await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS mode VARCHAR(20) DEFAULT 'classic'`);
-        await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS entropy NUMERIC(5,2) DEFAULT 0.0`);
         await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS kps NUMERIC(5,1) DEFAULT 0.0`);
+        await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS entropy NUMERIC(5,1) DEFAULT 0.0`);
         await pool.query(`CREATE INDEX IF NOT EXISTS idx_score ON scores (score DESC)`);
         console.log("✅ PostgreSQL Connected");
 
@@ -33,13 +30,12 @@ const initDB = async () => {
         console.log("✅ Redis Connected");
 
         // 🔥 CACHE WARM-UP: Load Top 10 from PG into Redis on startup
-        const topScores = await pool.query(`SELECT name, score, entropy, kps FROM scores ORDER BY score DESC LIMIT 10`);
+        const topScores = await pool.query(`SELECT name, score FROM scores ORDER BY score DESC LIMIT 10`);
 
         for (const row of topScores.rows) {
             // ZADD adds to a Sorted Set. 
             // Note: Redis ZSETs require unique values. If someone uses an existing name, it updates their highest score!
             await redisClient.zAdd('leaderboard_classic', { score: row.score, value: row.name });
-            await redisClient.hSet('stats_classic', row.name, JSON.stringify({ entropy: row.entropy, kps: row.kps }));
         }
         console.log("🔥 Redis Cache Warmed Up");
 
@@ -57,27 +53,12 @@ class ScoreModel {
             // zRangeWithScores gets the top 10 (0 to 9) in REVerse order (highest first)
             const results = await redisClient.zRangeWithScores(`leaderboard_${mode}`, 0, 9, { REV: true });
 
-            if (results.length === 0) return [];
-
-            const statsStrings = await Promise.all(
-                results.map(item => redisClient.hGet(`stats_${mode}`, item.value))
-            );
-
             // Redis returns data like: [{ value: 'Admin', score: 100 }, ...]
             // We map it to match our frontend's expected format: [{ name: 'Admin', score: 100 }]
-            return results.map((item, index) => {
-                let stats = { entropy: 0.0, kps: 0.0 };
-                try {
-                    if (statsStrings[index]) stats = JSON.parse(statsStrings[index]);
-                } catch (e) { }
-
-                return {
-                    name: item.value,
-                    score: item.score,
-                    entropy: stats.entropy,
-                    kps: stats.kps
-                };
-            });
+            return results.map(item => ({
+                name: item.value,
+                score: item.score
+            }));
 
         } catch (err) {
             console.error("Error fetching from Redis:", err);
@@ -101,7 +82,7 @@ class ScoreModel {
     static async getPaginatedLeaderboard(mode = 'classic', page = 1, limit = 10, search = '') {
         try {
             const offset = (page - 1) * limit;
-            let query = `SELECT name, score, mode, entropy, kps, created_at FROM scores WHERE mode = $1`;
+            let query = `SELECT name, score, mode, kps, entropy, created_at FROM scores WHERE mode = $1`;
             const queryParams = [mode];
 
             if (search) {
@@ -141,13 +122,12 @@ class ScoreModel {
         }
     }
 
-    static async save(name, score, mode = 'classic', entropy = 0.0, kps = 0.0) {
+    static async save(name, score, mode = 'classic', kps = 0.0, entropy = 0.0) {
         try {
             // Check if player already has a score for this mode
             const checkSql = `SELECT id, score FROM scores WHERE name = $1 AND mode = $2 LIMIT 1`;
             const { rows } = await pool.query(checkSql, [name, mode]);
 
-            let cacheUpdate = false;
             if (rows.length > 0) {
                 // Record exists. Is this a new high score?
                 const existingId = rows[0].id;
@@ -155,25 +135,20 @@ class ScoreModel {
 
                 if (score > existingScore) {
                     // Update to the new higher score
-                    const updateSql = `UPDATE scores SET score = $1, entropy = $2, kps = $3, created_at = CURRENT_TIMESTAMP WHERE id = $4`;
-                    await pool.query(updateSql, [score, entropy, kps, existingId]);
+                    const updateSql = `UPDATE scores SET score = $1, kps = $2, entropy = $3, created_at = CURRENT_TIMESTAMP WHERE id = $4`;
+                    await pool.query(updateSql, [score, kps, entropy, existingId]);
                     console.log(`[DB] Updated high score for ${name} (${mode}): ${existingScore} -> ${score}`);
-                    cacheUpdate = true;
                 }
             } else {
                 // Record doesn't exist. Insert new.
-                const insertSql = `INSERT INTO scores (name, score, mode, entropy, kps) VALUES ($1, $2, $3, $4, $5)`;
-                await pool.query(insertSql, [name, score, mode, entropy, kps]);
+                const insertSql = `INSERT INTO scores (name, score, mode, kps, entropy) VALUES ($1, $2, $3, $4, $5)`;
+                await pool.query(insertSql, [name, score, mode, kps, entropy]);
                 console.log(`[DB] Inserted new score for ${name} (${mode}): ${score}`);
-                cacheUpdate = true;
             }
 
-            if (cacheUpdate) {
-                // 2. CACHE WRITE: Update the Redis Sorted Set ONLY IF greater
-                // The { GT: true } flag ensures Redis only updates the score if the new score is Greater Than the existing score.
-                await redisClient.zAdd(`leaderboard_${mode}`, { score: score, value: name }, { GT: true });
-                await redisClient.hSet(`stats_${mode}`, name, JSON.stringify({ entropy, kps }));
-            }
+            // 2. CACHE WRITE: Update the Redis Sorted Set ONLY IF greater
+            // The { GT: true } flag ensures Redis only updates the score if the new score is Greater Than the existing score.
+            await redisClient.zAdd(`leaderboard_${mode}`, { score: score, value: name }, { GT: true });
 
         } catch (err) {
             console.error("Error saving score:", err);

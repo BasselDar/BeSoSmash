@@ -338,8 +338,8 @@ socket.on('gameOver', (data) => {
             name: document.getElementById('username').value.trim() || 'You',
             score: localScore,
             rank: data.rank,
-            entropy: finalEntropy,
-            kps: finalKPS
+            kps: finalKPS,
+            entropy: finalEntropy
         });
     }, 3000);
 });
@@ -430,12 +430,14 @@ function renderLeaderboard(data, append = false, currentSession = null) {
                     <span class="text-xs font-bold text-yellow-200/70 tracking-widest uppercase flex items-center gap-1 mt-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         ${timeAgo(new Date().toISOString())}
-                        <span class="ml-2 text-rose-400">ENT ${currentSession.entropy || '0.0'}%</span>
-                        <span class="ml-2 text-sky-400">SPD ${currentSession.kps || '0.0'}KPS</span>
                     </span>
                 </div>
-                <div class="text-right z-10">
-                    <span class="font-mono font-black text-4xl text-yellow-300 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] transition-all">${currentSession.score}</span>
+                <div class="text-right z-10 flex flex-col items-end justify-center">
+                    <span class="font-mono font-black text-4xl leading-none text-yellow-300 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] transition-all" title="Total Keys Smashed">${currentSession.score}</span>
+                    <div class="flex gap-2 mt-2">
+                        <span class="text-xs font-bold text-sky-300 bg-sky-900/50 px-2 py-0.5 rounded-sm border border-sky-500/30 shadow-[0_0_10px_rgba(14,165,233,0.3)] cursor-help" title="Keys Per Second (Speed)">⚡ ${currentSession.kps || '0.0'} KPS</span>
+                        <span class="text-xs font-bold text-rose-300 bg-rose-900/50 px-2 py-0.5 rounded-sm border border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.3)] cursor-help" title="Entropy (Input Chaos Level)">🌪️ ${currentSession.entropy || '0'}%</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -474,12 +476,14 @@ function renderLeaderboard(data, append = false, currentSession = null) {
                     <span class="text-xs font-bold text-slate-500 tracking-widest uppercase flex items-center gap-1 mt-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         ${timeAgo(player.created_at)}
-                        <span class="ml-2 text-rose-400">ENT ${player.entropy || '0.0'}%</span>
-                        <span class="ml-2 text-sky-400">SPD ${player.kps || '0.0'}KPS</span>
                     </span>
                 </div>
-                <div class="text-right z-10">
-                    <span class="font-mono font-black text-3xl md:text-4xl text-${themeColor}-500 group-hover:text-${themeColor}-400 group-hover:drop-shadow-[0_0_15px_rgba(var(--color-${themeColor}-500),0.8)] transition-all">${player.score}</span>
+                <div class="text-right z-10 flex flex-col items-end justify-center">
+                    <span class="font-mono font-black text-3xl md:text-4xl leading-none text-${themeColor}-500 group-hover:text-${themeColor}-400 group-hover:drop-shadow-[0_0_15px_rgba(var(--color-${themeColor}-500),0.8)] transition-all" title="Total Keys Smashed">${player.score}</span>
+                    <div class="flex gap-2 mt-2">
+                        <span class="text-xs font-bold text-sky-400 bg-black/40 px-2 py-0.5 rounded-sm border border-sky-500/50 cursor-help" title="Keys Per Second (Speed)">⚡ ${player.kps || '0.0'}</span>
+                        <span class="text-xs font-bold text-rose-400 bg-black/40 px-2 py-0.5 rounded-sm border border-rose-500/50 cursor-help" title="Entropy (Input Chaos Level)">🌪️ ${player.entropy || '0'}%</span>
+                    </div>
                 </div>
             </div>
         `;

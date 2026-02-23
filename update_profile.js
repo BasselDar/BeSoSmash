@@ -32,7 +32,7 @@ code = code.replace(
 );
 
 // Replace all other buildResult returns
-code = code.replace(/return buildResult\\(/g, 'addProfile(');
+code = code.replace(/return buildResult\(/g, 'addProfile(');
 
 // Replace the end
 const endTarget = `// --- 9. DEFAULT FALLBACK ---
