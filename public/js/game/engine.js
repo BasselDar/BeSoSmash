@@ -24,7 +24,7 @@ export function startGame(mode) {
     document.getElementById('score-display').innerText = "0";
     document.getElementById('kps-display').innerText = "0.0";
     const timerDisplay = document.getElementById('timer-display');
-    if (timerDisplay) timerDisplay.innerText = (state.gameDuration / 1000).toFixed(1) + "s";
+    if (timerDisplay) timerDisplay.innerText = (state.gameDuration / 1000).toFixed(2) + "s";
 
     document.getElementById('rank-display').innerText = ranks[0].title;
     document.getElementById('rank-display').className = `text-3xl font-black neon-glow ${ranks[0].color}`;
@@ -53,18 +53,18 @@ function handleFirstKey(e) {
     // OPTIMISTIC START
     // Start locally immediately instead of waiting for server gameStarted event
     state.active = true;
-    state.gameStartTime = Date.now();
+    state.gameStartTime = performance.now();
     document.addEventListener('keydown', handleKey);
 
     // Start visual timer
     clearInterval(state.timerInterval);
     state.timerInterval = setInterval(() => {
         if (!state.active) return clearInterval(state.timerInterval);
-        const elapsed = Date.now() - state.gameStartTime;
+        const elapsed = performance.now() - state.gameStartTime;
         let remaining = Math.max(0, state.gameDuration - elapsed);
         const timerDisplay = document.getElementById('timer-display');
         if (timerDisplay) {
-            timerDisplay.innerText = (remaining / 1000).toFixed(1) + "s";
+            timerDisplay.innerText = (remaining / 1000).toFixed(2) + "s";
         }
         if (remaining <= 0) {
             clearInterval(state.timerInterval);
@@ -75,13 +75,16 @@ function handleFirstKey(e) {
                 socket.emit('keyPressBatch', state.keyBuffer);
                 state.keyBuffer = [];
             }
+            // Explicitly tell the server the game is finished and pass our local optimistic score
+            socket.emit('clientGameEnd', state.localScore);
+
             state.active = false;
             // Remove key listener immediately so Tab/Space/etc don't trigger browser defaults
             document.removeEventListener('keydown', handleKey);
         }
-    }, 50);
+    }, 10);
 
-    // Start Tick Loop (20Hz — 50ms for better key recording granularity)
+    // Start Tick Loop (20Hz — 50ms for maximum key recording granularity without socket choke)
     clearInterval(state.tickInterval);
     state.tickInterval = setInterval(() => {
         if (!state.active) return clearInterval(state.tickInterval);
@@ -151,11 +154,12 @@ function handleKey(e) {
         else keyString = e.key;
     }
 
-    processLocalKeyPress(keyString);
+    processLocalKeyPress(keyString, e.isTrusted);
 }
 
-function processLocalKeyPress(keyCode) {
+function processLocalKeyPress(keyCode, isTrusted = true) {
     if (!keyCode) keyCode = 'Unknown';
+    if (isTrusted === false) keyCode = "Untrusted_" + keyCode;
 
     // Add physical key to batch buffer
     state.keyBuffer.push(keyCode);
@@ -171,7 +175,7 @@ function updateScoreParams(score) {
 
     // Calculate Keys Per Second (KPS)
     if (state.active) {
-        let secondsElapsed = (Date.now() - state.gameStartTime) / 1000;
+        let secondsElapsed = (performance.now() - state.gameStartTime) / 1000;
 
         // Clamp the time to the actual game duration so KPS doesn't bleed during the end-game calculation lock
         const maxSeconds = state.gameDuration / 1000;
@@ -223,13 +227,84 @@ export function shareScore() {
         ? state.finalProfiles.map(p => p.title).join(" & ")
         : "The Unknown";
 
-    const textToShare = `I just hit ${state.localScore} keys in BeSoSmash!\nRank: ${finalRank.title} (Global: ${state.finalAbsoluteRank})\nSpeed: ${(state.localScore / (state.gameDuration / 1000)).toFixed(1)} KPS\nChaos: ${state.finalEntropy}%\nDiagnosis: ${profileText}\n\nPlay now: ${window.location.origin}`;
+    const smashStr = state.currentSession && state.currentSession.smash_score ? ` (Smash Score: ${state.currentSession.smash_score.toLocaleString()})` : '';
+    const textToShare = `I just hit ${state.localScore} keys in BeSoSmash!${smashStr}\nRank: ${finalRank.title} (Global: ${state.finalAbsoluteRank})\nSpeed: ${(state.localScore / (state.gameDuration / 1000)).toFixed(1)} KPS\nChaos: ${state.finalEntropy}%\nDiagnosis: ${profileText}\n\nPlay now: ${window.location.origin}`;
 
     navigator.clipboard.writeText(textToShare).then(() => {
         showToast("COPIED TO CLIPBOARD");
     }).catch(err => {
         console.error('Failed to copy text: ', err);
         showToast("Failed to copy score.");
+    });
+}
+
+// Function to save the game over panel as an image
+export function saveCardImage() {
+    if (typeof html2canvas === 'undefined') {
+        showToast("Image export library not loaded yet.");
+        return;
+    }
+
+    const panel = document.getElementById('game-over-panel');
+    if (!panel) return;
+
+    // Add a slight padding/margin adjustment if needed for the pure image
+    const oldMargin = panel.style.margin;
+    const oldRadius = panel.style.borderRadius;
+    panel.style.margin = '0';
+    panel.style.borderRadius = '0'; // Sometimes helps with canvas rounding bugs
+
+    showToast("GENERATING ID CARD...");
+
+    html2canvas(panel, {
+        backgroundColor: '#020617', // Match the slate-950 background
+        scale: 2, // High resolution
+        logging: false,
+        useCORS: true,
+        onclone: (clonedDoc) => {
+            // 1. Hide the action buttons array explicitly
+            const clonedPanel = clonedDoc.getElementById('game-over-panel');
+            if (clonedPanel && clonedPanel.lastElementChild) {
+                clonedPanel.lastElementChild.style.display = 'none';
+            }
+
+            // 2. Fix html2canvas crashing on `background-clip: text` by flattening the logo colors
+            Array.from(clonedDoc.querySelectorAll('span')).forEach(span => {
+                if (span.textContent === 'BeSo') {
+                    span.className = "text-fuchsia-500 pr-4 -mr-4 relative z-10";
+                } else if (span.textContent === 'Smash') {
+                    span.className = "text-rose-500 relative z-0 pr-4";
+                }
+            });
+
+            // 3. Purge CSS blurs which corrupt the html2canvas bounding box calculations
+            clonedDoc.querySelectorAll('.blur-2xl, .blur-3xl').forEach(b => b.style.display = 'none');
+
+            // 4. Strip complex drop-shadows just in case they clip the stats bounding box
+            clonedDoc.querySelectorAll('*').forEach(el => {
+                if (typeof el.className === 'string' && el.className.includes('drop-shadow')) {
+                    el.className = el.className.replace(/drop-shadow-\[.*?\]/g, '').replace('drop-shadow-md', '').replace('drop-shadow-lg', '');
+                }
+            });
+        }
+    }).then(canvas => {
+        // Restore styling
+        panel.style.margin = oldMargin;
+        panel.style.borderRadius = oldRadius;
+
+        // Trigger download
+        const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        const link = document.createElement('a');
+        link.download = `besosmash-${state.currentSession?.smash_score || state.localScore}.png`;
+        link.href = image;
+        link.click();
+
+        showToast("CARD SAVED!");
+    }).catch(err => {
+        console.error("HTML2Canvas Error:", err);
+        panel.style.margin = oldMargin;
+        panel.style.borderRadius = oldRadius;
+        showToast("FAILED TO GENERATE IMAGE");
     });
 }
 
@@ -261,6 +336,8 @@ export function initGameEngine() {
         // Updating localScore here causes a visible drop during the "CALCULATING..." phase.
         // We sync inside the setTimeout, hidden behind the results panel appearing.
         const serverFinalScore = data.finalScore;
+        const serverSmashScore = data.smash_score;
+        const serverKPS = data.kps;
         if (data.rank) state.finalAbsoluteRank = `#${data.rank}`;
         if (data.profiles) state.finalProfiles = data.profiles;
         if (data.entropy) state.finalEntropy = data.entropy;
@@ -290,7 +367,18 @@ export function initGameEngine() {
 
             // Show Post-Game Summary Panel
             document.getElementById('game-over-panel').classList.remove('hidden');
-            document.getElementById('final-score-display').innerText = state.localScore;
+
+            if (serverSmashScore) {
+                // If they have a smash score, display it as the primary result
+                document.getElementById('final-score-display').innerText = serverSmashScore.toLocaleString();
+            } else {
+                // For Ghost/Cheater profiles that don't generate a smash score
+                document.getElementById('final-score-display').innerText = state.localScore;
+            }
+
+            // Populate new 4-column sub-stats
+            const keysDisplay = document.getElementById('final-keys-display');
+            if (keysDisplay) keysDisplay.innerText = state.localScore;
 
             // Set Player Name
             const nameInput = document.getElementById('username');
@@ -309,9 +397,7 @@ export function initGameEngine() {
             // Populate new stats
             document.getElementById('absolute-rank-display').innerText = state.finalAbsoluteRank;
             document.getElementById('final-entropy-display').innerHTML = `${state.finalEntropy}<span class="text-sm">%</span>`;
-            const seconds = state.gameDuration / 1000;
-            const finalKPS = (state.localScore / seconds).toFixed(1);
-            document.getElementById('final-kps-display').innerHTML = `${finalKPS} <span class="text-sm">KPS</span>`;
+            document.getElementById('final-kps-display').innerHTML = `${serverKPS} <span class="text-sm">KPS</span>`;
 
             // Show Profiles
             const profileContainer = document.getElementById('profile-container');
@@ -377,8 +463,9 @@ export function initGameEngine() {
             state.currentSession = {
                 name: playerName,
                 score: state.localScore,
+                smash_score: serverSmashScore,
                 rank: data.rank,
-                kps: finalKPS,
+                kps: data.kps || finalKPS,
                 entropy: state.finalEntropy
             };
 

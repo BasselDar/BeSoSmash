@@ -33,8 +33,11 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
                     </span>
                 </div>
                 <div class="text-right z-10 flex flex-col items-end justify-center">
-                    <span class="font-mono font-black text-4xl leading-none text-yellow-300 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] transition-all" title="Total Keys Smashed">${currentSession.score}</span>
+                    <span class="font-mono font-black text-4xl leading-none text-yellow-300 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] transition-all flex items-center gap-2" title="Smash Score (Includes speed & chaos bonus!)">
+                        ${currentSession.smash_score != null ? currentSession.smash_score.toLocaleString() : '---'} <span class="text-xs text-yellow-500/50 cursor-help bg-black/40 rounded-full w-5 h-5 flex items-center justify-center border border-yellow-500/20">?</span>
+                    </span>
                     <div class="flex gap-2 mt-2">
+                        <span class="text-xs font-bold text-amber-300 bg-amber-900/50 px-2 py-0.5 rounded-sm border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.3)] cursor-help" title="Raw Keys Smashed">⌨️ ${currentSession.score}</span>
                         <span class="text-xs font-bold text-sky-300 bg-sky-900/50 px-2 py-0.5 rounded-sm border border-sky-500/30 shadow-[0_0_10px_rgba(14,165,233,0.3)] cursor-help" title="Keys Per Second (Speed)">⚡ ${currentSession.kps || '0.0'} KPS</span>
                         <span class="text-xs font-bold text-rose-300 bg-rose-900/50 px-2 py-0.5 rounded-sm border border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.3)] cursor-help" title="Entropy (Input Chaos Level)">🌪️ ${currentSession.entropy || '0'}%</span>
                     </div>
@@ -50,8 +53,8 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
     }
 
     data.forEach((player, index) => {
-        // Absolute rank across pagination: (page - 1) * limit + index + 1
-        const rank = (state.currentLeaderboardPage - 1) * 10 + index + 1;
+        // Absolute rank is now provided directly from the database Window Function! This means when searching, they retain their true global rank.
+        const rank = parseInt(player.global_rank, 10);
 
         let medalHtml = `<span class="text-slate-500 font-mono text-xl w-10 text-center bg-slate-800/80 py-1 rounded-lg">#${rank}</span>`;
         if (rank === 1) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]">🥇</span>`;
@@ -79,8 +82,11 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
                     </span>
                 </div>
                 <div class="text-right z-10 flex flex-col items-end justify-center">
-                    <span class="font-mono font-black text-3xl md:text-4xl leading-none text-${themeColor}-500 group-hover:text-${themeColor}-400 group-hover:drop-shadow-[0_0_15px_rgba(var(--color-${themeColor}-500),0.8)] transition-all" title="Total Keys Smashed">${player.score}</span>
+                    <span class="font-mono font-black text-3xl md:text-4xl leading-none text-${themeColor}-500 group-hover:text-${themeColor}-400 group-hover:drop-shadow-[0_0_15px_rgba(var(--color-${themeColor}-500),0.8)] transition-all flex items-center gap-2" title="Smash Score (Includes speed & chaos bonus!)">
+                        ${player.smash_score != null ? parseInt(player.smash_score).toLocaleString() : '---'} <span class="text-xs text-${themeColor}-500/50 cursor-help bg-white/5 rounded-full w-5 h-5 flex items-center justify-center border border-${themeColor}-500/20">?</span>
+                    </span>
                     <div class="flex gap-2 mt-2">
+                        <span class="text-xs font-bold text-slate-300 bg-black/40 px-2 py-0.5 rounded-sm border border-slate-500/50 cursor-help" title="Raw Keys Smashed">⌨️ ${player.score}</span>
                         <span class="text-xs font-bold text-sky-400 bg-black/40 px-2 py-0.5 rounded-sm border border-sky-500/50 cursor-help" title="Keys Per Second (Speed)">⚡ ${player.kps || '0.0'}</span>
                         <span class="text-xs font-bold text-rose-400 bg-black/40 px-2 py-0.5 rounded-sm border border-rose-500/50 cursor-help" title="Entropy (Input Chaos Level)">🌪️ ${player.entropy || '0'}%</span>
                     </div>
@@ -220,11 +226,8 @@ export function initLeaderboard() {
         });
     }
 
-    // Real-Time Leaderboard Update (Fallback if page 1 & no search)
+    // Real-Time Leaderboard Update (Fully Live Everywhere)
     socket.on('updateLeaderboard', () => {
-        // Only auto-refresh if we are looking at the default view
-        if (state.currentLeaderboardPage === 1 && state.currentLeaderboardSearch === '') {
-            fetchLeaderboard(false);
-        }
+        fetchLeaderboard(false);
     });
 }

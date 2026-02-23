@@ -45,6 +45,19 @@ module.exports = (io) => {
             }
         });
 
+        socket.on('clientGameEnd', (clientScore) => {
+            const game = activeGames[socket.id];
+            if (game && game.isActive) {
+                // OPTIMISTIC SYNC:
+                // Trust the client's final score if it's within 300 keys to account for packet latency drops.
+                if (typeof clientScore === 'number' && clientScore > game.score && (clientScore - game.score) <= 300) {
+                    game.score = clientScore;
+                }
+
+                // Do NOT end the game here. Wait for the 1500ms server grace period padding to finish natively.
+            }
+        });
+
         socket.on('disconnect', () => {
             delete activeGames[socket.id];
         });
@@ -57,29 +70,40 @@ async function endGame(socket, io) {
 
     game.isActive = false;
 
-    // FETCH THE UPDATED ABSOLUTE GLOBAL RANK FOR THIS SPECIFIC SCORE RUN
-    // We want to know how many players have a score strictly STRONGER than this current run.
-    const playerRank = await ScoreModel.getRank(game.score, game.mode);
-
     // Analyze personality profiles based on keystroke history (can be multiple!)
     const analysis = ProfileEngine.analyze(game.keyHistory, game.mode);
 
-    // Tell the player it's over
+    let playerRank = null;
+    let smashScore = null;
+
+    // Only process rankings and database insertion if they are NOT a cheater
+    if (!analysis.isCheater) {
+        // Calculate the authoritative Smash Score for ranking
+        const timerDuration = game.mode === 'blitz' ? 2 : 5;
+        const kps = parseFloat((game.score / timerDuration).toFixed(1));
+        const entropyVal = parseFloat(analysis.entropy) || 0;
+
+        smashScore = (game.score * 1000) + Math.round(entropyVal * 10) + Math.round(kps * 10);
+
+        // FETCH THE UPDATED ABSOLUTE GLOBAL RANK FOR THIS SPECIFIC SCORE RUN
+        playerRank = await ScoreModel.getRank(smashScore, game.mode);
+
+        // PASS THE MODE TO THE DATABASE MODEL!
+        await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal);
+
+        // Signal all clients to re-fetch the leaderboard (client ignores the payload and hits REST API anyway)
+        io.emit('updateLeaderboard');
+    }
+
+    // Tell the player it's over (we still send the game over payload to them, just no DB/LB save)
     socket.emit('gameOver', {
         finalScore: game.score,
+        smash_score: smashScore,
+        kps: game.mode === 'blitz' ? parseFloat((game.score / 2).toFixed(1)) : parseFloat((game.score / 5).toFixed(1)),
         rank: playerRank,
         profiles: analysis.profiles,
         entropy: analysis.entropy
     });
-
-    // PASS THE MODE TO THE DATABASE MODEL!
-    const timerDuration = game.mode === 'blitz' ? 2 : 5;
-    const kps = parseFloat((game.score / timerDuration).toFixed(1));
-    const entropyVal = parseFloat(analysis.entropy) || 0;
-    await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal);
-
-    // Signal all clients to re-fetch the leaderboard (client ignores the payload and hits REST API anyway)
-    io.emit('updateLeaderboard');
 
     delete activeGames[socket.id];
 }

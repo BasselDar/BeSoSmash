@@ -43,7 +43,8 @@ class ProfileEngine {
                     title: "The Ghost",
                     flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up."
                 }],
-                entropy: 0.0
+                entropy: 0.0,
+                isCheater: true // Reject blank scores
             };
         }
 
@@ -56,6 +57,7 @@ class ProfileEngine {
 
         let metronomeCheats = 0;
         let maxRowSmashInSingleTick = 0;
+        let untrustedHits = 0;
 
         let vowelHits = 0;
         let fKeyHits = 0;
@@ -106,7 +108,12 @@ class ProfileEngine {
 
             let rowCounts = [0, 0, 0];
 
-            for (const key of tick) {
+            for (let key of tick) {
+                if (typeof key === 'string' && key.startsWith('Untrusted_')) {
+                    untrustedHits++;
+                    key = key.replace('Untrusted_', ''); // Remove prefix for normal parsing
+                }
+
                 uniqueKeysSet.add(key);
                 keyCounts[key] = (keyCounts[key] || 0) + 1;
 
@@ -181,7 +188,8 @@ class ProfileEngine {
                     title: "The Ghost",
                     flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up."
                 }],
-                entropy: 0.0
+                entropy: 0.0,
+                isCheater: true
             };
         }
 
@@ -219,22 +227,34 @@ class ProfileEngine {
         }
 
         // --- 1. CHEATERS / MACROS (Highest Priority) ---
-        if (totalKeys > 500) {
+        if (untrustedHits > 0) {
+            return {
+                profiles: [{ title: "The Script Kiddie", flavor: "Nice try injecting JavaScript directly into the DOM. Caught in 4K." }],
+                entropy: normalizedEntropy,
+                isCheater: true
+            };
+        }
+        const maxHardwareKeys = mode === 'blitz' ? 150 : 350;
+        if (totalKeys > maxHardwareKeys) {
             return {
                 profiles: [{ title: "The Hardware Spoof", flavor: "Your keyboard physically cannot send data this fast. Busted." }],
-                entropy: normalizedEntropy
+                entropy: normalizedEntropy,
+                isCheater: true
             };
         }
         if (metronomeCheats > 20) {
             return {
-                profiles: [{ title: "The Metronome", flavor: "Perfectly robotic rhythm, 11+ inputs every 50ms, over 20 consecutive ticks. That is not a human. That is a cron job." }],
-                entropy: normalizedEntropy
+                profiles: [{ title: "The Metronome", flavor: "Perfectly robotic rhythm, 11+ inputs per tick, over 20 consecutive ticks. That is not a human. That is a cron job." }],
+                entropy: normalizedEntropy,
+                isCheater: true
             };
         }
-        if (totalKeys > 150 && uniqueKeys < 7 && mode === 'classic') {
+        const maxMacroKeys = mode === 'blitz' ? 100 : 250;
+        if (totalKeys > maxMacroKeys && uniqueKeys <= 4) {
             return {
-                profiles: [{ title: "The Script Kiddie", flavor: "Wow, perfect rhythm and impossible speed. Exactly the same inputs without human error. Nice macro, nerd. Your score has been invalidated... mentally." }],
-                entropy: normalizedEntropy
+                profiles: [{ title: "The Macro Spammer", flavor: "Wow, perfect rhythm and impossible speed. Exactly the same inputs without human error. Nice macro, nerd. Your score has been invalidated... mentally." }],
+                entropy: normalizedEntropy,
+                isCheater: true
             };
         }
 
@@ -671,7 +691,8 @@ class ProfileEngine {
 
         return {
             profiles: matched,
-            entropy: normalizedEntropy
+            entropy: normalizedEntropy,
+            isCheater: false
         };
     }
 }
