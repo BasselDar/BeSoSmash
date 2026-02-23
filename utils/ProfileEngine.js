@@ -170,7 +170,7 @@ class ProfileEngine {
                 maxRowSmashInSingleTick = maxInTick;
             }
 
-            if (tickCount > 6) {
+            if (tickCount > 10) {
                 metronomeCheats++;
             }
         }
@@ -225,9 +225,9 @@ class ProfileEngine {
                 entropy: normalizedEntropy
             };
         }
-        if (metronomeCheats > 8) {
+        if (metronomeCheats > 20) {
             return {
-                profiles: [{ title: "The Metronome", flavor: "Exactly 8 inputs every 100ms. Nice macro, nerd. Invalidated." }],
+                profiles: [{ title: "The Metronome", flavor: "Perfectly robotic rhythm, 11+ inputs every 50ms, over 20 consecutive ticks. That is not a human. That is a cron job." }],
                 entropy: normalizedEntropy
             };
         }
@@ -381,7 +381,7 @@ class ProfileEngine {
                 entropy: normalizedEntropy
             };
         }
-        if (typedString.toUpperCase().includes('NIGGA')|| typedString.toUpperCase().includes('NIGGER')|| typedString.toUpperCase().includes('NI***')) {
+        if (typedString.toUpperCase().includes('NIGGA') || typedString.toUpperCase().includes('NIGGER') || typedString.toUpperCase().includes('NI***')) {
             return {
                 profiles: [{ title: "The Instagram User", flavor: "You typed NI*** , Spending too much time on Instagram are we?" }],
                 entropy: normalizedEntropy
@@ -620,7 +620,8 @@ class ProfileEngine {
         }
 
         // --- 8. PACING & TIMING ---
-        const expectedTicks = mode === 'blitz' ? 20 : 50;
+        // Tick rate is 50ms — classic = 100 ticks, blitz = 40 ticks
+        const expectedTicks = mode === 'blitz' ? 40 : 100;
         const gameSeconds = mode === 'blitz' ? 2 : 5;
         let finalKPS = totalKeys / gameSeconds;
 

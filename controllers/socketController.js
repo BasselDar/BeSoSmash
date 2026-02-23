@@ -37,10 +37,9 @@ module.exports = (io) => {
 
             if (game && game.isActive) {
                 if (Array.isArray(keys) && keys.length > 0) {
-                    // Cap to 8 keys per 100ms tick — human physical limit, prevents spoofing
-                    const safeBatch = keys.slice(0, 8);
-                    game.score += safeBatch.length;
-                    game.keyHistory.push(safeBatch); // Save the physical batch of keys pressed in this 100ms tick
+                    // No server-side cap — macro users are accepted and shamed via ProfileEngine diagnosis
+                    game.score += keys.length;
+                    game.keyHistory.push(keys); // Save the physical batch of keys pressed in this 100ms tick
                     socket.emit('scoreUpdate', game.score);
                 }
             }

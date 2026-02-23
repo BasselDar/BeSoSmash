@@ -140,7 +140,7 @@ function handleFirstKey(e) {
         }
     }, 50);
 
-    // Start Tick Loop (10Hz)
+    // Start Tick Loop (20Hz — 50ms for better key recording granularity)
     clearInterval(tickInterval);
     tickInterval = setInterval(() => {
         if (!active) return clearInterval(tickInterval);
@@ -148,7 +148,7 @@ function handleFirstKey(e) {
             socket.emit('keyPressBatch', keyBuffer);
             keyBuffer = []; // Empty the buffer
         }
-    }, 100);
+    }, 50);
 
     processLocalKeyPress(e.code);
 }
@@ -274,12 +274,13 @@ socket.on('gameOver', (data) => {
     const timerDisplay = document.getElementById('timer-display');
     if (timerDisplay) timerDisplay.innerText = "0.0s"; // Force end
 
-    // Sync to final authoritative score from server
-    localScore = data.finalScore;
+    // Store server's authoritative values WITHOUT touching the live score display.
+    // Updating localScore here causes a visible drop during the "CALCULATING..." phase.
+    // We sync inside the setTimeout, hidden behind the results panel appearing.
+    const serverFinalScore = data.finalScore;
     if (data.rank) finalAbsoluteRank = `#${data.rank}`;
     if (data.profiles) finalProfiles = data.profiles;
     if (data.entropy) finalEntropy = data.entropy;
-    updateScoreParams(localScore);
 
     document.removeEventListener('keydown', handleKey);
 
@@ -293,6 +294,10 @@ socket.on('gameOver', (data) => {
     document.body.style.backgroundColor = '#020617'; // Reset background
 
     setTimeout(() => {
+        // Sync to authoritative server score NOW — smash-zone is about to be hidden
+        // so there's no visible drop in the live score display
+        localScore = serverFinalScore;
+
         // Unblock keys once the results panel is visible
         document.removeEventListener('keydown', blockKeys);
 

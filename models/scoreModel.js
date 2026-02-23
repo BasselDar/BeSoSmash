@@ -47,24 +47,6 @@ const initDB = async () => {
 initDB();
 
 class ScoreModel {
-    static async getLeaderboard(mode = 'classic') {
-        try {
-            // 🚀 FAST READ: We only read from Redis now! O(log N) speed.
-            // zRangeWithScores gets the top 10 (0 to 9) in REVerse order (highest first)
-            const results = await redisClient.zRangeWithScores(`leaderboard_${mode}`, 0, 9, { REV: true });
-
-            // Redis returns data like: [{ value: 'Admin', score: 100 }, ...]
-            // We map it to match our frontend's expected format: [{ name: 'Admin', score: 100 }]
-            return results.map(item => ({
-                name: item.value,
-                score: item.score
-            }));
-
-        } catch (err) {
-            console.error("Error fetching from Redis:", err);
-            return [];
-        }
-    }
 
     static async getRank(score, mode = 'classic') {
         try {
