@@ -182,7 +182,7 @@ export function createPageButton(pageNum, isActive) {
 }
 
 // Fetch Leaderboard API
-export async function fetchLeaderboard(append = false, currentSession = null) {
+export async function fetchLeaderboard(append = false) {
     if (state.isLeaderboardLoading) return;
     state.isLeaderboardLoading = true;
 
@@ -192,7 +192,7 @@ export async function fetchLeaderboard(append = false, currentSession = null) {
         const json = await res.json();
 
         state.hasMoreLeaderboard = json.pagination.hasMore;
-        renderLeaderboard(json.data, append, currentSession);
+        renderLeaderboard(json.data, append, state.currentSession);
         renderPagination(json.pagination);
     } catch (err) {
         console.error("Error fetching leaderboard", err);

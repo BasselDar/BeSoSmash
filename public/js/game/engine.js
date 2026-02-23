@@ -198,8 +198,12 @@ function updateScoreParams(score) {
 
 // Function to reset the game from summary screen back to setup
 export function resetGame() {
+    state.currentSession = null;
     document.getElementById('game-over-panel').classList.add('hidden');
     document.getElementById('setup-panel').classList.remove('hidden');
+
+    // Refresh leaderboard to remove the pinned session
+    fetchLeaderboard(false);
 }
 
 // Function to copy score to clipboard
@@ -288,6 +292,11 @@ export function initGameEngine() {
             document.getElementById('game-over-panel').classList.remove('hidden');
             document.getElementById('final-score-display').innerText = state.localScore;
 
+            // Set Player Name
+            const nameInput = document.getElementById('username');
+            const playerName = (nameInput ? nameInput.value.trim() : '') || 'PLAYER';
+            document.getElementById('final-name-display').innerText = playerName;
+
             // Match Rank Display
             let finalRank = ranks[0];
             for (let r of ranks) {
@@ -307,27 +316,55 @@ export function initGameEngine() {
             // Show Profiles
             const profileContainer = document.getElementById('profile-container');
             if (profileContainer) {
-                profileContainer.innerHTML = '<h3 class="text-xs font-bold text-slate-500 tracking-widest uppercase mb-3">DIAGNOSIS</h3>';
+                profileContainer.innerHTML = '';
 
                 if (state.finalProfiles && state.finalProfiles.length > 0) {
+                    const palettes = [
+                        { text: "text-purple-400", border: "border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.3)] bg-purple-900/20" },
+                        { text: "text-amber-400", border: "border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] bg-amber-900/20" },
+                        { text: "text-sky-400", border: "border-sky-500/50 shadow-[0_0_15px_rgba(14,165,233,0.3)] bg-sky-900/20" },
+                        { text: "text-emerald-400", border: "border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] bg-emerald-900/20" },
+                        { text: "text-rose-400", border: "border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)] bg-rose-900/20" },
+                        { text: "text-fuchsia-400", border: "border-fuchsia-500/50 shadow-[0_0_15px_rgba(217,70,239,0.3)] bg-fuchsia-900/20" },
+                        { text: "text-yellow-400", border: "border-yellow-400/50 shadow-[0_0_15px_rgba(250,204,21,0.3)] bg-yellow-900/20" },
+                        { text: "text-indigo-400", border: "border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.3)] bg-indigo-900/20" },
+                        { text: "text-orange-400", border: "border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.3)] bg-orange-900/20" },
+                        { text: "text-pink-400", border: "border-pink-500/50 shadow-[0_0_15px_rgba(236,72,153,0.3)] bg-pink-900/20" },
+                        { text: "text-cyan-400", border: "border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.3)] bg-cyan-900/20" }
+                    ];
+
                     state.finalProfiles.forEach(prof => {
-                        let colorClass = "text-purple-400"; // default
-                        if (prof.title === "The Gorilla" || prof.title === "The Silverback") colorClass = "text-amber-500";
-                        else if (prof.title === "The Sweaty Tryhard") colorClass = "text-blue-500";
-                        else if (prof.title === "The Angry Accountant") colorClass = "text-emerald-500";
-                        else if (prof.title === "The Script Kiddie") colorClass = "text-red-600 animate-pulse";
+                        // Dynamic consistent hash assignment
+                        let hash = 0;
+                        for (let i = 0; i < prof.title.length; i++) hash = prof.title.charCodeAt(i) + ((hash << 5) - hash);
+                        hash = Math.abs(hash);
+                        let palette = palettes[hash % palettes.length];
+
+                        // Specific overrides
+                        if (prof.title === "The Script Kiddie" || prof.title === "The Hexadecimal") {
+                            palette = { text: "text-red-600 animate-pulse", border: "border-red-600/50 shadow-[0_0_15px_rgba(220,38,38,0.4)] bg-red-900/20" };
+                        }
+                        else if (prof.title === "The Sweaty Tryhard" || prof.title === "The MOBA Toxic") {
+                            palette = { text: "text-blue-500", border: "border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)] bg-blue-900/20" };
+                        }
+                        else if (prof.title === "The Gorilla" || prof.title === "The Silverback") {
+                            palette = { text: "text-amber-500", border: "border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] bg-amber-900/20" };
+                        }
 
                         profileContainer.innerHTML += `
-                            <div class="mb-4 last:mb-0 bg-black/30 p-3 rounded-lg border border-white/5">
-                                <p class="text-lg font-black ${colorClass} uppercase drop-shadow-md leading-none">${prof.title}</p>
-                                <p class="text-sm font-bold text-slate-400 mt-2 italic px-2">"${prof.flavor}"</p>
+                            <div class="${palette.border} p-4 rounded-xl border border-t-2 relative overflow-hidden transform hover:scale-[1.02] transition-transform flex flex-col justify-center h-full text-center">
+                                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-1000"></div>
+                                <p class="text-xl md:text-2xl font-black ${palette.text} uppercase drop-shadow-md leading-none z-10 relative">${prof.title}</p>
+                                <p class="text-sm font-bold text-slate-300 mt-2 italic px-2 z-10 relative">"${prof.flavor}"</p>
                             </div>
                         `;
                     });
                 } else {
-                    profileContainer.innerHTML += `
-                        <p class="text-xl font-black text-rose-400 uppercase drop-shadow-md">THE UNKNOWN</p>
-                        <p class="text-sm font-bold text-slate-400 mt-2 italic px-2">"Waiting for analysis..."</p>
+                    profileContainer.innerHTML = `
+                        <div class="col-span-full border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)] bg-rose-900/20 p-4 rounded-xl border border-t-2 relative flex flex-col justify-center items-center">
+                            <p class="text-2xl md:text-3xl font-black text-rose-400 uppercase drop-shadow-[0_0_10px_rgba(251,113,133,0.5)]">THE UNKNOWN</p>
+                            <p class="text-sm font-bold text-slate-400 mt-2 italic px-2">"Entity unclassifiable."</p>
+                        </div>
                     `;
                 }
             }
@@ -337,14 +374,15 @@ export function initGameEngine() {
             if (lbSection) lbSection.classList.remove('hidden');
 
             state.currentLeaderboardPage = 1;
-            const nameInput = document.getElementById('username');
-            fetchLeaderboard(false, {
-                name: (nameInput ? nameInput.value.trim() : '') || 'You',
+            state.currentSession = {
+                name: playerName,
                 score: state.localScore,
                 rank: data.rank,
                 kps: finalKPS,
                 entropy: state.finalEntropy
-            });
+            };
+
+            fetchLeaderboard(false);
         }, 3000);
     });
 }
