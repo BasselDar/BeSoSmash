@@ -193,8 +193,15 @@ function handleKey(e) {
         e.preventDefault();
     }
     if (e.repeat) return;
+    // Provide a normalized key that incorporates both code and literal key, just in case
+    let keyString = e.code;
+    if (!keyString && e.key) {
+        // Build a synthetic e.code based on e.key
+        if (/^[a-zA-Z]$/.test(e.key)) keyString = 'Key' + e.key.toUpperCase();
+        else keyString = e.key;
+    }
 
-    processLocalKeyPress(e.code);
+    processLocalKeyPress(keyString);
 }
 
 function processLocalKeyPress(keyCode) {
@@ -248,6 +255,8 @@ socket.on('scoreUpdate', (serverScore) => {
 });
 
 let finalAbsoluteRank = "UNRANKED";
+let finalProfiles = []; // Store the profiles for sharing
+let finalEntropy = "0.0";
 
 socket.on('gameOver', (data) => {
     active = false;
@@ -259,6 +268,8 @@ socket.on('gameOver', (data) => {
     // Sync to final authoritative score from server
     localScore = data.finalScore;
     if (data.rank) finalAbsoluteRank = `#${data.rank}`;
+    if (data.profiles) finalProfiles = data.profiles;
+    if (data.entropy) finalEntropy = data.entropy;
     updateScoreParams(localScore);
 
     document.removeEventListener('keydown', handleKey);
@@ -285,9 +296,38 @@ socket.on('gameOver', (data) => {
 
         // Populate new stats
         document.getElementById('absolute-rank-display').innerText = finalAbsoluteRank;
+        document.getElementById('final-entropy-display').innerHTML = `${finalEntropy}<span class="text-sm">%</span>`;
         const seconds = gameDuration / 1000;
         const finalKPS = (localScore / seconds).toFixed(1);
         document.getElementById('final-kps-display').innerHTML = `${finalKPS} <span class="text-sm">KPS</span>`;
+
+        // Show Profiles
+        const profileContainer = document.getElementById('profile-container');
+        if (profileContainer) {
+            profileContainer.innerHTML = '<h3 class="text-xs font-bold text-slate-500 tracking-widest uppercase mb-3">DIAGNOSIS</h3>';
+
+            if (finalProfiles && finalProfiles.length > 0) {
+                finalProfiles.forEach(prof => {
+                    let colorClass = "text-purple-400"; // default
+                    if (prof.title === "The Gorilla" || prof.title === "The Silverback") colorClass = "text-amber-500";
+                    else if (prof.title === "The Sweaty Tryhard") colorClass = "text-blue-500";
+                    else if (prof.title === "The Angry Accountant") colorClass = "text-emerald-500";
+                    else if (prof.title === "The Script Kiddie") colorClass = "text-red-600 animate-pulse";
+
+                    profileContainer.innerHTML += `
+                        <div class="mb-4 last:mb-0 bg-black/30 p-3 rounded-lg border border-white/5">
+                            <p class="text-lg font-black ${colorClass} uppercase drop-shadow-md leading-none">${prof.title}</p>
+                            <p class="text-sm font-bold text-slate-400 mt-2 italic px-2">"${prof.flavor}"</p>
+                        </div>
+                    `;
+                });
+            } else {
+                profileContainer.innerHTML += `
+                    <p class="text-xl font-black text-rose-400 uppercase drop-shadow-md">THE UNKNOWN</p>
+                    <p class="text-sm font-bold text-slate-400 mt-2 italic px-2">"Waiting for analysis..."</p>
+                `;
+            }
+        }
 
         // Unhide leaderboard and fetch specifically with current run pinned
         const lbSection = document.getElementById('leaderboard-section');
@@ -297,7 +337,9 @@ socket.on('gameOver', (data) => {
         fetchLeaderboard(false, {
             name: document.getElementById('username').value.trim() || 'You',
             score: localScore,
-            rank: data.rank
+            rank: data.rank,
+            entropy: finalEntropy,
+            kps: finalKPS
         });
     }, 3000);
 });
@@ -320,9 +362,13 @@ function shareScore() {
     const seconds = gameDuration / 1000;
     const finalKPS = (localScore / seconds).toFixed(1);
 
-    const shareText = `💥 I just smashed ${localScore} keys in BeSoSmash (${modeFriendly})!\n🏆 Rank: ${finalRank.title} (${finalAbsoluteRank})\n⚡ Speed: ${finalKPS} KPS\nCan you beat my chaos? Try it out at http://localhost:3000/`;
+    let profileText = finalProfiles.length > 0
+        ? finalProfiles.map(p => p.title).join(" & ")
+        : "The Unknown";
 
-    navigator.clipboard.writeText(shareText).then(() => {
+    const textToShare = `I just hit ${localScore} keys in BeSoSmash!\nRank: ${finalRank.title} (Global: ${finalAbsoluteRank})\nSpeed: ${(localScore / (gameDuration / 1000)).toFixed(1)} KPS\nChaos: ${finalEntropy}%\nDiagnosis: ${profileText}\n\nPlay now: http://localhost:3000`;
+
+    navigator.clipboard.writeText(textToShare).then(() => {
         showToast("Score Copied to Clipboard! 📋");
     }).catch(err => {
         console.error('Failed to copy text: ', err);
@@ -384,6 +430,8 @@ function renderLeaderboard(data, append = false, currentSession = null) {
                     <span class="text-xs font-bold text-yellow-200/70 tracking-widest uppercase flex items-center gap-1 mt-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         ${timeAgo(new Date().toISOString())}
+                        <span class="ml-2 text-rose-400">ENT ${currentSession.entropy || '0.0'}%</span>
+                        <span class="ml-2 text-sky-400">SPD ${currentSession.kps || '0.0'}KPS</span>
                     </span>
                 </div>
                 <div class="text-right z-10">
@@ -426,6 +474,8 @@ function renderLeaderboard(data, append = false, currentSession = null) {
                     <span class="text-xs font-bold text-slate-500 tracking-widest uppercase flex items-center gap-1 mt-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         ${timeAgo(player.created_at)}
+                        <span class="ml-2 text-rose-400">ENT ${player.entropy || '0.0'}%</span>
+                        <span class="ml-2 text-sky-400">SPD ${player.kps || '0.0'}KPS</span>
                     </span>
                 </div>
                 <div class="text-right z-10">

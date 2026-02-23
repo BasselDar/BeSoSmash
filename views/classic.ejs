@@ -115,20 +115,36 @@
                             <span id="final-rank-display" class="text-2xl font-black mt-2">NOVICE</span>
 
                             <div
-                                class="flex w-full justify-between items-center mt-6 pt-6 border-t border-white/10 px-4">
-                                <div class="text-center w-1/2 border-r border-white/10">
+                                class="flex w-full justify-between items-center mt-6 pt-6 border-t border-white/10 px-2 gap-2">
+                                <div class="text-center w-1/3 border-r border-white/10">
                                     <p class="text-slate-500 font-bold text-[10px] tracking-widest uppercase mb-1">
                                         GLOBAL RANK</p>
-                                    <p id="absolute-rank-display" class="font-mono text-3xl font-black text-white">#--
+                                    <p id="absolute-rank-display"
+                                        class="font-mono text-xl md:text-3xl font-black text-white">#--
                                     </p>
                                 </div>
-                                <div class="text-center w-1/2">
+                                <div class="text-center w-1/3 border-r border-white/10">
+                                    <p class="text-slate-500 font-bold text-[10px] tracking-widest uppercase mb-1">
+                                        ENTROPY</p>
+                                    <p id="final-entropy-display"
+                                        class="font-mono text-xl md:text-3xl font-black text-rose-400">0.0<span
+                                            class="text-sm">%</span>
+                                    </p>
+                                </div>
+                                <div class="text-center w-1/3">
                                     <p class="text-slate-500 font-bold text-[10px] tracking-widest uppercase mb-1">AVRG
                                         SPEED</p>
-                                    <p id="final-kps-display" class="font-mono text-3xl font-black text-sky-400">0.0
-                                        <span class="text-sm">KPS</span></p>
+                                    <p id="final-kps-display"
+                                        class="font-mono text-xl md:text-3xl font-black text-sky-400">0.0
+                                        <span class="text-sm">KPS</span>
+                                    </p>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Personality Profile Section -->
+                        <div id="profile-container"
+                            class="mt-4 mb-8 text-center bg-black/40 p-4 rounded-xl border border-white/10 group-hover:border-rose-500/30 transition-colors">
                         </div>
 
                         <div class="flex justify-center items-center gap-4 w-full">
