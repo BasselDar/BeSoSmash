@@ -89,7 +89,7 @@
             </svg>
         </div>
 
-        <div
+        <div onclick="window.location.href='/'"
             class="relative inline-block transform -rotate-3 hover:scale-105 hover:-translate-y-2 hover:rotate-0 transition-all duration-300 pb-2 group cursor-pointer">
             <!-- Shadow Layer -->
             <h1 aria-hidden="true"
@@ -283,18 +283,8 @@
                 <!-- Data fetched from API -->
             </ul>
 
-            <div class="mt-8 text-center">
-                <button id="load-more-btn"
-                    class="hidden relative overflow-hidden group/load bg-slate-800/80 hover:bg-slate-700 text-slate-300 px-8 py-4 rounded-2xl text-lg font-bold tracking-widest transition-all uppercase border border-slate-600 hover:border-slate-400 hover:text-white shadow-lg">
-                    <span class="relative z-10 flex items-center gap-2">
-                        <span>LOAD MORE</span>
-                        <svg class="w-5 h-5 group-hover/load:translate-y-1 transition-transform" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                            </path>
-                        </svg>
-                    </span>
-                </button>
+            <div id="pagination-controls" class="mt-8 flex justify-center items-center gap-2 flex-wrap">
+                <!-- Pagination buttons generated here -->
             </div>
         </div>
         <div id="toast-container"
