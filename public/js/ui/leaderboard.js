@@ -1,10 +1,19 @@
 // public/js/ui/leaderboard.js — Leaderboard rendering, fetching, and initialization
-import { state } from '../core/state.js';
+import { state, ranks } from '../core/state.js';
 import { socket } from '../core/socket.js';
 import { timeAgo } from '../utils/time.js';
 import { showToast } from './toast.js';
 import { isCheater, cheaterBadgeHtml, buildProfilesHtml, attachExpandHandler, chevronSvg } from './profiles.js';
 import { renderPagination } from './pagination.js';
+
+// Compute rank title from raw score (keys pressed) using client-side thresholds
+function getRankTitle(score) {
+    let rank = ranks[0];
+    for (const r of ranks) {
+        if (score >= r.threshold) rank = r;
+    }
+    return rank;
+}
 
 // Render Leaderboard Items
 export function renderLeaderboard(data, append = false, currentSession = null) {
@@ -38,6 +47,7 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
                         <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         ${timeAgo(new Date().toISOString())}
                     </span>
+                    ${(() => { const rk = getRankTitle(currentSession.score); return `<span class="text-[10px] font-black ${rk.color} uppercase tracking-wider mt-0.5">${rk.title}</span>`; })()}
                 </div>
                 <div class="ml-auto flex flex-col items-end gap-1.5 shrink-0">
                     <span class="font-mono font-black text-2xl md:text-3xl text-yellow-300 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)] leading-none" title="Smash Score">${currentSession.smash_score != null ? currentSession.smash_score.toLocaleString() : '---'}</span>
@@ -110,6 +120,7 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
                         <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         ${timeAgo(player.created_at)}
                     </span>
+                    ${(() => { const rk = getRankTitle(player.score); return `<span class="text-[10px] font-black ${rk.color} uppercase tracking-wider mt-0.5">${rk.title}</span>`; })()}
                 </div>
                 <div class="ml-auto flex flex-col items-end gap-1.5 shrink-0">
                     <span class="font-mono font-black text-2xl md:text-3xl text-${themeColor}-500 group-hover:text-${themeColor}-400 transition-colors leading-none" title="Smash Score">${player.smash_score != null ? parseInt(player.smash_score).toLocaleString() : '---'}</span>

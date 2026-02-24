@@ -1,6 +1,6 @@
 // public/js/game/input.js — Keyboard/touch input handling and key buffer management
 
-import { state } from '../core/state.js';
+import { state, ranks } from '../core/state.js';
 import { socket } from '../core/socket.js';
 import { triggerVisuals } from './visuals.js';
 
@@ -71,6 +71,29 @@ export function processLocalKeyPress(keyCode, isTrusted = true) {
     // (engine imports input, input could import engine — we use the event-driven approach instead)
     const scoreDisplay = document.getElementById('score-display');
     if (scoreDisplay) scoreDisplay.innerText = state.localScore;
+
+    // Live KPS update
+    if (state.active && state.gameStartTime) {
+        let elapsed = (performance.now() - state.gameStartTime) / 1000;
+        const maxSec = state.gameDuration / 1000;
+        if (elapsed > maxSec) elapsed = maxSec;
+        if (elapsed <= 0.1) elapsed = 0.1;
+        const kps = (state.localScore / elapsed).toFixed(1);
+        const kpsEl = document.getElementById('kps-display');
+        if (kpsEl) kpsEl.innerText = kps;
+    }
+
+    // Live rank update
+    let currentRank = ranks[0];
+    for (const r of ranks) {
+        if (state.localScore >= r.threshold) currentRank = r;
+    }
+    const rankEl = document.getElementById('rank-display');
+    if (rankEl && rankEl.innerText !== currentRank.title) {
+        rankEl.innerText = currentRank.title;
+        rankEl.className = `text-3xl font-black neon-glow ${currentRank.color}`;
+        anime({ targets: rankEl, scale: [1.5, 1], duration: 300 });
+    }
 
     triggerVisuals();
 }
