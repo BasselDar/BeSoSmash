@@ -6,7 +6,7 @@ export const state = {
     gameStartTime: 0,
     currentMode: 'classic',
     localScore: 0,
-    timerInterval: null,
+    timerRAF: null,
     gameDuration: 5000,
     keyBuffer: [],
     tickInterval: null,

@@ -78,18 +78,17 @@ function startActualGame(firstKeyCode) {
     document.addEventListener('keydown', handleKey);
     document.addEventListener('touchstart', handleTouch, { passive: false });
 
-    // Start visual timer
-    clearInterval(state.timerInterval);
-    state.timerInterval = setInterval(() => {
-        if (!state.active) return clearInterval(state.timerInterval);
+    // Start visual timer using requestAnimationFrame for buttery-smooth 60fps countdown
+    if (state.timerRAF) cancelAnimationFrame(state.timerRAF);
+    const timerDisplay = document.getElementById('timer-display');
+    function timerLoop() {
+        if (!state.active) return;
         const elapsed = performance.now() - state.gameStartTime;
         let remaining = Math.max(0, state.gameDuration - elapsed);
-        const timerDisplay = document.getElementById('timer-display');
         if (timerDisplay) {
             timerDisplay.innerText = (remaining / 1000).toFixed(2) + "s";
         }
         if (remaining <= 0) {
-            clearInterval(state.timerInterval);
             clearInterval(state.tickInterval);
 
             // Final Buffer Flush (Ensure we capture latency-delayed keys up to 0.0s)
@@ -104,23 +103,37 @@ function startActualGame(firstKeyCode) {
             // Remove key listener immediately so Tab/Space/etc don't trigger browser defaults
             document.removeEventListener('keydown', handleKey);
             document.removeEventListener('touchstart', handleTouch);
+            return; // Stop the rAF loop
         }
-    }, 10);
+        state.timerRAF = requestAnimationFrame(timerLoop);
+    }
+    state.timerRAF = requestAnimationFrame(timerLoop);
 
-    // Start Tick Loop (20Hz — 50ms for maximum key recording granularity without socket choke)
+    // Start Tick Loop (safety net flush every 50ms for slower typers)
     clearInterval(state.tickInterval);
     state.tickInterval = setInterval(() => {
         if (!state.active) return clearInterval(state.tickInterval);
-        if (state.keyBuffer.length > 0) {
-            socket.emit('keyPressBatch', state.keyBuffer);
-            state.keyBuffer = []; // Empty the buffer
-        }
+        flushKeyBuffer();
     }, 50);
 
     processLocalKeyPress(firstKeyCode);
 }
 
+// Flush key buffer to server immediately (called on threshold and by interval)
+function flushKeyBuffer() {
+    if (state.keyBuffer.length > 0) {
+        socket.emit('keyPressBatch', state.keyBuffer);
+        state.keyBuffer = [];
+    }
+}
+
+// Throttle +1 particle spawns to prevent DOM flooding
+let lastPlusOneTime = -Infinity;
+const PLUS_ONE_COOLDOWN = 120; // ms between +1 spawns (~8 per second)
+const MAX_PLUS_ONES = 15;      // max simultaneous particles
+
 function triggerVisuals() {
+    // Screen shake fires on EVERY keypress for responsiveness
     const intensity = Math.random() * 15 - 7.5;
     anime({
         targets: '#game-container',
@@ -135,10 +148,18 @@ function triggerVisuals() {
     document.body.style.backgroundColor = '#450a0a';
     setTimeout(() => document.body.style.backgroundColor = '#020617', 50);
 
+    // Throttle +1 particles — skip if too soon or too many active
+    const now = performance.now();
+    if (now - lastPlusOneTime < PLUS_ONE_COOLDOWN) return;
+
     const smashZone = document.getElementById('smash-zone');
+    const existing = smashZone.querySelectorAll('.plus-one-particle');
+    if (existing.length >= MAX_PLUS_ONES) return;
+    lastPlusOneTime = now;
+
     const plusOne = document.createElement('div');
     plusOne.innerText = "+1";
-    plusOne.className = "absolute text-4xl font-black text-rose-500 pointer-events-none select-none z-50 neon-glow";
+    plusOne.className = "plus-one-particle absolute text-4xl font-black text-rose-500 pointer-events-none select-none z-50 neon-glow";
 
     const rect = smashZone.getBoundingClientRect();
     const startX = Math.random() * (rect.width - 60) + 30;
@@ -192,6 +213,11 @@ function processLocalKeyPress(keyCode, isTrusted = true) {
 
     // Add physical key to batch buffer
     state.keyBuffer.push(keyCode);
+
+    // Flush immediately when buffer hits threshold (fast typers get keys sent sooner)
+    if (state.keyBuffer.length >= 10) {
+        flushKeyBuffer();
+    }
 
     // Process local score immediately for responsiveness
     state.localScore++;
@@ -387,7 +413,7 @@ export function initGameEngine() {
 
     socket.on('gameOver', (data) => {
         state.active = false;
-        clearInterval(state.timerInterval);
+        cancelAnimationFrame(state.timerRAF);
         clearInterval(state.tickInterval);
         const timerDisplay = document.getElementById('timer-display');
         if (timerDisplay) timerDisplay.innerText = "0.0s"; // Force end

@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 # OS Files
 .DS_Store
+
+# Tests
+tests/
