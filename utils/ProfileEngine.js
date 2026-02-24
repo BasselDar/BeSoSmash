@@ -225,25 +225,15 @@ class ProfileEngine {
                 isCheater: true
             };
         }
-        const maxHardwareKeys = mode === 'blitz' ? 150 : 350;
-        if (totalKeys > maxHardwareKeys) {
+        // --- BOT DETECTION: only flag truly inhuman input ---
+        const gameSeconds = mode === 'blitz' ? 2 : 5;
+        const kps = totalKeys / gameSeconds;
+        const ent = parseFloat(normalizedEntropy);
+
+        // Only flag if speed is absurdly inhuman AND entropy is near zero (pure automation)
+        if (kps > 300 && ent < 10) {
             return {
                 profiles: [{ title: "The Hardware Spoof", flavor: "Your keyboard physically cannot send data this fast. Busted." }],
-                entropy: normalizedEntropy,
-                isCheater: true
-            };
-        }
-        if (metronomeCheats > 20) {
-            return {
-                profiles: [{ title: "The Metronome", flavor: "Perfectly robotic rhythm, 11+ inputs per tick, over 20 consecutive ticks. That is not a human. That is a cron job." }],
-                entropy: normalizedEntropy,
-                isCheater: true
-            };
-        }
-        const maxMacroKeys = mode === 'blitz' ? 100 : 250;
-        if (totalKeys > maxMacroKeys && uniqueKeys <= 4) {
-            return {
-                profiles: [{ title: "The Macro Spammer", flavor: "Wow, perfect rhythm and impossible speed. Exactly the same inputs without human error. Nice macro, nerd. Your score has been invalidated... mentally." }],
                 entropy: normalizedEntropy,
                 isCheater: true
             };
@@ -645,8 +635,6 @@ class ProfileEngine {
         // --- 8. PACING & TIMING ---
         // Tick rate is 50ms — classic = 100 ticks, blitz = 40 ticks
         const expectedTicks = mode === 'blitz' ? 40 : 100;
-        const gameSeconds = mode === 'blitz' ? 2 : 5;
-        let finalKPS = totalKeys / gameSeconds;
 
         if (totalKeys > 0 && firstHitTick > 40) {
             add("The Pacifist", "Refusing to fight. Gandhi would be proud; your score is not.");
