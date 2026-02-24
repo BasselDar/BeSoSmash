@@ -1,75 +1,5 @@
-const { Pool } = require('pg');
-const { createClient } = require('redis');
-
-const pool = new Pool(process.env.DATABASE_URL ? {
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-} : {});
-
-let redisConnectionString = process.env.REDIS_URL;
-let redisConfig = {
-    pingInterval: 120000
-};
-
-if (redisConnectionString) {
-    if (redisConnectionString.startsWith('redis://') && redisConnectionString.includes('upstash')) {
-        redisConnectionString = redisConnectionString.replace('redis://', 'rediss://');
-        console.log("Auto-upgraded Upstash URL to rediss:// for TLS");
-    }
-
-    redisConfig.url = redisConnectionString;
-
-    if (redisConnectionString.startsWith('rediss://')) {
-        redisConfig.socket = {
-            tls: true,
-            rejectUnauthorized: false
-        };
-    }
-}
-
-const redisClient = createClient(redisConfig);
-
-redisClient.on('error', (err) => console.log('Redis Client Error:', err.message));
-
-const initDB = async () => {
-    try {
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS scores (
-                id SERIAL PRIMARY KEY,
-                name VARCHAR(50) NOT NULL,
-                score INTEGER NOT NULL,
-                mode VARCHAR(20) DEFAULT 'classic',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS mode VARCHAR(20) DEFAULT 'classic'`);
-        await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS kps NUMERIC(5,1) DEFAULT 0.0`);
-        await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS entropy NUMERIC(5,1) DEFAULT 0.0`);
-        await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS smash_score BIGINT DEFAULT 0`);
-        await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS profiles TEXT DEFAULT '[]'`);
-
-        // Recalculate all smash_scores: keys × 1337 + entropy² × 1.7 + KPS × 69 + profiles × 420
-        await pool.query(`UPDATE scores SET smash_score = ROUND((score * 1337) + (entropy * entropy * 1.7) + (kps * 69) + (COALESCE(json_array_length(profiles::json), 0) * 420)) WHERE score > 0`);
-
-        await pool.query(`CREATE INDEX IF NOT EXISTS idx_smash_score ON scores (smash_score DESC)`);
-        console.log("PostgreSQL Connected");
-
-        await redisClient.connect();
-        console.log("Redis Connected");
-
-        const topScores = await pool.query(`SELECT name, smash_score FROM scores ORDER BY smash_score DESC LIMIT 10`);
-
-        for (const row of topScores.rows) {
-            await redisClient.zAdd('leaderboard_classic', { score: row.smash_score, value: row.name });
-        }
-        console.log("Redis Cache Warmed Up");
-
-    } catch (err) {
-        console.error("Init Error:", err);
-    }
-};
-
-initDB();
+const { pool, redisClient } = require('./db');
+const { calculateSmashScore } = require('../utils/scoring');
 
 class ScoreModel {
 
@@ -144,35 +74,94 @@ class ScoreModel {
         }
     }
 
-    static async save(name, score, mode = 'classic', kps = 0.0, entropy = 0.0, profiles = []) {
+    static async save(name, score, mode = 'classic', kps = 0.0, entropy = 0.0, profiles = [], forceSmashScore = null) {
         try {
-            let profileCount = 0;
-            try { profileCount = Array.isArray(profiles) ? profiles.length : JSON.parse(profiles).length; } catch (e) { }
-            const smashScore = Math.round((score * 1337) + (entropy * entropy * 1.7) + (kps * 69) + (profileCount * 420));
-            const profilesJson = JSON.stringify(profiles);
-
-            const checkSql = `SELECT id, score, smash_score FROM scores WHERE name = $1 AND mode = $2 LIMIT 1`;
+            const checkSql = `SELECT id, score, kps, entropy, smash_score, profiles FROM scores WHERE name = $1 AND mode = $2 LIMIT 1`;
             const { rows } = await pool.query(checkSql, [name, mode]);
 
-            if (rows.length > 0) {
-                const existingId = rows[0].id;
-                const existingSmashScore = rows[0].smash_score || 0;
+            let mergedProfiles = profiles;
+            let existingId = null;
+            let existingSmashScore = 0;
+            let existingProfileCount = 0;
 
-                if (smashScore > existingSmashScore) {
+            if (rows.length > 0) {
+                existingId = rows[0].id;
+                existingSmashScore = rows[0].smash_score || 0;
+
+                // Parse existing profiles safely
+                let existingProfiles = [];
+                try {
+                    existingProfiles = typeof rows[0].profiles === 'string'
+                        ? JSON.parse(rows[0].profiles)
+                        : (rows[0].profiles || []);
+                } catch (e) { }
+                if (!Array.isArray(existingProfiles)) existingProfiles = [];
+                existingProfileCount = existingProfiles.length;
+
+                // Merge profiles — only profiles accumulate, not stats
+                const profileMap = new Map();
+                existingProfiles.forEach(p => profileMap.set(p.title, p));
+                profiles.forEach(p => profileMap.set(p.title, p));
+                mergedProfiles = Array.from(profileMap.values());
+            }
+
+            // Smash score uses THIS RUN's score/kps/entropy + cumulative profile count
+            const profileCount = mergedProfiles.length;
+            const newSmashScore = forceSmashScore !== null ? forceSmashScore : calculateSmashScore(score, entropy, kps, profileCount);
+            const profilesJson = JSON.stringify(mergedProfiles);
+
+            if (rows.length > 0) {
+                const hasNewProfiles = profileCount > existingProfileCount;
+                const hasHigherScore = newSmashScore > existingSmashScore;
+
+                if (hasHigherScore) {
+                    // New personal best — update everything (stats + profiles)
                     const updateSql = `UPDATE scores SET score = $1, kps = $2, entropy = $3, smash_score = $4, profiles = $5, created_at = CURRENT_TIMESTAMP WHERE id = $6`;
-                    await pool.query(updateSql, [score, kps, entropy, smashScore, profilesJson, existingId]);
-                    console.log(`[DB] Updated high score for ${name} (${mode}): ${existingSmashScore} -> ${smashScore}`);
+                    await pool.query(updateSql, [score, kps, entropy, newSmashScore, profilesJson, existingId]);
+                    console.log(`[DB] New high score for ${name} (${mode}): ${existingSmashScore} -> ${newSmashScore} (Profiles: ${profileCount})`);
+                } else if (hasNewProfiles) {
+                    // Lower score run, but found new profiles — recalculate smash score using OLD stats + NEW profile count
+                    const existingScore = rows[0].score;
+                    const existingKps = rows[0].kps;
+                    const existingEntropy = rows[0].entropy;
+                    const boostedSmashScore = forceSmashScore !== null ? forceSmashScore : calculateSmashScore(existingScore, existingEntropy, existingKps, profileCount);
+                    const updateSql = `UPDATE scores SET smash_score = $1, profiles = $2 WHERE id = $3`;
+                    await pool.query(updateSql, [boostedSmashScore, profilesJson, existingId]);
+                    await redisClient.zAdd(`leaderboard_${mode}`, { score: boostedSmashScore, value: name }, { GT: true });
+                    console.log(`[DB] New profiles for ${name} (${mode}): ${existingProfileCount} -> ${profileCount} profiles, score boosted: ${existingSmashScore} -> ${boostedSmashScore}`);
+                } else {
+                    console.log(`[DB] No update for ${name} (${mode}): score ${newSmashScore} <= ${existingSmashScore}, no new profiles`);
                 }
             } else {
                 const insertSql = `INSERT INTO scores (name, score, mode, kps, entropy, smash_score, profiles) VALUES ($1, $2, $3, $4, $5, $6, $7)`;
-                await pool.query(insertSql, [name, score, mode, kps, entropy, smashScore, profilesJson]);
-                console.log(`[DB] Inserted new score for ${name} (${mode}): ${smashScore} (Keys:${score} KPS:${kps} ENV:${entropy})`);
+                await pool.query(insertSql, [name, score, mode, kps, entropy, newSmashScore, profilesJson]);
+                console.log(`[DB] Inserted new score for ${name} (${mode}): ${newSmashScore} (Profiles: ${profileCount})`);
             }
 
-            await redisClient.zAdd(`leaderboard_${mode}`, { score: smashScore, value: name }, { GT: true });
+            // Always increment global total smashes regardless of personal best
+            const statsRes = await pool.query(`UPDATE global_stats SET total_smashes = total_smashes + $1 RETURNING total_smashes`, [score]);
+            const totalSmashes = statsRes.rows.length > 0 ? parseInt(statsRes.rows[0].total_smashes, 10) : 0;
 
+            await redisClient.zAdd(`leaderboard_${mode}`, { score: newSmashScore, value: name }, { GT: true });
+
+            return {
+                smashScore: newSmashScore,
+                mergedProfiles,
+                totalSmashes
+            };
         } catch (err) {
             console.error("Error saving score:", err);
+            return null;
+        }
+    }
+
+    static async getGlobalSmashCount() {
+        try {
+            const res = await pool.query(`SELECT total_smashes FROM global_stats LIMIT 1`);
+            return res.rows.length > 0 ? parseInt(res.rows[0].total_smashes, 10) : 0;
+        } catch (err) {
+            console.error("Error fetching global stats:", err);
+            return 0;
         }
     }
 }

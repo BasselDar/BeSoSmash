@@ -35,666 +35,804 @@ const osZone = new Set(['MetaLeft', 'MetaRight', 'OSLeft', 'OSRight']);
 const mediaZone = new Set(['MediaTrackNext', 'MediaTrackPrevious', 'MediaStop', 'MediaPlayPause', 'AudioVolumeMute', 'AudioVolumeDown', 'AudioVolumeUp']);
 const dpadFaceZone = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyZ', 'KeyX', 'KeyC', 'KeyA', 'KeyS', 'KeyD']);
 
-class ProfileEngine {
-    static analyze(keyHistory, mode) {
-        if (!keyHistory || keyHistory.length === 0) {
-            return {
-                profiles: [{
-                    title: "The Ghost",
-                    flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up."
-                }],
-                entropy: 0.0,
-                isCheater: true // Reject blank scores
-            };
+const PROFILES = [
+    // -------------------------------------------------------
+    // EXCLUSIVE profiles: return immediately if matched
+    // -------------------------------------------------------
+    {
+        title: "The Minimalist",
+        flavor: "You pressed exactly one key. Peak efficiency. Zero effort.GigChad.",
+        isExclusive: true,
+        condition: (s) => s.totalKeys === 1
+    },
+    {
+        title: "The Script Kiddie",
+        flavor: "Nice try injecting JavaScript directly into the DOM. Caught in 4K.",
+        isExclusive: true,
+        isCheater: true,
+        condition: (s) => s.untrustedHits > 0
+    },
+    {
+        title: "The Hardware Spoof",
+        flavor: "Your keyboard physically cannot send data this fast. Busted.",
+        isExclusive: true,
+        isCheater: true,
+        condition: (s) => s.kps > 300 && s.ent < 10
+    },
+    {
+        title: "The Rage Quitter",
+        flavor: "Alt+F4? Seriously? If you're going to rage quit a game about typing fast, at least unplug your keyboard.",
+        isExclusive: true,
+        condition: (s) => s.hasAlt && s.hasF4
+    },
+    {
+        title: "The Plagiarist",
+        flavor: "Ctrl+C, Ctrl+V. Did you really just try to copy-paste your way to victory? Stack Overflow can't help you here.",
+        isExclusive: true,
+        condition: (s) => s.copyPasteHits / s.totalKeys > 0.8 && s.uniqueKeys <= 5
+    },
+    {
+        title: "The Glitch",
+        flavor: "F5 F5 F5 F5. You're trying to refresh reality but you're just stuck in the matrix. Wake up.",
+        isExclusive: true,
+        condition: (s) => s.keyCounts['F5'] && s.keyCounts['F5'] / s.totalKeys > 0.5
+    },
+    {
+        title: "The Konami Coder",
+        flavor: "Up, Up, Down, Down, Left, Right, Left, Right, B, A. Infinite lives unlocked! Just kidding, you still have to pay taxes tomorrow.",
+        isExclusive: true,
+        condition: (s) => s.konamiAchieved
+    },
+    {
+        title: "The Accidental Potato",
+        flavor: "A million monkeys on a typewriter, and you typed POTATO.",
+        isExclusive: true,
+        condition: (s) => s.typedString.includes('POTATO')
+    },
+    {
+        title: "The SQL Dropper",
+        flavor: "Did you just try to drop my production database? Nice try.",
+        isExclusive: true,
+        condition: (s) => s.typedString.includes('DROP TABLE')
+    },
+    {
+        title: "The Sudo Override",
+        flavor: "You don't have admin privileges here.",
+        isExclusive: true,
+        condition: (s) => s.typedString.includes('SUDO')
+    },
+    {
+        title: "The Git Pusher",
+        flavor: "Force pushing to main branch on a Friday? Pure chaos.",
+        isExclusive: true,
+        condition: (s) => s.typedString.includes('GIT PUSH')
+    },
+    {
+        title: "The Calculator Kid",
+        flavor: "80085. You are 12 years old and this is the funniest thing you have ever done. Respect.",
+        isExclusive: true,
+        condition: (s) => s.typedString.includes('80085') || s.typedString.toUpperCase().includes('BOOBS')
+    },
+    {
+        title: "The Upside Down Genius",
+        flavor: "5318008 upside down. You have not changed since 4th grade and honestly neither have we.",
+        isExclusive: true,
+        condition: (s) => s.typedString.includes('5318008')
+    },
+    {
+        title: "The Satanist Calculator",
+        flavor: "7734 upside down on a calculator. Hello indeed. The dark one has been summoned via numpad.",
+        isExclusive: true,
+        condition: (s) => s.typedString.includes('7734')
+    },
+    {
+        title: "The 69er",
+        flavor: "You smashed 69. Your score is now exactly 69. It is the law. Nice.",
+        isExclusive: true,
+        forceSmashScore: 69,
+        condition: (s) => s.typedString.includes('69')
+    },
+    {
+        title: "The Brainrot",
+        flavor: "Skibidi Toilet Rizz Ohio Gyatt. Please go outside immediately and touch grass.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('SKIBIDI')
+    },
+    {
+        title: "The Hawk Tuah",
+        flavor: "Spit on that thang! You are officially viral.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('HAWK') && s.typedString.toUpperCase().includes('TUAH')
+    },
+    {
+        title: "The Botanist",
+        flavor: "420. You are either very relaxed right now or you cannot count. Possibly both.",
+        isExclusive: true,
+        condition: (s) => s.typedString.includes('420')
+    },
+    {
+        title: "The 2013 Throwback",
+        flavor: "YOLO. You Only Live Once, which is exactly why you spent one of your precious seconds typing this.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('YOLO')
+    },
+    {
+        title: "The Yeet Lord",
+        flavor: "YEET. Thrown with force. No regrets. This is peak human expression and we will not debate it.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('YEET')
+    },
+    {
+        title: "The Dark Souls Veteran",
+        flavor: "Git gud. You said it to yourself. In a game you are currently losing. Peak self-awareness.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('GITGUD') || s.typedString.toUpperCase().includes('GIT GUD')
+    },
+    {
+        title: "The Hopeful Romantic",
+        flavor: "Wrong window. The keyboard game cannot send nudes. Have you tried a different app?",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('SENDNUDES') || s.typedString.toUpperCase().includes('SEND NUDES')
+    },
+    {
+        title: "The Confused",
+        flavor: "W-T-F. The only valid reaction to this game. We understand completely.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('WTF')
+    },
+    {
+        title: "The Drama Queen",
+        flavor: "OMG. You are emotionally overwhelmed by a 5-second keyboard game. Valid, actually.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('OMG')
+    },
+    {
+        title: "The Trash Talker",
+        flavor: "You called yourself a noob mid-game. The self-awareness is both impressive and heartbreaking.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('NOOB')
+    },
+    {
+        title: "The Disrespectful One",
+        flavor: "EZ. You typed EZ. Bro. Please.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('EZ')
+    },
+    {
+        title: "The Swear Jar",
+        flavor: "Watch your language. This is a Muslim Minecraft server. That will be $1 per word. You owe us everything.",
+        isExclusive: true,
+        condition: (s) => {
+            const up = s.typedString.toUpperCase();
+            return up.includes('FUCK') || up.includes('SHIT') || up.includes('BITCH') ||
+                   up.includes('DAMN') || up.includes('ASS') || up.includes('CRAP') ||
+                   up.includes('HELL') || up.includes('BASTARD') || up.includes('CUNT') || up.includes('PISS');
         }
+    },
+    {
+        title: "The Instagram User",
+        flavor: "You typed NI*** , Spending too much time on Instagram are we?",
+        isExclusive: true,
+        condition: (s) => {
+            const up = s.typedString.toUpperCase();
+            return up.includes('NIGGA') || up.includes('NIGGER') || up.includes('NI***');
+        }
+    },
+    {
+        title: "The Spacebar Supremacist",
+        flavor: "Every single keypress was the spacebar. You discovered the biggest key and committed. No regrets. No thoughts. Just space.",
+        isExclusive: true,
+        condition: (s) => s.spaceHits > 5 && s.spaceHits === s.totalKeys
+    },
+    {
+        title: "The Start Menu Sommelier",
+        flavor: "You pressed the Windows key mid-game. The Start Menu opened. Your score survived. Your dignity did not.",
+        isExclusive: true,
+        condition: (s) => s.osHits > 0 && s.osHits / s.totalKeys > 0
+    },
+    {
+        title: "The Meta Gamer",
+        flavor: "You typed the name of the game you are currently playing. Extremely self-aware. Extremely unhinged. We respect it.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('BESOSMASH')
+    },
+    {
+        title: "The Cry for Help",
+        flavor: "H-E-L-P. In a keyboard smashing game. We cannot help you. No one can. But we appreciate the honesty.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('HELP')
+    },
+    {
+        title: "The Polite Menace",
+        flavor: "You said hello to a keyboard smashing game. That is either adorable or deeply concerning. Probably both.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('HELLO')
+    },
+    {
+        title: "The 1337 Fossil",
+        flavor: "l33tsp34k in the year of our lord? Did you time travel from a 2004 gaming forum? Welcome back, old timer. Nothing has gotten better.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('LEET') || s.typedString.includes('1337')
+    },
+    {
+        title: "The Keyboard Tourist",
+        flavor: "You traced the top row like a tourist reading a subway map. You were not smashing. You were sightseeing.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('QWERTY')
+    },
+    {
+        title: "The E-Sports Veteran",
+        flavor: "GG. Two letters. You typed GG and called it a session. Based.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().startsWith('GG') && s.totalKeys <= 5
+    },
+    {
+        title: "The Home Row Devotee",
+        flavor: "A-S-D-F. Your fingers never left home base. Touch typist? Or just too lazy to move? Either way, respect.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('ASDF')
+    },
+    {
+        title: "The Nice Guy",
+        flavor: "You typed NICE. We agree. It is, in fact, quite nice.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('NICE')
+    },
+    {
+        title: "The Mobile Smasher",
+        flavor: "Tapping your screen to death. RIP to your oleophobic coating.",
+        isExclusive: true,
+        condition: (s) => s.touchHits === s.totalKeys
+    },
 
-        let totalKeys = 0;
-        let wasdHits = 0;
-        let numpadHits = 0;
-        let spaceHits = 0;
-        let arrowHits = 0;
-        let uniqueKeysSet = new Set();
+    // -------------------------------------------------------
+    // ACCUMULATIVE profiles: collect ALL that match
+    // -------------------------------------------------------
 
-        let metronomeCheats = 0;
-        let maxRowSmashInSingleTick = 0;
-        let untrustedHits = 0;
+    {
+        title: "Suspected Cheater", // kps > 150
+        flavor: "150+ keys per second with almost no variation. That's auto-clicker territory. Your score is saved, but we're watching.",
+        condition: (s) => s.kps > 150 && s.ent < 20
+    },
+    {
+        title: "Suspected Cheater", // kps > 100
+        flavor: "Triple-digit KPS with near-zero entropy. Either you're a literal octopus or something fishy is going on.",
+        condition: (s) => s.kps > 100 && s.kps <= 150 && s.ent < 15
+    },
+    {
+        title: "Suspected Cheater", // kps > 80
+        flavor: "High speed, one key. That's not smashing, that's a macro with extra steps.",
+        condition: (s) => s.kps > 80 && s.kps <= 100 && s.ent < 5
+    },
+    {
+        title: "The Hybrid",
+        flavor: "Using a touchscreen AND a keyboard? Unorthodox and deeply concerning.",
+        condition: (s) => s.touchHits > 0 && s.touchHits !== s.totalKeys
+    },
+    {
+        title: "The Forearm Sweep",
+        flavor: "Forearm slam detected. The hardware is begging for mercy.",
+        condition: (s) => s.maxRowSmashInSingleTick >= 6 && s.uniqueKeys > 20
+    },
+    {
+        title: "The Silverback",
+        flavor: "No human fingers move like this. You either rolled your face across the desk, or you just forearm-slammed your mechanical keyboard. The hardware is begging for mercy.",
+        condition: (s) => s.maxRowSmashInSingleTick >= 3 && s.uniqueKeys > 15 && s.totalKeys < 60 && !(s.maxRowSmashInSingleTick >= 6 && s.uniqueKeys > 20)
+    },
+    {
+        title: "The Single-Key Murderer",
+        flavor: "Please apologize to your key. Its warranty is void.",
+        condition: (s) => s.maxSingleKeyCount >= 50
+    },
+    {
+        title: "The Center of Attention",
+        flavor: "Laser-focused on the dead center. Tunnel vision at its finest.",
+        condition: (s) => s.centerHits > 0 && s.centerHits === s.totalKeys
+    },
+    {
+        title: "The BIOS Tech",
+        flavor: "Are you trying to boot into Safe Mode? Coward.",
+        condition: (s) => s.fKeyHits > 0 && s.fKeyHits === s.totalKeys
+    },
+    {
+        title: "The Flash Gamer",
+        flavor: "Playing this like it's a 2004 browser game on Miniclip.",
+        condition: (s) => s.arrowHits > 0 && s.spaceHits > 0 && (s.arrowHits + s.spaceHits === s.totalKeys)
+    },
+    {
+        title: "The Arrow Key Boomer",
+        flavor: "WASD was invented 20 years ago. Let go of the arrow keys, grandpa.",
+        condition: (s) => s.arrowHits > 0 && s.arrowHits === s.totalKeys
+    },
+    {
+        title: "The Left-Handed Boomer",
+        flavor: "You are playing this on the arrow keys. Either you are left-handed, or you boldly refused to adapt to standard gaming controls after 1998.",
+        condition: (s) => s.arrowHits / s.totalKeys > 0.20 && !(s.arrowHits === s.totalKeys) && !(s.arrowHits > 0 && s.spaceHits > 0 && (s.arrowHits + s.spaceHits === s.totalKeys))
+    },
+    {
+        title: "The MOBA Toxic",
+        flavor: "Q, W, E, R dominance. You just tried to pop your ultimate, didn't you? Go back to the fountain.",
+        condition: (s) => s.mobaHits / s.totalKeys > 0.6
+    },
+    {
+        title: "The Osu! Addict",
+        flavor: "Tapping Z and X at the speed of light. Have you blinked since 2019?",
+        condition: (s) => s.totalKeys > 80 && s.uniqueKeys <= 2 && ((s.keyCounts['KeyZ'] || 0) + (s.keyCounts['KeyX'] || 0) > 80)
+    },
+    {
+        title: "The Fighting Game Scrub",
+        flavor: "Just mashing heavy punch and hoping for a combo, huh?",
+        condition: (s) => s.dpadFaceHits / s.totalKeys > 0.6
+    },
+    {
+        title: "The MMO Raider",
+        flavor: "Cycling through your 40-button rotation. Too bad the boss enraged.",
+        condition: (s) => s.topRowHits / s.totalKeys > 0.8 && s.uniqueKeys > 5
+    },
+    {
+        title: "The Crouch Spammer",
+        flavor: "Teabagging the keyboard won't give you a higher score.",
+        condition: (s) => (s.keyCounts['ControlLeft'] || 0) + (s.keyCounts['KeyC'] || 0) > s.totalKeys * 0.3
+    },
+    {
+        title: "The Bunny Hopper",
+        flavor: "Your spacebar is currently holding on by a single, snapping plastic thread. You can stop jumping now. You're already dead.",
+        condition: (s) => s.spaceHits / s.totalKeys > 0.15
+    },
+    {
+        title: "The Sweaty Tryhard",
+        flavor: "We get it, you are hardstuck Platinum in Valorant. Your hands naturally form a claw over the WASD keys. Please go take a shower.",
+        condition: (s) => s.wasdHits / s.totalKeys > 0.20
+    },
+    {
+        title: "The Alt-Tabber",
+        flavor: "Boss walking by? You hit Alt-Tab more times than actual keys. Your 'spreadsheets' are safe.",
+        condition: (s) => s.hasAlt && s.tabHits / s.totalKeys > 0.10
+    },
+    {
+        title: "The Vim Escaper",
+        flavor: "You can't :wq your way out of this one.",
+        condition: (s) => s.vimHits / s.totalKeys > 0.4 && s.escHits > 0
+    },
+    {
+        title: "The HTML Hacker",
+        flavor: "You're closing tags faster than your browser is crashing.",
+        condition: (s) => s.punctuationHits / s.totalKeys > 0.4 && ((s.keyCounts['Comma'] || 0) > 0 || (s.keyCounts['Period'] || 0) > 0 || (s.keyCounts['Slash'] || 0) > 0)
+    },
+    {
+        title: "The Regex Nightmare",
+        flavor: "Nobody knows what those symbols do, including you.",
+        condition: (s) => s.regexHits > 3
+    },
+    {
+        title: "The Hexadecimal",
+        flavor: "Speaking strictly in base-16. You are a robot.",
+        condition: (s) => s.isHex && s.typedString.length > 5 && !s.typedString.includes(' ')
+    },
+    {
+        title: "The Terminal Typist",
+        flavor: "Waiting for the command prompt to execute your garbage.",
+        condition: (s) => s.enterHits / s.totalKeys > 0.3 && s.totalKeys < 20
+    },
+    {
+        title: "The Mad Scientist",
+        flavor: "Plus, minus, multiply, divide. You're out here solving the Riemann Hypothesis instead of playing the game.",
+        condition: (s) => s.mathHits / s.totalKeys > 0.10
+    },
+    {
+        title: "The Angry Accountant",
+        flavor: "Did the taxes not balance this year? You completely ignored the letters and attacked the calculator zone with lethal intent. HR has been notified.",
+        condition: (s) => s.numpadHits / s.totalKeys > 0.35
+    },
+    {
+        title: "The Bottom Feeder",
+        flavor: "You stayed rigidly glued to the ZXCVBNM row. Did you spill coffee on the top half of your keyboard, or are you just afraid of heights?",
+        condition: (s) => s.bottomRowHits / s.totalKeys > 0.35 && s.uniqueKeys > 5
+    },
+    {
+        title: "The Top Row Tyrant",
+        flavor: "QWERTYUIOP. You dominated the top row exclusively. A minimalist approach, but mathematically inefficient.",
+        condition: (s) => s.topRowHits / s.totalKeys > 0.35 && s.uniqueKeys > 5 && !(s.topRowHits / s.totalKeys > 0.8)
+    },
+    {
+        title: "The Vowel Enthusiast",
+        flavor: "Are you trying to buy a vowel? This isn't Wheel of Fortune.",
+        condition: (s) => s.vowelHits > 0 && s.vowelHits === s.totalKeys
+    },
+    {
+        title: "The Consonant Crusader",
+        flavor: "Wh nds vwls nywy? Y sk t ths gm.",
+        condition: (s) => s.vowelHits === 0 && s.totalKeys > 5
+    },
+    {
+        title: "The Vowel Vulture",
+        flavor: "A, E, I, O, U... and sometimes Y? You strictly targeted vowels. We're not playing Wheel of Fortune, you don't need to buy them.",
+        condition: (s) => s.vowelHits / s.totalKeys > 0.25 && !(s.vowelHits > 0 && s.vowelHits === s.totalKeys)
+    },
+    {
+        title: "The Left-Handed Demon",
+        flavor: "Right hand was busy? We won't ask.",
+        condition: (s) => s.leftHits > 0 && s.rightHits === 0 && s.totalKeys > 10
+    },
+    {
+        title: "The Right-Handed Menace",
+        flavor: "Refusing to use the left side. Unbalanced.",
+        condition: (s) => s.rightHits > 0 && s.leftHits === 0 && s.totalKeys > 10
+    },
+    {
+        title: "The Escape Artist",
+        flavor: "You spent the entire match mashing Escape. Are you trying to open the pause menu? Are you trying to flee the simulation? There is no escape.",
+        condition: (s) => s.escHits / s.totalKeys > 0.08
+    },
+    {
+        title: "The Typosquatter",
+        flavor: "You hit Backspace more times than a regretful ex texting at 2 AM. You can't un-type the chaos, just embrace it.",
+        condition: (s) => s.deleteHits / s.totalKeys > 0.10
+    },
+    {
+        title: "The Executioner",
+        flavor: "Smashing the Enter key won't send your messages faster, and it certainly won't help you win. Stop trying to submit the game.",
+        condition: (s) => s.enterHits / s.totalKeys > 0.10
+    },
+    {
+        title: "The Punctuation Pedant",
+        flavor: "Commas, periods, semicolons... Did you accidentally open your IDE? The compiler is going to reject your high score.",
+        condition: (s) => s.punctuationHits / s.totalKeys > 0.15
+    },
+    {
+        title: "The QA Tester",
+        flavor: "Smashing Tab. Are you checking the form accessibility index? The UI is fine, please stop filing Jira tickets.",
+        condition: (s) => s.tabHits / s.totalKeys > 0.10
+    },
+    {
+        title: "The Screamer",
+        flavor: "WHY ARE WE YELLING? You hit CapsLock repeatedly. Your keyboard doesn't have a volume dial, but you certainly found a way to shout.",
+        condition: (s) => s.capsLockHits > 2
+    },
+    {
+        title: "The IT Support",
+        flavor: "F1, F5, F12... Are you trying to refresh the page or open the developer console? Did you try turning the keyboard off and on again?",
+        condition: (s) => s.fKeyHits / s.totalKeys > 0.10
+    },
+    {
+        title: "The Windows Key Victim",
+        flavor: "You opened the Start Menu, the game lost focus, and you typed exactly nothing useful. Skill issue.",
+        condition: (s) => s.osHits > 0 && s.totalKeys < 5
+    },
+    {
+        title: "The Screenshot Hoarder",
+        flavor: "PrintScreen during a keyboard smashing game. What exactly were you trying to document? The suffering?",
+        condition: (s) => s.printScreenHits > 0
+    },
+    {
+        title: "The System Interrupter",
+        flavor: "You hit Pause. During a 5-second game. There is no pause in life either, but at least you tried.",
+        condition: (s) => s.pauseHits > 0
+    },
+    {
+        title: "The Scroll Lock Champion",
+        flavor: "Scroll Lock. The loneliest key on the keyboard. It does nothing. You pressed it anyway. We see you.",
+        condition: (s) => s.scrollLockHits > 0
+    },
+    {
+        title: "The Toggle Archaeologist",
+        flavor: "Insert key. You activated Insert mode on a game that has no text cursor. Explorer of the useless. Pioneer of nothing.",
+        condition: (s) => s.insertHits > 0
+    },
+    {
+        title: "The Mod Squad",
+        flavor: "Shift, Ctrl, Alt... You know these keys don't actually DO anything on their own, right? You're just boldly modifying nothing.",
+        condition: (s) => s.modifierHits / s.totalKeys > 0.10
+    },
+    {
+        title: "The Two-Finger Peck",
+        flavor: "Typing like a confused detective in a 1990s movie.",
+        condition: (s) => s.totalKeys > 20 && s.uniqueKeys <= 2 && s.maxSingleKeyCount < s.totalKeys * 0.8
+    },
+    {
+        title: "The Stutterer",
+        flavor: (s) => `You pressed [${s.mostRepeatedKey.replace('Key', '')}] exactly ${s.maxSingleKeyCount} times. Are you okay? Is that your emotional support key?`,
+        condition: (s) => s.maxSingleKeyCount / s.totalKeys > 0.20 && s.maxSingleKeyCount > 5
+    },
+    {
+        title: "The Novelist",
+        flavor: "Are you typing 'pls let me win' in the chat? Your keystroke distribution looks like you just wrote a 3-page essay on Shrek lore instead of fighting.",
+        condition: (s) => s.uniqueKeys > 15 && s.maxRowSmashInSingleTick < 4
+    },
+    {
+        title: "The Pacifist",
+        flavor: "Refusing to fight. Gandhi would be proud; your score is not.",
+        condition: (s) => s.totalKeys > 0 && s.firstHitTick > 40
+    },
+    {
+        title: "The AFK",
+        flavor: "You were completely dead for 80% of the game and woke up at the very end in a panic. Ping 999ms.",
+        condition: (s) => s.firstHitTick > s.expectedTicks * 0.7 && !(s.totalKeys > 0 && s.firstHitTick > 40)
+    },
+    {
+        title: "The Early Bird",
+        flavor: "You smashed the keyboard for the first half-second and then just gave up entirely. Stamina issue?",
+        condition: (s) => s.lastHitTick < s.expectedTicks * 0.3
+    },
+    {
+        title: "The Decaf Drinker",
+        flavor: "You ran out of gas 1 second in. Pathetic stamina.",
+        condition: (s) => s.fastStart > 30 && (s.totalKeys - s.fastStart) < 5 && s.expectedTicks === 100 // Updated the bug `=== 50` to `=== 100` mode based check
+    },
+    {
+        title: "The Anime Comeback",
+        flavor: "You unlocked your final form at the very last second.",
+        condition: (s) => s.lateStart > 40 && (s.totalKeys - s.lateStart) < 10 && s.expectedTicks === 100 // Updated the bug `=== 50` to `=== 100`
+    },
+    {
+        title: "The Distracted",
+        flavor: "Checking your phone during a 5-second match? Disrespectful.",
+        condition: (s) => s.tickTimestamps.length > 3 && s.maxGap > 20 && s.totalKeys > 5
+    },
+    {
+        title: "The Sloth",
+        flavor: "Are you moving underwater? Check your pulse.",
+        condition: (s) => s.totalKeys > 0 && s.kps < 2
+    }
+];
 
-        let vowelHits = 0;
-        let fKeyHits = 0;
-        let punctuationHits = 0;
-        let deleteHits = 0;
-        let enterHits = 0;
-        let modifierHits = 0;
-        let escHits = 0;
-        let topRowHits = 0;
-        let bottomRowHits = 0;
-        let keyCounts = {};
+class ProfileEngine {
+    static calculateStats(keyHistory, mode) {
+        let s = {
+            totalKeys: 0,
+            wasdHits: 0,
+            numpadHits: 0,
+            spaceHits: 0,
+            arrowHits: 0,
+            uniqueKeysSet: new Set(),
+            metronomeCheats: 0,
+            maxRowSmashInSingleTick: 0,
+            untrustedHits: 0,
+            vowelHits: 0,
+            fKeyHits: 0,
+            punctuationHits: 0,
+            deleteHits: 0,
+            enterHits: 0,
+            modifierHits: 0,
+            escHits: 0,
+            topRowHits: 0,
+            bottomRowHits: 0,
+            keyCounts: {},
+            mobaHits: 0,
+            vimHits: 0,
+            osHits: 0,
+            mediaHits: 0,
+            dpadFaceHits: 0,
+            touchHits: 0,
+            typedString: "",
+            tickTimestamps: [],
+            hasAlt: false,
+            hasF4: false,
+            copyPasteHits: 0,
+            tabHits: 0,
+            capsLockHits: 0,
+            mathHits: 0,
+            printScreenHits: 0,
+            pauseHits: 0,
+            scrollLockHits: 0,
+            insertHits: 0,
+            konamiIndex: 0,
+            konamiAchieved: false,
+            firstHitTick: -1,
+            lastHitTick: -1,
+            currentTickIndex: 0,
+            leftHits: 0,
+            rightHits: 0,
+            centerHits: 0,
+            regexHits: 0,
+            fastStart: 0,
+            lateStart: 0,
+            maxGap: 0,
+            isHex: true,
+            expectedTicks: mode === 'blitz' ? 40 : 100,
+            gameSeconds: mode === 'blitz' ? 2 : 5
+        };
 
-        let mobaHits = 0;
-        let vimHits = 0;
-        let osHits = 0;
-        let mediaHits = 0;
-        let dpadFaceHits = 0;
-        let touchHits = 0;
-        let typedString = "";
-        let tickTimestamps = [];
-
-        let hasAlt = false;
-        let hasF4 = false;
-        let copyPasteHits = 0;
-        let tabHits = 0;
-        let capsLockHits = 0;
-        let mathHits = 0;
-        let printScreenHits = 0;
-        let pauseHits = 0;
-        let scrollLockHits = 0;
-        let insertHits = 0;
-
-        let konamiIndex = 0;
-        let konamiAchieved = false;
-
-        let firstHitTick = -1;
-        let lastHitTick = -1;
-        let currentTickIndex = 0;
+        const leftSideKeys = new Set(['KeyQ', 'KeyW', 'KeyE', 'KeyR', 'KeyT', 'KeyA', 'KeyS', 'KeyD', 'KeyF', 'KeyG', 'KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB']);
+        const rightSideKeys = new Set(['KeyY', 'KeyU', 'KeyI', 'KeyO', 'KeyP', 'KeyH', 'KeyJ', 'KeyK', 'KeyL', 'KeyN', 'KeyM']);
 
         for (const tick of keyHistory) {
-            currentTickIndex++;
+            s.currentTickIndex++;
             if (!Array.isArray(tick)) continue;
 
             const tickCount = tick.length;
             if (tickCount === 0) continue;
 
-            totalKeys += tickCount;
-            tickTimestamps.push(currentTickIndex);
+            s.totalKeys += tickCount;
+            s.tickTimestamps.push(s.currentTickIndex);
 
             let rowCounts = [0, 0, 0];
 
             for (let key of tick) {
                 if (typeof key === 'string' && key.startsWith('Untrusted_')) {
-                    untrustedHits++;
-                    key = key.replace('Untrusted_', ''); // Remove prefix for normal parsing
+                    s.untrustedHits++;
+                    key = key.replace('Untrusted_', '');
                 }
 
-                uniqueKeysSet.add(key);
-                keyCounts[key] = (keyCounts[key] || 0) + 1;
+                s.uniqueKeysSet.add(key);
+                s.keyCounts[key] = (s.keyCounts[key] || 0) + 1;
 
-                if (wasdZone.has(key)) wasdHits++;
-                if (numpadZone.has(key)) numpadHits++;
-                if (key === 'Space') spaceHits++;
-                if (arrowZone.has(key)) arrowHits++;
+                if (wasdZone.has(key)) s.wasdHits++;
+                if (numpadZone.has(key)) s.numpadHits++;
+                if (key === 'Space') s.spaceHits++;
+                if (arrowZone.has(key)) s.arrowHits++;
 
-                if (vowels.has(key)) vowelHits++;
-                if (fKeys.has(key)) fKeyHits++;
-                if (punctuation.has(key)) punctuationHits++;
-                if (deletes.has(key)) deleteHits++;
-                if (enters.has(key)) enterHits++;
-                if (modifiers.has(key)) modifierHits++;
-                if (key === 'Escape') escHits++;
+                if (vowels.has(key)) s.vowelHits++;
+                if (fKeys.has(key)) s.fKeyHits++;
+                if (punctuation.has(key)) s.punctuationHits++;
+                if (deletes.has(key)) s.deleteHits++;
+                if (enters.has(key)) s.enterHits++;
+                if (modifiers.has(key)) s.modifierHits++;
+                if (key === 'Escape') s.escHits++;
 
-                if (mobaZone.has(key)) mobaHits++;
-                if (vimZone.has(key)) vimHits++;
-                if (osZone.has(key)) osHits++;
-                if (mediaZone.has(key)) mediaHits++;
-                if (dpadFaceZone.has(key)) dpadFaceHits++;
+                if (mobaZone.has(key)) s.mobaHits++;
+                if (vimZone.has(key)) s.vimHits++;
+                if (osZone.has(key)) s.osHits++;
+                if (mediaZone.has(key)) s.mediaHits++;
+                if (dpadFaceZone.has(key)) s.dpadFaceHits++;
 
-                if (typeof key === 'string' && key.startsWith('Touch_')) touchHits++;
+                if (typeof key === 'string' && key.startsWith('Touch_')) s.touchHits++;
 
-                if (key.startsWith('Key')) typedString += key.charAt(3);
-                if (key === 'Space') typedString += ' ';
-                if (key.startsWith('Digit')) typedString += key.charAt(5);
-                if (key.startsWith('Numpad') && key.length === 7) typedString += key.charAt(6);
+                if (key.startsWith('Key')) s.typedString += key.charAt(3);
+                if (key === 'Space') s.typedString += ' ';
+                if (key.startsWith('Digit')) s.typedString += key.charAt(5);
+                if (key.startsWith('Numpad') && key.length === 7) s.typedString += key.charAt(6);
 
-                if (key === 'Tab') tabHits++;
-                if (key === 'CapsLock') capsLockHits++;
-                if (mathOperators.has(key)) mathHits++;
-                if (key === 'PrintScreen') printScreenHits++;
-                if (key === 'Pause') pauseHits++;
-                if (key === 'ScrollLock') scrollLockHits++;
-                if (key === 'Insert') insertHits++;
+                if (key === 'Tab') s.tabHits++;
+                if (key === 'CapsLock') s.capsLockHits++;
+                if (mathOperators.has(key)) s.mathHits++;
+                if (key === 'PrintScreen') s.printScreenHits++;
+                if (key === 'Pause') s.pauseHits++;
+                if (key === 'ScrollLock') s.scrollLockHits++;
+                if (key === 'Insert') s.insertHits++;
 
-                if (key === 'AltLeft' || key === 'AltRight') hasAlt = true;
-                if (key === 'F4') hasF4 = true;
-                if (copyPasteKeys.has(key)) copyPasteHits++;
+                if (key === 'AltLeft' || key === 'AltRight') s.hasAlt = true;
+                if (key === 'F4') s.hasF4 = true;
+                if (copyPasteKeys.has(key)) s.copyPasteHits++;
 
-                if (!konamiAchieved) {
-                    if (key === konamiCode[konamiIndex]) {
-                        konamiIndex++;
-                        if (konamiIndex === konamiCode.length) konamiAchieved = true;
+                if (!s.konamiAchieved) {
+                    if (key === konamiCode[s.konamiIndex]) {
+                        s.konamiIndex++;
+                        if (s.konamiIndex === konamiCode.length) s.konamiAchieved = true;
                     } else if (key === konamiCode[0]) {
-                        konamiIndex = 1;
+                        s.konamiIndex = 1;
                     } else {
-                        konamiIndex = 0;
+                        s.konamiIndex = 0;
                     }
                 }
 
-                if (rows[0].has(key)) { rowCounts[0]++; topRowHits++; }
+                if (rows[0].has(key)) { rowCounts[0]++; s.topRowHits++; }
                 if (rows[1].has(key)) { rowCounts[1]++; }
-                if (rows[2].has(key)) { rowCounts[2]++; bottomRowHits++; }
+                if (rows[2].has(key)) { rowCounts[2]++; s.bottomRowHits++; }
+                
+                if (leftSideKeys.has(key)) s.leftHits++;
+                if (rightSideKeys.has(key)) s.rightHits++;
             }
 
-            if (firstHitTick === -1) firstHitTick = currentTickIndex;
-            lastHitTick = currentTickIndex;
+            if (s.firstHitTick === -1) s.firstHitTick = s.currentTickIndex;
+            s.lastHitTick = s.currentTickIndex;
 
             const maxInTick = Math.max(...rowCounts);
-            if (maxInTick > maxRowSmashInSingleTick) {
-                maxRowSmashInSingleTick = maxInTick;
+            if (maxInTick > s.maxRowSmashInSingleTick) {
+                s.maxRowSmashInSingleTick = maxInTick;
             }
 
             if (tickCount > 10) {
-                metronomeCheats++;
+                s.metronomeCheats++;
             }
         }
-        const uniqueKeys = uniqueKeysSet.size;
+        
+        s.uniqueKeys = s.uniqueKeysSet.size;
 
-        let maxSingleKeyCount = 0;
-        let mostRepeatedKey = '';
-        for (let k in keyCounts) {
-            if (keyCounts[k] > maxSingleKeyCount) {
-                maxSingleKeyCount = keyCounts[k];
-                mostRepeatedKey = k;
+        s.maxSingleKeyCount = 0;
+        s.mostRepeatedKey = '';
+        for (let k in s.keyCounts) {
+            if (s.keyCounts[k] > s.maxSingleKeyCount) {
+                s.maxSingleKeyCount = s.keyCounts[k];
+                s.mostRepeatedKey = k;
             }
         }
 
         let entropy = 0;
-        if (totalKeys > 0) {
-            for (const key in keyCounts) {
-                const probability = keyCounts[key] / totalKeys;
+        if (s.totalKeys > 0) {
+            for (const key in s.keyCounts) {
+                const probability = s.keyCounts[key] / s.totalKeys;
                 entropy -= probability * Math.log2(probability);
             }
         }
-        const normalizedEntropy = Math.min((entropy / 6.0) * 100, 100).toFixed(1);
+        s.normalizedEntropy = Math.min((entropy / 6.0) * 100, 100).toFixed(1);
+        s.ent = parseFloat(s.normalizedEntropy);
+        s.kps = s.totalKeys / s.gameSeconds;
 
-        // -------------------------------------------------------
-        // EXCLUSIVE profiles: return immediately if matched
-        // (cheaters, rare memes, impossible inputs)
-        // -------------------------------------------------------
+        s.centerHits = (s.keyCounts['KeyG'] || 0) + (s.keyCounts['KeyH'] || 0) + (s.keyCounts['KeyY'] || 0) + (s.keyCounts['KeyB'] || 0);
+        s.regexHits = (s.keyCounts['Digit6'] || 0) + (s.keyCounts['Digit4'] || 0) + (s.keyCounts['Digit8'] || 0) + (s.keyCounts['NumpadMultiply'] || 0) + (s.keyCounts['Equal'] || 0) + (s.keyCounts['NumpadAdd'] || 0) + (s.keyCounts['Slash'] || 0) + (s.keyCounts['Backslash'] || 0);
 
-        // 0. The Minimalist
-        if (totalKeys === 1) {
-            return {
-                profiles: [{ title: "The Minimalist", flavor: "You pressed exactly one key. Peak efficiency. Zero effort.GigChad." }],
-                entropy: normalizedEntropy
-            };
-        }
-
-        // --- 1. CHEATERS / MACROS (Highest Priority) ---
-        if (untrustedHits > 0) {
-            return {
-                profiles: [{ title: "The Script Kiddie", flavor: "Nice try injecting JavaScript directly into the DOM. Caught in 4K." }],
-                entropy: normalizedEntropy,
-                isCheater: true
-            };
-        }
-        // --- BOT DETECTION: only flag truly inhuman input ---
-        const gameSeconds = mode === 'blitz' ? 2 : 5;
-        const kps = totalKeys / gameSeconds;
-        const ent = parseFloat(normalizedEntropy);
-
-        // Only flag if speed is absurdly inhuman AND entropy is near zero (pure automation)
-        if (kps > 300 && ent < 10) {
-            return {
-                profiles: [{ title: "The Hardware Spoof", flavor: "Your keyboard physically cannot send data this fast. Busted." }],
-                entropy: normalizedEntropy,
-                isCheater: true
-            };
-        }
-
-        // --- SUSPECTED CHEATER (score still saves, but flagged in profiles) ---
-        // These are "grey zone" detections — suspicious but not 100% confirmed
-        if (kps > 150 && ent < 20) {
-            add("Suspected Cheater", "150+ keys per second with almost no variation. That's auto-clicker territory. Your score is saved, but we're watching.");
-        } else if (kps > 100 && ent < 15) {
-            add("Suspected Cheater", "Triple-digit KPS with near-zero entropy. Either you're a literal octopus or something fishy is going on.");
-        } else if (kps > 80 && ent < 5) {
-            add("Suspected Cheater", "High speed, one key. That's not smashing, that's a macro with extra steps.");
-        }
-
-        // --- 2. SPECIAL / EXACT MEMES (exclusive) ---
-        if (hasAlt && hasF4) {
-            return {
-                profiles: [{ title: "The Rage Quitter", flavor: "Alt+F4? Seriously? If you're going to rage quit a game about typing fast, at least unplug your keyboard." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (copyPasteHits / totalKeys > 0.8 && uniqueKeys <= 5) {
-            return {
-                profiles: [{ title: "The Plagiarist", flavor: "Ctrl+C, Ctrl+V. Did you really just try to copy-paste your way to victory? Stack Overflow can't help you here." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (keyCounts['F5'] && keyCounts['F5'] / totalKeys > 0.5) {
-            return {
-                profiles: [{ title: "The Glitch", flavor: "F5 F5 F5 F5. You're trying to refresh reality but you're just stuck in the matrix. Wake up." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (konamiAchieved) {
-            return {
-                profiles: [{ title: "The Konami Coder", flavor: "Up, Up, Down, Down, Left, Right, Left, Right, B, A. Infinite lives unlocked! Just kidding, you still have to pay taxes tomorrow." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.includes('POTATO')) {
-            return {
-                profiles: [{ title: "The Accidental Potato", flavor: "A million monkeys on a typewriter, and you typed POTATO." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.includes('DROP TABLE')) {
-            return {
-                profiles: [{ title: "The SQL Dropper", flavor: "Did you just try to drop my production database? Nice try." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.includes('SUDO')) {
-            return {
-                profiles: [{ title: "The Sudo Override", flavor: "You don't have admin privileges here." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.includes('GIT PUSH')) {
-            return {
-                profiles: [{ title: "The Git Pusher", flavor: "Force pushing to main branch on a Friday? Pure chaos." }],
-                entropy: normalizedEntropy
-            };
-        }
-
-        // --- CALCULATOR EASTER EGGS ---
-        if (typedString.includes('80085') || typedString.toUpperCase().includes('BOOBS')) {
-            return {
-                profiles: [{ title: "The Calculator Kid", flavor: "80085. You are 12 years old and this is the funniest thing you have ever done. Respect." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.includes('5318008')) {
-            return {
-                profiles: [{ title: "The Upside Down Genius", flavor: "5318008 upside down. You have not changed since 4th grade and honestly neither have we." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.includes('7734')) {
-            return {
-                profiles: [{ title: "The Satanist Calculator", flavor: "7734 upside down on a calculator. Hello indeed. The dark one has been summoned via numpad." }],
-                entropy: normalizedEntropy
-            };
-        }
-
-        // --- INTERNET CULTURE ---
-        if (typedString.includes('69')) {
-            return {
-                profiles: [{ title: "Nice", flavor: "69. Every time. Never gets old. You typed it on purpose and you know it. Nice." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.includes('420')) {
-            return {
-                profiles: [{ title: "The Botanist", flavor: "420. You are either very relaxed right now or you cannot count. Possibly both." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('YOLO')) {
-            return {
-                profiles: [{ title: "The 2013 Throwback", flavor: "YOLO. You Only Live Once, which is exactly why you spent one of your precious seconds typing this." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('YEET')) {
-            return {
-                profiles: [{ title: "The Yeet Lord", flavor: "YEET. Thrown with force. No regrets. This is peak human expression and we will not debate it." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('GITGUD') || typedString.toUpperCase().includes('GIT GUD')) {
-            return {
-                profiles: [{ title: "The Dark Souls Veteran", flavor: "Git gud. You said it to yourself. In a game you are currently losing. Peak self-awareness." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('SENDNUDES') || typedString.toUpperCase().includes('SEND NUDES')) {
-            return {
-                profiles: [{ title: "The Hopeful Romantic", flavor: "Wrong window. The keyboard game cannot send nudes. Have you tried a different app?" }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('WTF')) {
-            return {
-                profiles: [{ title: "The Confused", flavor: "W-T-F. The only valid reaction to this game. We understand completely." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('OMG')) {
-            return {
-                profiles: [{ title: "The Drama Queen", flavor: "OMG. You are emotionally overwhelmed by a 5-second keyboard game. Valid, actually." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('NOOB')) {
-            return {
-                profiles: [{ title: "The Trash Talker", flavor: "You called yourself a noob mid-game. The self-awareness is both impressive and heartbreaking." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('EZ')) {
-            return {
-                profiles: [{ title: "The Disrespectful One", flavor: "EZ. You typed EZ. Bro. Please." }],
-                entropy: normalizedEntropy
-            };
-        }
-
-        // --- EXPANDED SWEAR JAR ---
-        if (typedString.toUpperCase().includes('FUCK') || typedString.toUpperCase().includes('SHIT') ||
-            typedString.toUpperCase().includes('BITCH') || typedString.toUpperCase().includes('DAMN') ||
-            typedString.toUpperCase().includes('ASS') || typedString.toUpperCase().includes('CRAP') ||
-            typedString.toUpperCase().includes('HELL') || typedString.toUpperCase().includes('BASTARD') ||
-            typedString.toUpperCase().includes('CUNT') || typedString.toUpperCase().includes('PISS')) {
-            return {
-                profiles: [{ title: "The Swear Jar", flavor: "Watch your language. This is a Muslim Minecraft server. That will be $1 per word. You owe us everything." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('NIGGA') || typedString.toUpperCase().includes('NIGGER') || typedString.toUpperCase().includes('NI***')) {
-            return {
-                profiles: [{ title: "The Instagram User", flavor: "You typed NI*** , Spending too much time on Instagram are we?" }],
-                entropy: normalizedEntropy
-            };
-        }
-
-
-        // --- SPACEBAR SUPREMACIST (exclusive) ---
-        if (spaceHits > 5 && spaceHits === totalKeys) {
-            return {
-                profiles: [{ title: "The Spacebar Supremacist", flavor: "Every single keypress was the spacebar. You discovered the biggest key and committed. No regrets. No thoughts. Just space." }],
-                entropy: normalizedEntropy
-            };
-        }
-
-        // --- WINDOWS KEY (exclusive — upgraded from accumulative) ---
-        if (osHits > 0 && osHits / totalKeys > 0) {
-            return {
-                profiles: [{ title: "The Start Menu Sommelier", flavor: "You pressed the Windows key mid-game. The Start Menu opened. Your score survived. Your dignity did not." }],
-                entropy: normalizedEntropy
-            };
-        }
-
-        // --- TYPED STRING EASTER EGGS ---
-        if (typedString.toUpperCase().includes('BESOSMASH')) {
-            return {
-                profiles: [{ title: "The Meta Gamer", flavor: "You typed the name of the game you are currently playing. Extremely self-aware. Extremely unhinged. We respect it." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('HELP')) {
-            return {
-                profiles: [{ title: "The Cry for Help", flavor: "H-E-L-P. In a keyboard smashing game. We cannot help you. No one can. But we appreciate the honesty." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('HELLO')) {
-            return {
-                profiles: [{ title: "The Polite Menace", flavor: "You said hello to a keyboard smashing game. That is either adorable or deeply concerning. Probably both." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('LEET') || typedString.includes('1337')) {
-            return {
-                profiles: [{ title: "The 1337 Fossil", flavor: "l33tsp34k in the year of our lord? Did you time travel from a 2004 gaming forum? Welcome back, old timer. Nothing has gotten better." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('QWERTY')) {
-            return {
-                profiles: [{ title: "The Keyboard Tourist", flavor: "You traced the top row like a tourist reading a subway map. You were not smashing. You were sightseeing." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().startsWith('GG') && totalKeys <= 5) {
-            return {
-                profiles: [{ title: "The E-Sports Veteran", flavor: "GG. Two letters. You typed GG and called it a session. Based." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('ASDF')) {
-            return {
-                profiles: [{ title: "The Home Row Devotee", flavor: "A-S-D-F. Your fingers never left home base. Touch typist? Or just too lazy to move? Either way, respect." }],
-                entropy: normalizedEntropy
-            };
-        }
-        if (typedString.toUpperCase().includes('NICE')) {
-            return {
-                profiles: [{ title: "The Nice Guy", flavor: "You typed NICE. We agree. It is, in fact, quite nice." }],
-                entropy: normalizedEntropy
-            };
-        }
-
-        // --- MOBILE / TOUCH ---
-        if (touchHits === totalKeys) {
-            return {
-                profiles: [{ title: "The Mobile Smasher", flavor: "Tapping your screen to death. RIP to your oleophobic coating." }],
-                entropy: normalizedEntropy
-            };
-        }
-
-        // -------------------------------------------------------
-        // ACCUMULATIVE profiles: collect ALL that match
-        // -------------------------------------------------------
-        const matched = [];
-        const add = (title, flavor) => matched.push({ title, flavor });
-
-        if (touchHits > 0 && touchHits !== totalKeys) {
-            add("The Hybrid", "Using a touchscreen AND a keyboard? Unorthodox and deeply concerning.");
-        }
-
-        // --- 3. EXTREME HARDWARE / SPAM ---
-        if (maxRowSmashInSingleTick >= 6 && uniqueKeys > 20) {
-            add("The Forearm Sweep", "Forearm slam detected. The hardware is begging for mercy.");
-        }
-        if (maxRowSmashInSingleTick >= 3 && uniqueKeys > 15 && totalKeys < 60) {
-            add("The Silverback", "No human fingers move like this. You either rolled your face across the desk, or you just forearm-slammed your mechanical keyboard. The hardware is begging for mercy.");
-        }
-        if (maxSingleKeyCount >= 50) {
-            add("The Single-Key Murderer", "Please apologize to your key. Its warranty is void.");
-        }
-        let centerHits = (keyCounts['KeyG'] || 0) + (keyCounts['KeyH'] || 0) + (keyCounts['KeyY'] || 0) + (keyCounts['KeyB'] || 0);
-        if (centerHits > 0 && centerHits === totalKeys) {
-            add("The Center of Attention", "Laser-focused on the dead center. Tunnel vision at its finest.");
-        }
-        if (fKeyHits > 0 && fKeyHits === totalKeys) {
-            add("The BIOS Tech", "Are you trying to boot into Safe Mode? Coward.");
-        }
-
-        // --- 4. GAMER ZONES ---
-        if (arrowHits > 0 && spaceHits > 0 && arrowHits + spaceHits === totalKeys) {
-            add("The Flash Gamer", "Playing this like it's a 2004 browser game on Miniclip.");
-        }
-        if (arrowHits > 0 && arrowHits === totalKeys) {
-            add("The Arrow Key Boomer", "WASD was invented 20 years ago. Let go of the arrow keys, grandpa.");
-        } else if (arrowHits / totalKeys > 0.20) {
-            add("The Left-Handed Boomer", "You are playing this on the arrow keys. Either you are left-handed, or you boldly refused to adapt to standard gaming controls after 1998.");
-        }
-        if (mobaHits / totalKeys > 0.6) {
-            add("The MOBA Toxic", "Q, W, E, R dominance. You just tried to pop your ultimate, didn't you? Go back to the fountain.");
-        }
-        if (totalKeys > 80 && uniqueKeys <= 2 && (keyCounts['KeyZ'] || 0) + (keyCounts['KeyX'] || 0) > 80) {
-            add("The Osu! Addict", "Tapping Z and X at the speed of light. Have you blinked since 2019?");
-        }
-        if (dpadFaceHits / totalKeys > 0.6) {
-            add("The Fighting Game Scrub", "Just mashing heavy punch and hoping for a combo, huh?");
-        }
-        if (topRowHits / totalKeys > 0.8 && uniqueKeys > 5) {
-            add("The MMO Raider", "Cycling through your 40-button rotation. Too bad the boss enraged.");
-        }
-        if ((keyCounts['ControlLeft'] || 0) + (keyCounts['KeyC'] || 0) > totalKeys * 0.3) {
-            add("The Crouch Spammer", "Teabagging the keyboard won't give you a higher score.");
-        }
-        if (spaceHits / totalKeys > 0.15) {
-            add("The Bunny Hopper", "Your spacebar is currently holding on by a single, snapping plastic thread. You can stop jumping now. You're already dead.");
-        }
-        if (wasdHits / totalKeys > 0.20) {
-            add("The Sweaty Tryhard", "We get it, you are hardstuck Platinum in Valorant. Your hands naturally form a claw over the WASD keys. Please go take a shower.");
-        }
-        if (hasAlt && tabHits / totalKeys > 0.10) {
-            add("The Alt-Tabber", "Boss walking by? You hit Alt-Tab more times than actual keys. Your 'spreadsheets' are safe.");
-        }
-
-        // --- 5. NERD / PRODUCTIVITY ZONES ---
-        if (vimHits / totalKeys > 0.4 && escHits > 0) {
-            add("The Vim Escaper", "You can't :wq your way out of this one.");
-        }
-        if (punctuationHits / totalKeys > 0.4 && ((keyCounts['Comma'] || 0) > 0 || (keyCounts['Period'] || 0) > 0 || (keyCounts['Slash'] || 0) > 0)) {
-            add("The HTML Hacker", "You're closing tags faster than your browser is crashing.");
-        }
-        let regexHits = (keyCounts['Digit6'] || 0) + (keyCounts['Digit4'] || 0) + (keyCounts['Digit8'] || 0) + (keyCounts['NumpadMultiply'] || 0) + (keyCounts['Equal'] || 0) + (keyCounts['NumpadAdd'] || 0) + (keyCounts['Slash'] || 0) + (keyCounts['Backslash'] || 0);
-        if (regexHits > 3) {
-            add("The Regex Nightmare", "Nobody knows what those symbols do, including you.");
-        }
-        let isHex = typedString.length > 5;
+        s.isHex = s.typedString.length > 5;
         const hexChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
-        for (let i = 0; i < typedString.length; i++) {
-            if (!hexChars.includes(typedString[i])) isHex = false;
-        }
-        if (isHex && typedString.length > 5 && !typedString.includes(' ')) {
-            add("The Hexadecimal", "Speaking strictly in base-16. You are a robot.");
-        }
-        if (enterHits / totalKeys > 0.3 && totalKeys < 20) {
-            add("The Terminal Typist", "Waiting for the command prompt to execute your garbage.");
-        }
-        if (mathHits / totalKeys > 0.10) {
-            add("The Mad Scientist", "Plus, minus, multiply, divide. You're out here solving the Riemann Hypothesis instead of playing the game.");
-        }
-        if (numpadHits / totalKeys > 0.35) {
-            add("The Angry Accountant", "Did the taxes not balance this year? You completely ignored the letters and attacked the calculator zone with lethal intent. HR has been notified.");
-        }
-        if (bottomRowHits / totalKeys > 0.35 && uniqueKeys > 5) {
-            add("The Bottom Feeder", "You stayed rigidly glued to the ZXCVBNM row. Did you spill coffee on the top half of your keyboard, or are you just afraid of heights?");
-        }
-        if (topRowHits / totalKeys > 0.35 && uniqueKeys > 5 && !(topRowHits / totalKeys > 0.8)) {
-            add("The Top Row Tyrant", "QWERTYUIOP. You dominated the top row exclusively. A minimalist approach, but mathematically inefficient.");
+        for (let i = 0; i < s.typedString.length; i++) {
+            if (!hexChars.includes(s.typedString[i])) s.isHex = false;
         }
 
-        // --- 6. KEYBOARD HABITS ---
-        if (vowelHits > 0 && vowelHits === totalKeys) {
-            add("The Vowel Enthusiast", "Are you trying to buy a vowel? This isn't Wheel of Fortune.");
-        } else if (vowelHits === 0 && totalKeys > 5) {
-            add("The Consonant Crusader", "Wh nds vwls nywy? Y sk t ths gm.");
-        } else if (vowelHits / totalKeys > 0.25) {
-            add("The Vowel Vulture", "A, E, I, O, U... and sometimes Y? You strictly targeted vowels. We're not playing Wheel of Fortune, you don't need to buy them.");
-        }
-        let leftSideKeys = new Set(['KeyQ', 'KeyW', 'KeyE', 'KeyR', 'KeyT', 'KeyA', 'KeyS', 'KeyD', 'KeyF', 'KeyG', 'KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB']);
-        let rightSideKeys = new Set(['KeyY', 'KeyU', 'KeyI', 'KeyO', 'KeyP', 'KeyH', 'KeyJ', 'KeyK', 'KeyL', 'KeyN', 'KeyM']);
-        let leftHits = 0, rightHits = 0;
-        for (const k in keyCounts) {
-            if (leftSideKeys.has(k)) leftHits += keyCounts[k];
-            if (rightSideKeys.has(k)) rightHits += keyCounts[k];
-        }
-        if (leftHits > 0 && rightHits === 0 && totalKeys > 10) {
-            add("The Left-Handed Demon", "Right hand was busy? We won't ask.");
-        } else if (rightHits > 0 && leftHits === 0 && totalKeys > 10) {
-            add("The Right-Handed Menace", "Refusing to use the left side. Unbalanced.");
-        }
-        if (escHits / totalKeys > 0.08) {
-            add("The Escape Artist", "You spent the entire match mashing Escape. Are you trying to open the pause menu? Are you trying to flee the simulation? There is no escape.");
-        }
-        if (deleteHits / totalKeys > 0.10) {
-            add("The Typosquatter", "You hit Backspace more times than a regretful ex texting at 2 AM. You can't un-type the chaos, just embrace it.");
-        }
-        if (enterHits / totalKeys > 0.10) {
-            add("The Executioner", "Smashing the Enter key won't send your messages faster, and it certainly won't help you win. Stop trying to submit the game.");
-        }
-        if (punctuationHits / totalKeys > 0.15) {
-            add("The Punctuation Pedant", "Commas, periods, semicolons... Did you accidentally open your IDE? The compiler is going to reject your high score.");
-        }
-        if (tabHits / totalKeys > 0.10) {
-            add("The QA Tester", "Smashing Tab. Are you checking the form accessibility index? The UI is fine, please stop filing Jira tickets.");
-        }
-        if (capsLockHits > 2) {
-            add("The Screamer", "WHY ARE WE YELLING? You hit CapsLock repeatedly. Your keyboard doesn't have a volume dial, but you certainly found a way to shout.");
-        }
-        if (fKeyHits / totalKeys > 0.10) {
-            add("The IT Support", "F1, F5, F12... Are you trying to refresh the page or open the developer console? Did you try turning the keyboard off and on again?");
-        }
-        if (osHits > 0 && totalKeys < 5) {
-            add("The Windows Key Victim", "You opened the Start Menu, the game lost focus, and you typed exactly nothing useful. Skill issue.");
-        }
-        if (printScreenHits > 0) {
-            add("The Screenshot Hoarder", "PrintScreen during a keyboard smashing game. What exactly were you trying to document? The suffering?");
-        }
-        if (pauseHits > 0) {
-            add("The System Interrupter", "You hit Pause. During a 5-second game. There is no pause in life either, but at least you tried.");
-        }
-        if (scrollLockHits > 0) {
-            add("The Scroll Lock Champion", "Scroll Lock. The loneliest key on the keyboard. It does nothing. You pressed it anyway. We see you.");
-        }
-        if (insertHits > 0) {
-            add("The Toggle Archaeologist", "Insert key. You activated Insert mode on a game that has no text cursor. Explorer of the useless. Pioneer of nothing.");
-        }
-        if (modifierHits / totalKeys > 0.10) {
-            add("The Mod Squad", "Shift, Ctrl, Alt... You know these keys don't actually DO anything on their own, right? You're just boldly modifying nothing.");
-        }
-
-        // --- 7. STUTTERING / SLOW ---
-        if (totalKeys > 20 && uniqueKeys <= 2 && maxSingleKeyCount < totalKeys * 0.8) {
-            add("The Two-Finger Peck", "Typing like a confused detective in a 1990s movie.");
-        }
-        if (maxSingleKeyCount / totalKeys > 0.20 && maxSingleKeyCount > 5) {
-            add("The Stutterer", `You pressed [${mostRepeatedKey.replace('Key', '')}] exactly ${maxSingleKeyCount} times. Are you okay? Is that your emotional support key?`);
-        }
-        if (uniqueKeys > 15 && maxRowSmashInSingleTick < 4) {
-            add("The Novelist", "Are you typing 'pls let me win' in the chat? Your keystroke distribution looks like you just wrote a 3-page essay on Shrek lore instead of fighting.");
-        }
-
-        // --- 8. PACING & TIMING ---
-        // Tick rate is 50ms — classic = 100 ticks, blitz = 40 ticks
-        const expectedTicks = mode === 'blitz' ? 40 : 100;
-
-        if (totalKeys > 0 && firstHitTick > 40) {
-            add("The Pacifist", "Refusing to fight. Gandhi would be proud; your score is not.");
-        } else if (firstHitTick > expectedTicks * 0.7) {
-            add("The AFK", "You were completely dead for 80% of the game and woke up at the very end in a panic. Ping 999ms.");
-        }
-        if (lastHitTick < expectedTicks * 0.3) {
-            add("The Early Bird", "You smashed the keyboard for the first half-second and then just gave up entirely. Stamina issue?");
-        }
-        let fastStart = 0;
         for (let i = 0; i < 10 && i < keyHistory.length; i++) {
-            if (Array.isArray(keyHistory[i])) fastStart += keyHistory[i].length;
+            if (Array.isArray(keyHistory[i])) s.fastStart += keyHistory[i].length;
         }
-        if (fastStart > 30 && (totalKeys - fastStart) < 5 && expectedTicks === 50) {
-            add("The Decaf Drinker", "You ran out of gas 1 second in. Pathetic stamina.");
-        }
-        let lateStart = 0;
+        
         for (let i = 40; i < keyHistory.length; i++) {
-            if (Array.isArray(keyHistory[i])) lateStart += keyHistory[i].length;
-        }
-        if (lateStart > 40 && (totalKeys - lateStart) < 10 && expectedTicks === 50) {
-            add("The Anime Comeback", "You unlocked your final form at the very last second.");
-        }
-        if (tickTimestamps.length > 3) {
-            let maxGap = 0;
-            for (let i = 1; i < tickTimestamps.length; i++) {
-                let gap = tickTimestamps[i] - tickTimestamps[i - 1];
-                if (gap > maxGap) maxGap = gap;
-            }
-            if (maxGap > 20 && totalKeys > 5) {
-                add("The Distracted", "Checking your phone during a 5-second match? Disrespectful.");
-            }
-        }
-        if (totalKeys > 0 && kps < 2) {
-            add("The Sloth", "Are you moving underwater? Check your pulse.");
+            if (Array.isArray(keyHistory[i])) s.lateStart += keyHistory[i].length;
         }
 
-        // --- 9. DEFAULT FALLBACK ---
+        if (s.tickTimestamps.length > 3) {
+            for (let i = 1; i < s.tickTimestamps.length; i++) {
+                let gap = s.tickTimestamps[i] - s.tickTimestamps[i - 1];
+                if (gap > s.maxGap) s.maxGap = gap;
+            }
+        }
+
+        return s;
+    }
+
+    static analyze(keyHistory, mode) {
+        if (!keyHistory || keyHistory.length === 0) {
+            return {
+                profiles: [{ title: "The Ghost", flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up." }],
+                entropy: 0.0,
+                isCheater: true
+            };
+        }
+
+        const stats = this.calculateStats(keyHistory, mode);
+
+        if (stats.totalKeys === 0) {
+            return {
+                profiles: [{ title: "The Ghost", flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up." }],
+                entropy: 0.0,
+                isCheater: true
+            };
+        }
+
+        let matched = [];
+
+        for (const profile of PROFILES) {
+            if (profile.condition(stats)) {
+                const flavorText = typeof profile.flavor === 'function' ? profile.flavor(stats) : profile.flavor;
+
+                if (profile.isExclusive) {
+                    const result = {
+                        profiles: [{ title: profile.title, flavor: flavorText }],
+                        entropy: stats.normalizedEntropy,
+                        isCheater: profile.isCheater || false
+                    };
+                    if (profile.forceSmashScore) result.forceSmashScore = profile.forceSmashScore;
+                    return result;
+                }
+                
+                matched.push({ title: profile.title, flavor: flavorText });
+            }
+        }
+
         if (matched.length === 0) {
-            matched.push({
-                title: "The Panic Button",
-                flavor: "Pure, unfiltered chaos. No strategy, no physical zones, just a terrifying blend of adrenaline and flailing fingers. We respect the panic."
-            });
+            matched.push({ title: "The Panic Button", flavor: "Pure, unfiltered chaos. No strategy, no physical zones, just a terrifying blend of adrenaline and flailing fingers. We respect the panic." });
         }
 
         return {
             profiles: matched,
-            entropy: normalizedEntropy,
+            entropy: stats.normalizedEntropy,
             isCheater: false
         };
+    }
+
+    // Now dynamically computed. We filter to unique titles since "Suspected Cheater" is in PROFILES multiple times
+    static TOTAL_PROFILES = [
+        "The Ghost", ...Array.from(new Set(PROFILES.map(p => p.title))), "The Panic Button"
+    ].filter((value, index, self) => self.indexOf(value) === index);
+
+    static getTotalCount() {
+        return ProfileEngine.TOTAL_PROFILES.length;
     }
 }
 

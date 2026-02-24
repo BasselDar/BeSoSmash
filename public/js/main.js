@@ -1,5 +1,6 @@
 // public/js/main.js
-import { startGame, resetGame, shareScore, saveCardImage, initGameEngine, clearCodename } from './game/engine.js';
+import { startGame, resetGame, initGameEngine, clearCodename } from './game/engine.js';
+import { shareScore, saveCardImage } from './game/share.js';
 import { initLeaderboard } from './ui/leaderboard.js';
 import { showToast } from './ui/toast.js';
 

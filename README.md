@@ -9,8 +9,11 @@ BeSoSmash is a real-time, highly interactive front-end and back-end web applicat
   - **Classic:** 5 seconds to achieve maximum keystrokes, entropy, and keys-per-second (KPS).
   - **Blitz:** A chaotic 2-second burst mode for ultimate fast fingers.
 - **Personality Profiling Engine:** Analyze keystrokes to generate funny, meme-oriented, and highly judgmental profiles (e.g., "The Script Kiddie", "The Spacebar Supremacist", "The Glitch"). Over 50 unique profiles exist, including complex easter eggs and anti-cheat detections.
-- **Global Leaderboard:** Features pagination and live ranking against the global database, optimized via PostgreSQL and Redis.
-- **Dynamic Scoring:** Total `smash_score` is a combination of your raw keystroke count, the topological *entropy* (randomness) of your smashing, and your KPS (Keys Per Second).
+- **Global Leaderboard:** Features pagination and live ranking against the global database.
+- **Dynamic Scoring (Smash Score):** Total score is calculated using a specialized formula:
+  - `(Keys × 1337) + (Entropy² × 1.7) + (KPS × 69) + (Profiles Earned × 420)`
+- **Entropy System:** We use Shannon Entropy to measure the randomness of your mashing.
+
 - **Anti-Cheat Validation:** The server detects macros, botting scripts, Metronome timings, and hardware spoofing, instantly rejecting illegitimate runs.
 
 ## Tech Stack

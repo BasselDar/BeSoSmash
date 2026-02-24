@@ -1,9 +1,11 @@
 const ScoreModel = require('../models/scoreModel');
 const ProfileEngine = require('../utils/ProfileEngine');
-
-const activeGames = {};
-const cooldowns = {}; // Per-socket cooldown tracker
-let lastLeaderboardBroadcast = 0;
+const { calculateSmashScore } = require('../utils/scoring');
+const {
+    getGame, setGame, deleteGame,
+    getCooldown, setCooldown, deleteCooldown,
+    getLastBroadcastTime, setLastBroadcastTime,
+} = require('./gameManager');
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
@@ -12,7 +14,7 @@ module.exports = (io) => {
         socket.on('startGame', (data) => {
             // Rate limit: 3-second cooldown between games
             const now = Date.now();
-            if (cooldowns[socket.id] && now - cooldowns[socket.id] < 3000) {
+            if (getCooldown(socket.id) && now - getCooldown(socket.id) < 3000) {
                 return; // Silently ignore spam
             }
 
@@ -23,7 +25,7 @@ module.exports = (io) => {
             const rawName = typeof data.name === 'string' ? data.name : 'Anonymous';
             const safeName = rawName.trim().replace(/<[^>]*>/g, '').slice(0, 12) || 'Anonymous';
 
-            activeGames[socket.id] = {
+            setGame(socket.id, {
                 name: safeName,
                 score: 0,
                 isActive: true,
@@ -31,7 +33,7 @@ module.exports = (io) => {
                 keyHistory: [],
                 startTime: Date.now(),
                 timerDuration: timerDuration
-            };
+            });
 
             socket.emit('gameStarted');
 
@@ -44,7 +46,7 @@ module.exports = (io) => {
         });
 
         socket.on('keyPressBatch', (keys) => {
-            const game = activeGames[socket.id];
+            const game = getGame(socket.id);
 
             if (game && game.isActive) {
                 // Reject batches that arrive after the game should have ended (client timer + 1s grace)
@@ -64,7 +66,7 @@ module.exports = (io) => {
         });
 
         socket.on('clientGameEnd', (clientScore) => {
-            const game = activeGames[socket.id];
+            const game = getGame(socket.id);
             if (game && game.isActive) {
                 // Trust the client's final score if it's within 300 keys (packet latency tolerance)
                 if (typeof clientScore === 'number' && clientScore > game.score && (clientScore - game.score) <= 300) {
@@ -77,14 +79,14 @@ module.exports = (io) => {
         });
 
         socket.on('disconnect', () => {
-            delete activeGames[socket.id];
-            delete cooldowns[socket.id];
+            deleteGame(socket.id);
+            deleteCooldown(socket.id);
         });
     });
 };
 
 async function endGame(socket, io) {
-    const game = activeGames[socket.id];
+    const game = getGame(socket.id);
     if (!game || !game.isActive) return;
 
     game.isActive = false;
@@ -94,42 +96,54 @@ async function endGame(socket, io) {
 
     let playerRank = null;
     let smashScore = null;
+    let finalProfiles = analysis.profiles; // Start with current run's profiles
 
     // Only process rankings and database insertion if they are NOT a cheater
     if (!analysis.isCheater) {
-        // Smash Score = keys × 1337 + entropy² × 1.7 + KPS × 69 + profiles × 420
-        // Keys dominate, but entropy, speed, and profile count add noticeable bonuses
         const timerDuration = game.mode === 'blitz' ? 2 : 5;
         const kps = parseFloat((game.score / timerDuration).toFixed(1));
         const entropyVal = parseFloat(analysis.entropy) || 0;
         const profileCount = analysis.profiles ? analysis.profiles.length : 0;
 
-        smashScore = Math.round((game.score * 1337) + (entropyVal * entropyVal * 1.7) + (kps * 69) + (profileCount * 420));
+        // Save first so we get the merged cumulative profiles and best performance stats
+        const savedData = await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal, analysis.profiles, analysis.forceSmashScore);
+
+        if (savedData) {
+            smashScore = savedData.smashScore;
+            finalProfiles = savedData.mergedProfiles; // Update to the cumulative set
+        } else {
+            // Fallback if DB fails
+            smashScore = analysis.forceSmashScore !== undefined ? analysis.forceSmashScore : calculateSmashScore(game.score, entropyVal, kps, profileCount);
+        }
 
         // FETCH THE UPDATED ABSOLUTE GLOBAL RANK FOR THIS SPECIFIC SCORE RUN
         playerRank = await ScoreModel.getRank(smashScore, game.mode);
 
-        // PASS THE MODE TO THE DATABASE MODEL!
-        await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal, analysis.profiles);
+        // Emit the updated global smash count to everyone (for the home page counter)
+        if (savedData && savedData.totalSmashes) {
+            io.emit('globalSmashCount', savedData.totalSmashes);
+        }
 
         // Throttle leaderboard broadcasts to max once every 2 seconds to prevent Broadcast Storms
         const now = Date.now();
-        if (now - lastLeaderboardBroadcast > 2000) {
+        if (now - getLastBroadcastTime() > 2000) {
             io.emit('updateLeaderboard');
-            lastLeaderboardBroadcast = now;
+            setLastBroadcastTime(now);
         }
     }
 
-    // Tell the player it's over (we still send the game over payload to them, just no DB/LB save)
+    // Tell the player it's over (we still send the game over payload to them, just no DB/LB save if cheater)
     socket.emit('gameOver', {
         finalScore: game.score,
         smash_score: smashScore,
         kps: game.mode === 'blitz' ? parseFloat((game.score / 2).toFixed(1)) : parseFloat((game.score / 5).toFixed(1)),
         rank: playerRank,
-        profiles: analysis.profiles,
-        entropy: analysis.entropy
+        profiles: finalProfiles, // Cumulative mapping used for Leaderboard's "Current Session"
+        runProfiles: analysis.profiles, // The profiles earned *in this specific match*
+        entropy: analysis.entropy,
+        totalProfiles: ProfileEngine.getTotalCount()
     });
 
-    cooldowns[socket.id] = Date.now(); // Start cooldown
-    delete activeGames[socket.id];
+    setCooldown(socket.id, Date.now()); // Start cooldown
+    deleteGame(socket.id);
 }

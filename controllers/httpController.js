@@ -1,9 +1,11 @@
 // controllers/httpController.js
 const ScoreModel = require('../models/scoreModel');
 
-exports.renderHome = (req, res) => {
+exports.renderHome = async (req, res) => {
+    const globalSmashCount = await ScoreModel.getGlobalSmashCount();
     res.render('home', {
-        activePage: 'home'
+        activePage: 'home',
+        globalSmashCount
     });
 };
 
