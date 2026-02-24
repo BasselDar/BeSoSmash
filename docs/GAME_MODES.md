@@ -1,4 +1,4 @@
-# Game Modes 🎮
+# Game Modes
 
 BeSoSmash currently supports multiple ways to break your keyboard. Each mode maintains an isolated leaderboard and tracks distinct playstyles.
 

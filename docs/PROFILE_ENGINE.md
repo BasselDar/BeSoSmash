@@ -1,4 +1,4 @@
-# The Profile Engine 🧠
+# The Profile Engine
 
 The magic behind the BeSoSmash diagnosis screen relies on `utils/ProfileEngine.js`. Its job is to take the entire topological history of your keystrokes and infer who you are. The results are intentionally funny, chaotic, and occasionally judgmental.
 

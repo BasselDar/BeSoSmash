@@ -1,4 +1,4 @@
-# System Architecture 🏗
+# System Architecture
 
 BeSoSmash is designed for highly concurrent, low-latency interactions. The architecture is split between a standard HTTP Express application for view serving and REST APIs, and a WebSocket layer for real-time game state synchronization.
 

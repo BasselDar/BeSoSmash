@@ -1,8 +1,8 @@
-# BeSoSmash 💥⌨️
+# BeSoSmash
 
 BeSoSmash is a real-time, highly interactive front-end and back-end web application that gamifies the act of randomly smashing your keyboard. Built with Node.js, Express, Socket.io, PostgreSQL, and Redis, it turns chaotic typing into a competitive sport complete with leaderboards, global rankings, and highly specific, often hilarious personality profiling.
 
-## Features ✨
+## Features
 
 - **Real-Time Keyboard Smashing:** Mashes are sent to the server in real-time via WebSockets and validated asynchronously to ensure no cheating.
 - **Multiple Game Modes:**
@@ -13,7 +13,7 @@ BeSoSmash is a real-time, highly interactive front-end and back-end web applicat
 - **Dynamic Scoring:** Total `smash_score` is a combination of your raw keystroke count, the topological *entropy* (randomness) of your smashing, and your KPS (Keys Per Second).
 - **Anti-Cheat Validation:** The server detects macros, botting scripts, Metronome timings, and hardware spoofing, instantly rejecting illegitimate runs.
 
-## Tech Stack 🛠
+## Tech Stack
 
 - **Backend:** Node.js, Express.js
 - **Database:** PostgreSQL (Primary Store), Redis (Caching & Sorted Sets)
@@ -21,7 +21,7 @@ BeSoSmash is a real-time, highly interactive front-end and back-end web applicat
 - **Frontend:** Vanilla JavaScript, EJS (Embedded JavaScript templates), CSS3
 - **Dev Tools:** Nodemon, Dotenv
 
-## Installation & Setup 🚀
+## Installation & Setup
 
 ### Prerequisites
 - Node.js (v18+ recommended)
@@ -69,7 +69,7 @@ BeSoSmash is a real-time, highly interactive front-end and back-end web applicat
 6. **Play!**
    Open your browser and navigate to `http://localhost:3000`.
 
-## Detailed Documentation 📚
+## Detailed Documentation
 
 For a deeper dive into the system's architecture, game modes, and the complex inner workings of the personality inference engine, please refer to the `docs/` folder:
 
