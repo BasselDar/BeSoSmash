@@ -1,5 +1,5 @@
 // public/js/main.js
-import { startGame, resetGame, shareScore, saveCardImage, initGameEngine } from './game/engine.js';
+import { startGame, resetGame, shareScore, saveCardImage, initGameEngine, clearCodename } from './game/engine.js';
 import { initLeaderboard } from './ui/leaderboard.js';
 import { showToast } from './ui/toast.js';
 
@@ -10,6 +10,7 @@ window.resetGame = resetGame;
 window.shareScore = shareScore;
 window.saveCardImage = saveCardImage;
 window.showToast = showToast;
+window.clearCodename = clearCodename;
 
 // Initialize components once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

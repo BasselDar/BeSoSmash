@@ -14,6 +14,15 @@ export function startGame(mode) {
     const name = nameInput ? nameInput.value.trim() : '';
     if (!name) return showToast("ENTER A CODENAME FIRST");
 
+    // Lock codename to prevent name spamming in the same session
+    localStorage.setItem('besosmash_codename', name);
+    if (nameInput) {
+        nameInput.disabled = true;
+        nameInput.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+    const changeBtn = document.getElementById('change-name-btn');
+    if (changeBtn) changeBtn.classList.remove('hidden');
+
     document.getElementById('setup-panel').classList.add('hidden');
     document.getElementById('smash-zone').classList.remove('hidden');
 
@@ -204,6 +213,20 @@ export function resetGame() {
     fetchLeaderboard(false);
 }
 
+// Function to clear a saved codename
+export function clearCodename() {
+    localStorage.removeItem('besosmash_codename');
+    const nameInput = document.getElementById('username');
+    if (nameInput) {
+        nameInput.disabled = false;
+        nameInput.classList.remove('opacity-50', 'cursor-not-allowed');
+        nameInput.value = '';
+        nameInput.focus();
+    }
+    const btn = document.getElementById('change-name-btn');
+    if (btn) btn.classList.add('hidden');
+}
+
 // Function to copy score to clipboard
 export function shareScore() {
     const nameInput = document.getElementById('username');
@@ -304,6 +327,17 @@ export function saveCardImage() {
 
 // Initialize the game engine
 export function initGameEngine() {
+    // Restore and lock Codename if previously set
+    const savedName = localStorage.getItem('besosmash_codename');
+    const nameInput = document.getElementById('username');
+    const changeBtn = document.getElementById('change-name-btn');
+    if (savedName && nameInput) {
+        nameInput.value = savedName;
+        nameInput.disabled = true;
+        nameInput.classList.add('opacity-50', 'cursor-not-allowed');
+        if (changeBtn) changeBtn.classList.remove('hidden');
+    }
+
     // Always block browser default behaviour for navigation keys site-wide
     document.addEventListener('keydown', (e) => {
         // If actively playing or waiting to start, block EVERYTHING
