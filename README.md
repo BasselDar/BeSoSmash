@@ -1,6 +1,6 @@
 # BeSoSmash
 
-BeSoSmash is a real-time, highly interactive front-end and back-end web application that gamifies the act of randomly smashing your keyboard. Built with Node.js, Express, Socket.io, PostgreSQL, and Redis, it turns chaotic typing into a competitive sport complete with leaderboards, global rankings, and highly specific, often hilarious personality profiling.
+BeSoSmash is a real-time, highly interactive web application that gamifies the act of randomly smashing your keyboard. Built with Node.js, Express, Socket.io, PostgreSQL, and Redis, it turns chaotic typing into a competitive sport complete with leaderboards, global rankings, profile collection, and highly specific, often hilarious personality profiling.
 
 ## Features
 
@@ -8,13 +8,14 @@ BeSoSmash is a real-time, highly interactive front-end and back-end web applicat
 - **Multiple Game Modes:**
   - **Classic:** 5 seconds to achieve maximum keystrokes, entropy, and keys-per-second (KPS).
   - **Blitz:** A chaotic 2-second burst mode for ultimate fast fingers.
-- **Personality Profiling Engine:** Analyze keystrokes to generate funny, meme-oriented, and highly judgmental profiles (e.g., "The Script Kiddie", "The Spacebar Supremacist", "The Glitch"). Over 50 unique profiles exist, including complex easter eggs and anti-cheat detections.
-- **Global Leaderboard:** Features pagination and live ranking against the global database.
+- **Personality Profiling Engine:** A rule-based engine analyzes keystrokes to generate funny, meme-oriented, and highly judgmental profiles (e.g., "The Script Kiddie", "The Spacebar Supremacist", "The Glitch"). Over 50 unique profiles exist, including Easter Eggs and anti-cheat detections.
+- **Profile Collection:** Profiles accumulate across all sessions. Discovering new profiles boosts your score — play different styles to collect them all.
+- **Global Leaderboard:** Features search, pagination, stat badges, and live ranking against the global database.
 - **Dynamic Scoring (Smash Score):** Total score is calculated using a specialized formula:
   - `(Keys × 1337) + (Entropy² × 1.7) + (KPS × 69) + (Profiles Earned × 420)`
-- **Entropy System:** We use Shannon Entropy to measure the randomness of your mashing.
-
-- **Anti-Cheat Validation:** The server detects macros, botting scripts, Metronome timings, and hardware spoofing, instantly rejecting illegitimate runs.
+- **Smart Score Saving:** Your high score is never overwritten by a bad run. New profiles discovered on weaker runs still boost your Smash Score using your best stats.
+- **Entropy System:** Shannon Entropy measures the randomness and spread of your mashing.
+- **Anti-Cheat Validation:** The server detects macros, botting scripts, DOM injection, and hardware spoofing, instantly rejecting illegitimate runs.
 
 ## Tech Stack
 
@@ -76,9 +77,9 @@ BeSoSmash is a real-time, highly interactive front-end and back-end web applicat
 
 For a deeper dive into the system's architecture, game modes, and the complex inner workings of the personality inference engine, please refer to the `docs/` folder:
 
-- [System Architecture](docs/ARCHITECTURE.md) - Overview of the Socket.io lifecycle, models, and databases.
-- [Game Modes](docs/GAME_MODES.md) - Explanation of Classic vs Blitz and scoring mechanisms.
-- [Profile Engine](docs/PROFILE_ENGINE.md) - How the game detects 50+ unique personality types based purely on keystrokes.
+- [System Architecture](docs/ARCHITECTURE.md) — HTTP/WebSocket layers, database design, smart score saving, and project structure.
+- [Game Modes](docs/GAME_MODES.md) — Classic vs Blitz, entropy math, and the Smash Score formula.
+- [Profile Engine](docs/PROFILE_ENGINE.md) — Rule-based engine architecture, 50+ personality profiles, Easter Eggs, and the profile collection system.
 
 ## License
 

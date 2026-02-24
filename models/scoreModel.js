@@ -138,8 +138,12 @@ class ScoreModel {
                 console.log(`[DB] Inserted new score for ${name} (${mode}): ${newSmashScore} (Profiles: ${profileCount})`);
             }
 
-            // Always increment global total smashes regardless of personal best
-            const statsRes = await pool.query(`UPDATE global_stats SET total_smashes = total_smashes + $1 RETURNING total_smashes`, [score]);
+            // Always increment global total smashes regardless of personal best (self-healing upsert)
+            const statsRes = await pool.query(
+                `INSERT INTO global_stats (id, total_smashes) VALUES (1, $1)
+                 ON CONFLICT (id) DO UPDATE SET total_smashes = global_stats.total_smashes + $1
+                 RETURNING total_smashes`, [score]
+            );
             const totalSmashes = statsRes.rows.length > 0 ? parseInt(statsRes.rows[0].total_smashes, 10) : 0;
 
             await redisClient.zAdd(`leaderboard_${mode}`, { score: newSmashScore, value: name }, { GT: true });
