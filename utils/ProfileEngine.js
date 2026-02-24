@@ -181,18 +181,6 @@ class ProfileEngine {
                 metronomeCheats++;
             }
         }
-
-        if (totalKeys === 0) {
-            return {
-                profiles: [{
-                    title: "The Ghost",
-                    flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up."
-                }],
-                entropy: 0.0,
-                isCheater: true
-            };
-        }
-
         const uniqueKeys = uniqueKeysSet.size;
 
         let maxSingleKeyCount = 0;
@@ -221,7 +209,7 @@ class ProfileEngine {
         // 0. The Minimalist
         if (totalKeys === 1) {
             return {
-                profiles: [{ title: "The Minimalist", flavor: "You pressed exactly one key. Peak efficiency. Zero effort. Maximum gigachad energy." }],
+                profiles: [{ title: "The Minimalist", flavor: "You pressed exactly one key. Peak efficiency. Zero effort.GigChad." }],
                 entropy: normalizedEntropy
             };
         }
@@ -383,9 +371,9 @@ class ProfileEngine {
                 entropy: normalizedEntropy
             };
         }
-        if (typedString.toUpperCase().includes('EZ') && totalKeys <= 8) {
+        if (typedString.toUpperCase().includes('EZ')) {
             return {
-                profiles: [{ title: "The Disrespectful One", flavor: "EZ. You typed EZ with 8 keys pressed total. Bro. Please." }],
+                profiles: [{ title: "The Disrespectful One", flavor: "EZ. You typed EZ. Bro. Please." }],
                 entropy: normalizedEntropy
             };
         }

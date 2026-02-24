@@ -37,9 +37,7 @@ export function startGame(mode) {
 
 function handleFirstKey(e) {
     if (!state.waitingForKey || e.repeat) return;
-    if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab", "Enter"].indexOf(e.code) > -1) {
-        e.preventDefault();
-    }
+    e.preventDefault(); // Block all defaults to ensure pure smash
 
     state.waitingForKey = false;
     document.removeEventListener('keydown', handleFirstKey);
@@ -140,11 +138,7 @@ function triggerVisuals() {
 
 function handleKey(e) {
     if (!state.active) return;
-    // Allow scrolling outside the game by NOT preventing default if game is mostly visual 
-    // Wait, let's keep preventDefault for now, spacebar scrolling during action is awful
-    if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab", "Enter"].indexOf(e.code) > -1) {
-        e.preventDefault();
-    }
+    e.preventDefault(); // Block all defaults
     if (e.repeat) return;
     // Provide a normalized key that incorporates both code and literal key, just in case
     let keyString = e.code;
@@ -312,8 +306,14 @@ export function saveCardImage() {
 export function initGameEngine() {
     // Always block browser default behaviour for navigation keys site-wide
     document.addEventListener('keydown', (e) => {
-        if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab", "Enter"].indexOf(e.code) > -1) {
+        // If actively playing or waiting to start, block EVERYTHING
+        if (state.active || state.waitingForKey) {
             e.preventDefault();
+        } else if (document.activeElement.tagName !== 'INPUT') {
+            // Prevent scrolling/refreshing when just hanging out in menus
+            if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab", "Enter", "F5"].indexOf(e.code) > -1 || e.altKey) {
+                e.preventDefault();
+            }
         }
     });
 
