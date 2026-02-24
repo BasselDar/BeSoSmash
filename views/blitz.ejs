@@ -90,38 +90,38 @@
         </div>
 
         <div onclick="window.location.href='/'"
-            class="relative inline-block transform -rotate-3 hover:scale-105 hover:-translate-y-2 hover:rotate-0 transition-all duration-300 pb-2 group cursor-pointer">
+            class="relative inline-block transform -rotate-3 hover:scale-105 hover:-translate-y-2 hover:rotate-0 transition-all duration-300 pb-2 group cursor-pointer max-w-full">
             <!-- Shadow Layer -->
             <h1 aria-hidden="true"
-                class="absolute top-0 left-0 w-full h-full text-7xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter text-[#0f172a] select-none whitespace-nowrap pr-4 transition-all duration-300 group-hover:drop-shadow-[0_15px_15px_rgba(244,63,94,0.3)] group-hover:translate-x-3 group-hover:translate-y-3"
+                class="absolute top-0 left-0 w-full h-full text-5xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter text-[#0f172a] select-none pr-4 transition-all duration-300 group-hover:drop-shadow-[0_15px_15px_rgba(244,63,94,0.3)] group-hover:translate-x-3 group-hover:translate-y-3"
                 style="-webkit-text-stroke: 12px #0f172a; transform: translate(6px, 6px);">
                 BeSo<span class="text-transparent">Smash</span>
             </h1>
             <h1 aria-hidden="true"
-                class="absolute top-0 left-0 w-full h-full text-7xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter text-[#0f172a] select-none whitespace-nowrap pr-4 transition-all duration-300 group-hover:drop-shadow-[0_15px_15px_rgba(234,179,8,0.3)] group-hover:translate-x-3 group-hover:translate-y-3"
+                class="absolute top-0 left-0 w-full h-full text-5xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter text-[#0f172a] select-none pr-4 transition-all duration-300 group-hover:drop-shadow-[0_15px_15px_rgba(234,179,8,0.3)] group-hover:translate-x-3 group-hover:translate-y-3"
                 style="-webkit-text-stroke: 12px #0f172a; transform: translate(6px, 6px);">
                 <span class="text-transparent">BeSo</span>Smash
             </h1>
 
             <!-- Outline Layer -->
             <h1 aria-hidden="true"
-                class="absolute top-0 left-0 w-full h-full text-7xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter text-[#0f172a] select-none whitespace-nowrap pr-4"
+                class="absolute top-0 left-0 w-full h-full text-5xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter text-[#0f172a] select-none pr-4"
                 style="-webkit-text-stroke: 12px #0f172a;">
                 BeSoSmash
             </h1>
 
             <!-- Foreground Layer -->
             <h1
-                class="relative text-7xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter group-hover:brightness-110 transition-all duration-300">
+                class="relative text-5xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter group-hover:brightness-110 transition-all duration-300">
                 <span
-                    class="inline-block pr-4 text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 via-purple-500 to-fuchsia-500 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">BeSo</span><span
+                    class="inline-block pr-2 text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 via-purple-500 to-fuchsia-500 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">BeSo</span><span
                     class="inline-block pr-4 text-transparent bg-clip-text bg-gradient-to-br from-rose-500 via-orange-500 to-yellow-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]">Smash</span>
             </h1>
         </div>
 
-        <div class="mt-4">
+        <div class="mt-4 px-2">
             <p
-                class="text-slate-200 font-black tracking-[0.2em] text-xs md:text-sm border-y-2 border-slate-500/50 py-1 inline-block px-6 bg-black/50 backdrop-blur-sm shadow-[0_0_15px_rgba(0,0,0,0.6)] transform rotate-1 uppercase">
+                class="text-slate-200 font-black tracking-[0.1em] md:tracking-[0.2em] text-[10px] md:text-sm border-y-2 border-slate-500/50 py-1 inline-block px-4 md:px-6 bg-black/50 backdrop-blur-sm shadow-[0_0_15px_rgba(0,0,0,0.6)] transform rotate-1 uppercase max-w-full text-center">
                 GLOBAL KEYBOARD DESTRUCTION EVENT
             </p>
         </div>
@@ -132,15 +132,17 @@
             <div class="rounded-3xl" style="margin: -20px; padding: 20px;">
                 <div id="game-container" class="w-full text-center z-10">
 
-                    <div id="setup-panel" class="mb-5 glass-panel p-10 rounded-3xl relative overflow-hidden group">
+                    <div id="setup-panel"
+                        class="mb-5 glass-panel p-6 md:p-10 rounded-3xl relative overflow-hidden group">
                         <div
                             class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                         </div>
-                        <h2 class="text-3xl font-black text-purple-400 mb-8 tracking-wider">CHOOSE YOUR CODENAME</h2>
-                        <div class="flex justify-center items-center gap-6">
-                            <div class="relative group">
+                        <h2 class="text-2xl md:text-3xl font-black text-purple-400 mb-6 md:mb-8 tracking-wider">CHOOSE
+                            YOUR CODENAME</h2>
+                        <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6">
+                            <div class="relative group w-full md:w-auto">
                                 <input type="text" id="username" placeholder="CODENAME" maxlength="12"
-                                    class="bg-black/50 border border-slate-600/50 text-white text-3xl p-5 rounded-2xl text-center w-72 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/30 uppercase transition-all font-black shadow-inner">
+                                    class="bg-black/50 border border-slate-600/50 text-white text-2xl md:text-3xl p-4 md:p-5 rounded-2xl text-center w-full md:w-72 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/30 uppercase transition-all font-black shadow-inner">
                                 <button id="change-name-btn" onclick="clearCodename()"
                                     class="hidden absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-purple-500 hover:scale-110 transition-all cursor-pointer z-10"
                                     title="Change Codename">
@@ -152,7 +154,7 @@
                                 </button>
                             </div>
                             <button onclick="startGame('blitz')"
-                                class="bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-500 hover:to-fuchsia-400 text-white font-black py-5 px-10 rounded-2xl text-3xl shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_35px_rgba(168,85,247,0.8)] hover:scale-105 transition-all duration-300 active:scale-95 border border-white/20 relative overflow-hidden group/btn">
+                                class="w-full md:w-auto bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-500 hover:to-fuchsia-400 text-white font-black py-4 md:py-5 px-8 md:px-10 rounded-2xl text-2xl md:text-3xl shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_35px_rgba(168,85,247,0.8)] hover:scale-105 transition-all duration-300 active:scale-95 border border-white/20 relative overflow-hidden group/btn">
                                 <span class="relative z-10">BLITZ</span>
                                 <div
                                     class="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
@@ -169,18 +171,18 @@
                         </div>
                         <!-- Game Over Logo Header -->
                         <div class="flex justify-center mb-6">
-                            <h2 class="text-6xl md:text-7xl font-black uppercase italic tracking-tighter whitespace-nowrap"
+                            <h2 class="text-4xl md:text-7xl font-black uppercase italic tracking-tighter whitespace-nowrap"
                                 style="text-shadow: 0 0 20px rgba(168,85,247,0.5);">
                                 <span
-                                    class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 to-fuchsia-500 pr-4 -mr-4 relative z-10">BeSo</span><span
-                                    class="text-transparent bg-clip-text bg-gradient-to-br from-rose-500 to-yellow-500 relative z-0 pr-4">Smash</span>
+                                    class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 to-fuchsia-500 pr-2 md:pr-4 -mr-2 md:-mr-4 relative z-10">BeSo</span><span
+                                    class="text-transparent bg-clip-text bg-gradient-to-br from-rose-500 to-yellow-500 relative z-0 pr-2 md:pr-4">Smash</span>
                             </h2>
                         </div>
                         <p
-                            class="text-purple-400 font-bold tracking-widest text-sm mb-1 uppercase drop-shadow-md text-center">
+                            class="text-purple-400 font-bold tracking-widest text-xs md:text-sm mb-1 uppercase drop-shadow-md text-center">
                             DIAGNOSIS COMPLETE FOR</p>
                         <h3 id="final-name-display"
-                            class="text-5xl md:text-6xl font-black text-white mb-8 tracking-wider uppercase text-center"
+                            class="text-3xl md:text-6xl font-black text-white mb-8 tracking-wider uppercase text-center break-words max-w-[95%] mx-auto"
                             style="text-shadow: 0 4px 6px rgba(0,0,0,0.5), 0 0 15px rgba(255,255,255,0.4);">
                             PLAYER
                         </h3>
@@ -189,8 +191,8 @@
                             class="flex flex-col items-center justify-center gap-2 mb-8 bg-black/40 p-6 rounded-2xl border border-white/5">
                             <span class="text-slate-500 font-black text-xs tracking-widest uppercase">FINAL SCORE</span>
                             <span id="final-score-display"
-                                class="text-7xl font-mono font-black text-yellow-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]">0</span>
-                            <span id="final-rank-display" class="text-2xl font-black mt-2">NOVICE</span>
+                                class="text-5xl md:text-7xl font-mono font-black text-yellow-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]">0</span>
+                            <span id="final-rank-display" class="text-xl md:text-2xl font-black mt-2">NOVICE</span>
 
                             <div
                                 class="flex flex-wrap w-full justify-between items-center mt-6 pt-6 border-t border-white/10 px-0 md:px-2 gap-y-4">
@@ -252,35 +254,38 @@
                     </div>
 
                     <div id="smash-zone"
-                        class="hidden relative glass-panel border-4 border-dashed border-rose-500/50 rounded-3xl p-8 flex flex-col items-center justify-center select-none box-glow text-rose-500 h-96 transition-all">
+                        class="hidden relative glass-panel border-4 border-dashed border-rose-500/50 rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center select-none box-glow text-rose-500 h-[28rem] md:h-96 transition-all">
 
-                        <div class="absolute top-6 left-8 text-left">
-                            <p class="text-slate-400/80 text-sm font-bold tracking-widest uppercase">KPS (Keys/Sec)</p>
+                        <div class="absolute top-4 left-4 md:top-6 md:left-8 text-left">
+                            <p class="text-slate-400/80 text-[10px] md:text-sm font-bold tracking-widest uppercase">KPS
+                                (Keys/Sec)</p>
                             <p id="kps-display"
-                                class="text-4xl font-mono font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">
+                                class="text-2xl md:text-4xl font-mono font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">
                                 0.0</p>
                         </div>
 
-                        <div class="absolute top-6 right-8 text-right flex flex-col items-end">
+                        <div class="absolute top-4 right-4 md:top-6 md:right-8 text-right flex flex-col items-end">
                             <div
-                                class="flex items-center gap-2 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30 mb-2">
+                                class="flex items-center gap-2 bg-purple-500/20 px-2 py-1 md:px-3 md:py-1 rounded-full border border-purple-500/30 mb-2">
                                 <span id="timer-display"
-                                    class="font-mono font-black text-xl text-purple-300 w-16 text-right">2.00s</span>
+                                    class="font-mono font-black text-lg md:text-xl text-purple-300 w-12 md:w-16 text-right">2.00s</span>
                             </div>
                         </div>
 
-                        <div class="absolute bottom-6 right-8 text-right">
-                            <p class="text-slate-400/80 text-sm font-bold tracking-widest uppercase">CURRENT RANK</p>
-                            <p id="rank-display" class="text-3xl font-black text-slate-300 neon-glow">NOVICE</p>
+                        <div class="absolute bottom-4 right-4 md:bottom-6 md:right-8 text-right">
+                            <p class="text-slate-400/80 text-[10px] md:text-sm font-bold tracking-widest uppercase">
+                                CURRENT RANK</p>
+                            <p id="rank-display" class="text-xl md:text-3xl font-black text-slate-300 neon-glow">NOVICE
+                            </p>
                         </div>
 
                         <h2 id="status-text"
-                            class="text-4xl font-black text-white mix-blend-overlay opacity-80 mt-12 tracking-widest">
+                            class="text-2xl md:text-4xl font-black text-white mix-blend-overlay opacity-80 mt-12 tracking-widest text-center px-4">
                             SMASH YOUR
                             KEYBOARD!
                         </h2>
                         <div id="score-display"
-                            class="text-[12rem] font-mono font-black text-white leading-none tracking-tighter neon-glow mt-4">
+                            class="text-[6rem] md:text-[12rem] font-mono font-black text-white leading-none tracking-tighter neon-glow mt-2 md:mt-4">
                             0
                         </div>
                     </div>
@@ -289,7 +294,7 @@
         </div>
 
         <div id="leaderboard-section"
-            class="w-full max-w-4xl glass-panel p-8 md:p-12 rounded-3xl z-10 relative overflow-hidden mt-8 shadow-[0_0_50px_rgba(0,0,0,0.6)] border border-white/5">
+            class="w-full max-w-4xl glass-panel p-4 md:p-12 rounded-3xl z-10 relative overflow-hidden mt-8 shadow-[0_0_50px_rgba(0,0,0,0.6)] border border-white/5">
             <div
                 class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-purple-400/50 to-transparent">
             </div>

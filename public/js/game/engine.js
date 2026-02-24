@@ -42,14 +42,28 @@ export function startGame(mode) {
 
     state.waitingForKey = true;
     document.addEventListener('keydown', handleFirstKey);
+    document.addEventListener('touchstart', handleFirstTouch, { passive: false });
 }
 
 function handleFirstKey(e) {
     if (!state.waitingForKey || e.repeat) return;
     e.preventDefault(); // Block all defaults to ensure pure smash
 
+    startActualGame(e.code);
+}
+
+function handleFirstTouch(e) {
+    if (!state.waitingForKey) return;
+    e.preventDefault();
+
+    // Use the first touch as the seed
+    startActualGame('Touch_' + (e.changedTouches[0].identifier || '0'));
+}
+
+function startActualGame(firstKeyCode) {
     state.waitingForKey = false;
     document.removeEventListener('keydown', handleFirstKey);
+    document.removeEventListener('touchstart', handleFirstTouch);
     document.getElementById('status-text').innerText = "SMASH YOUR KEYBOARD";
     document.getElementById('status-text').classList.remove('animate-pulse');
 
@@ -62,6 +76,7 @@ function handleFirstKey(e) {
     state.active = true;
     state.gameStartTime = performance.now();
     document.addEventListener('keydown', handleKey);
+    document.addEventListener('touchstart', handleTouch, { passive: false });
 
     // Start visual timer
     clearInterval(state.timerInterval);
@@ -88,6 +103,7 @@ function handleFirstKey(e) {
             state.active = false;
             // Remove key listener immediately so Tab/Space/etc don't trigger browser defaults
             document.removeEventListener('keydown', handleKey);
+            document.removeEventListener('touchstart', handleTouch);
         }
     }, 10);
 
@@ -101,7 +117,7 @@ function handleFirstKey(e) {
         }
     }, 50);
 
-    processLocalKeyPress(e.code);
+    processLocalKeyPress(firstKeyCode);
 }
 
 function triggerVisuals() {
@@ -158,6 +174,16 @@ function handleKey(e) {
     }
 
     processLocalKeyPress(keyString, e.isTrusted);
+}
+
+function handleTouch(e) {
+    if (!state.active) return;
+    e.preventDefault(); // Block scrolling/zooming while playing
+
+    // Process every finger that just touched the screen
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        processLocalKeyPress('Touch_' + e.changedTouches[i].identifier, e.isTrusted);
+    }
 }
 
 function processLocalKeyPress(keyCode, isTrusted = true) {

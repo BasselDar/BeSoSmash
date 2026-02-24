@@ -23,23 +23,27 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
         li.innerHTML = `
             <div class="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-transparent to-yellow-400/10 pointer-events-none opacity-50 border-white"></div>
             <div class="absolute top-0 left-6 bg-yellow-400 text-black text-[10px] font-black tracking-widest px-3 py-1 rounded-b-md shadow-md z-20 uppercase">YOUR RUN</div>
-            <div class="flex items-center gap-4 md:gap-6 z-10 w-full mt-5">
-                <div class="flex items-center justify-center w-12">${medalHtml}</div>
-                <div class="flex flex-col flex-grow">
-                    <span class="font-black text-xl md:text-2xl tracking-wide text-yellow-300 drop-shadow-md uppercase">${currentSession.name} <span class="text-xs text-white/50">(Current)</span></span>
-                    <span class="text-xs font-bold text-yellow-200/70 tracking-widest uppercase flex items-center gap-1 mt-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        ${timeAgo(new Date().toISOString())}
-                    </span>
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 z-10 w-full mt-4 md:mt-5">
+                <div class="flex w-full md:w-auto items-center justify-between md:justify-start gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center justify-center min-w-[3rem] md:w-12">${medalHtml}</div>
+                        <div class="flex flex-col flex-grow truncate max-w-[150px] md:max-w-[200px] lg:max-w-none">
+                            <span class="font-black text-lg md:text-2xl tracking-wide text-yellow-300 drop-shadow-md uppercase truncate">${currentSession.name} <span class="text-xs text-white/50 whitespace-nowrap">(Current)</span></span>
+                            <span class="text-[10px] md:text-xs font-bold text-yellow-200/70 tracking-widest uppercase flex items-center gap-1 mt-1 truncate">
+                                <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                ${timeAgo(new Date().toISOString())}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-right z-10 flex flex-col items-end justify-center">
-                    <span class="font-mono font-black text-4xl leading-none text-yellow-300 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] transition-all flex items-center gap-2" title="Smash Score (Includes speed & chaos bonus!)">
-                        ${currentSession.smash_score != null ? currentSession.smash_score.toLocaleString() : '---'} <span class="text-xs text-yellow-500/50 cursor-help bg-black/40 rounded-full w-5 h-5 flex items-center justify-center border border-yellow-500/20">?</span>
+                <div class="text-left md:text-right z-10 flex flex-col items-start md:items-end w-full border-t border-white/10 md:border-0 pt-3 md:pt-0">
+                    <span class="font-mono font-black text-3xl md:text-4xl leading-none text-yellow-300 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] transition-all flex items-center gap-2" title="Smash Score (Includes speed & chaos bonus!)">
+                        ${currentSession.smash_score != null ? currentSession.smash_score.toLocaleString() : '---'} <span class="text-xs text-yellow-500/50 cursor-help bg-black/40 rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center border border-yellow-500/20 px-1 shrink-0">?</span>
                     </span>
-                    <div class="flex gap-2 mt-2">
-                        <span class="text-xs font-bold text-amber-300 bg-amber-900/50 px-2 py-0.5 rounded-sm border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.3)] cursor-help" title="Raw Keys Smashed">⌨️ ${currentSession.score}</span>
-                        <span class="text-xs font-bold text-sky-300 bg-sky-900/50 px-2 py-0.5 rounded-sm border border-sky-500/30 shadow-[0_0_10px_rgba(14,165,233,0.3)] cursor-help" title="Keys Per Second (Speed)">⚡ ${currentSession.kps || '0.0'} KPS</span>
-                        <span class="text-xs font-bold text-rose-300 bg-rose-900/50 px-2 py-0.5 rounded-sm border border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.3)] cursor-help" title="Entropy (Input Chaos Level)">🌪️ ${currentSession.entropy || '0'}%</span>
+                    <div class="flex flex-wrap gap-2 mt-2 w-full justify-start md:justify-end">
+                        <span class="text-[10px] md:text-xs font-bold text-amber-300 bg-amber-900/50 px-2 py-0.5 rounded-sm border border-amber-500/30 cursor-help whitespace-nowrap" title="Raw Keys Smashed">⌨️ ${currentSession.score}</span>
+                        <span class="text-[10px] md:text-xs font-bold text-sky-300 bg-sky-900/50 px-2 py-0.5 rounded-sm border border-sky-500/30 cursor-help whitespace-nowrap" title="Keys Per Second (Speed)">⚡ ${currentSession.kps || '0.0'} KPS</span>
+                        <span class="text-[10px] md:text-xs font-bold text-rose-300 bg-rose-900/50 px-2 py-0.5 rounded-sm border border-rose-500/30 cursor-help whitespace-nowrap" title="Entropy (Input Chaos Level)">🌪️ ${currentSession.entropy || '0'}%</span>
                     </div>
                 </div>
             </div>
@@ -72,23 +76,27 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
         // Background hover effect
         li.innerHTML = `
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
-            <div class="flex items-center gap-4 md:gap-6 z-10 w-full">
-                <div class="flex items-center justify-center w-12">${medalHtml}</div>
-                <div class="flex flex-col flex-grow">
-                    <span class="font-black text-xl md:text-2xl tracking-wide ${nameColor} drop-shadow-md uppercase">${player.name}</span>
-                    <span class="text-xs font-bold text-slate-500 tracking-widest uppercase flex items-center gap-1 mt-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        ${timeAgo(player.created_at)}
-                    </span>
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 z-10 w-full">
+                <div class="flex w-full md:w-auto items-center justify-between md:justify-start gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center justify-center min-w-[3rem] md:w-12">${medalHtml}</div>
+                        <div class="flex flex-col flex-grow truncate max-w-[150px] md:max-w-[200px] lg:max-w-none">
+                            <span class="font-black text-lg md:text-2xl tracking-wide ${nameColor} drop-shadow-md uppercase truncate">${player.name}</span>
+                            <span class="text-[10px] md:text-xs font-bold text-slate-500 tracking-widest uppercase flex items-center gap-1 mt-1 truncate">
+                                <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                ${timeAgo(player.created_at)}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-right z-10 flex flex-col items-end justify-center">
-                    <span class="font-mono font-black text-3xl md:text-4xl leading-none text-${themeColor}-500 group-hover:text-${themeColor}-400 group-hover:drop-shadow-[0_0_15px_rgba(var(--color-${themeColor}-500),0.8)] transition-all flex items-center gap-2" title="Smash Score (Includes speed & chaos bonus!)">
-                        ${player.smash_score != null ? parseInt(player.smash_score).toLocaleString() : '---'} <span class="text-xs text-${themeColor}-500/50 cursor-help bg-white/5 rounded-full w-5 h-5 flex items-center justify-center border border-${themeColor}-500/20">?</span>
+                <div class="text-left md:text-right z-10 flex flex-col items-start md:items-end w-full border-t border-white/10 md:border-0 pt-3 md:pt-0">
+                    <span class="font-mono font-black text-2xl md:text-4xl leading-none text-${themeColor}-500 group-hover:text-${themeColor}-400 group-hover:drop-shadow-[0_0_15px_rgba(var(--color-${themeColor}-500),0.8)] transition-all flex items-center gap-2" title="Smash Score (Includes speed & chaos bonus!)">
+                        ${player.smash_score != null ? parseInt(player.smash_score).toLocaleString() : '---'} <span class="text-[10px] md:text-xs text-${themeColor}-500/50 cursor-help bg-white/5 rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center border border-${themeColor}-500/20 shrink-0">?</span>
                     </span>
-                    <div class="flex gap-2 mt-2">
-                        <span class="text-xs font-bold text-slate-300 bg-black/40 px-2 py-0.5 rounded-sm border border-slate-500/50 cursor-help" title="Raw Keys Smashed">⌨️ ${player.score}</span>
-                        <span class="text-xs font-bold text-sky-400 bg-black/40 px-2 py-0.5 rounded-sm border border-sky-500/50 cursor-help" title="Keys Per Second (Speed)">⚡ ${player.kps || '0.0'}</span>
-                        <span class="text-xs font-bold text-rose-400 bg-black/40 px-2 py-0.5 rounded-sm border border-rose-500/50 cursor-help" title="Entropy (Input Chaos Level)">🌪️ ${player.entropy || '0'}%</span>
+                    <div class="flex flex-wrap gap-2 mt-2 w-full justify-start md:justify-end">
+                        <span class="text-[10px] md:text-xs font-bold text-slate-300 bg-black/40 px-2 py-0.5 rounded-sm border border-slate-500/50 cursor-help whitespace-nowrap" title="Raw Keys Smashed">⌨️ ${player.score}</span>
+                        <span class="text-[10px] md:text-xs font-bold text-sky-400 bg-black/40 px-2 py-0.5 rounded-sm border border-sky-500/50 cursor-help whitespace-nowrap" title="Keys Per Second (Speed)">⚡ ${player.kps || '0.0'}</span>
+                        <span class="text-[10px] md:text-xs font-bold text-rose-400 bg-black/40 px-2 py-0.5 rounded-sm border border-rose-500/50 cursor-help whitespace-nowrap" title="Entropy (Input Chaos Level)">🌪️ ${player.entropy || '0'}%</span>
                     </div>
                 </div>
             </div>

@@ -75,6 +75,7 @@ class ProfileEngine {
         let osHits = 0;
         let mediaHits = 0;
         let dpadFaceHits = 0;
+        let touchHits = 0;
         let typedString = "";
         let tickTimestamps = [];
 
@@ -135,6 +136,8 @@ class ProfileEngine {
                 if (osZone.has(key)) osHits++;
                 if (mediaZone.has(key)) mediaHits++;
                 if (dpadFaceZone.has(key)) dpadFaceHits++;
+
+                if (typeof key === 'string' && key.startsWith('Touch_')) touchHits++;
 
                 if (key.startsWith('Key')) typedString += key.charAt(3);
                 if (key === 'Space') typedString += ' ';
@@ -463,11 +466,23 @@ class ProfileEngine {
             };
         }
 
+        // --- MOBILE / TOUCH ---
+        if (touchHits === totalKeys) {
+            return {
+                profiles: [{ title: "The Mobile Smasher", flavor: "Tapping your screen to death. RIP to your oleophobic coating." }],
+                entropy: normalizedEntropy
+            };
+        }
+
         // -------------------------------------------------------
         // ACCUMULATIVE profiles: collect ALL that match
         // -------------------------------------------------------
         const matched = [];
         const add = (title, flavor) => matched.push({ title, flavor });
+
+        if (touchHits > 0 && touchHits !== totalKeys) {
+            add("The Hybrid", "Using a touchscreen AND a keyboard? Unorthodox and deeply concerning.");
+        }
 
         // --- 3. EXTREME HARDWARE / SPAM ---
         if (maxRowSmashInSingleTick >= 6 && uniqueKeys > 20) {
