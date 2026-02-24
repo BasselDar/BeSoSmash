@@ -2,6 +2,7 @@ const ScoreModel = require('../models/scoreModel');
 const ProfileEngine = require('../utils/ProfileEngine');
 
 const activeGames = {};
+const cooldowns = {}; // Per-socket cooldown tracker
 let lastLeaderboardBroadcast = 0;
 
 module.exports = (io) => {
@@ -9,6 +10,12 @@ module.exports = (io) => {
         console.log('User connected:', socket.id);
 
         socket.on('startGame', (data) => {
+            // Rate limit: 3-second cooldown between games
+            const now = Date.now();
+            if (cooldowns[socket.id] && now - cooldowns[socket.id] < 3000) {
+                return; // Silently ignore spam
+            }
+
             // DYNAMIC TIMER: 2 seconds for Blitz, 5 seconds for Classic
             const timerDuration = data.mode === 'blitz' ? 2000 : 5000;
 
@@ -61,6 +68,7 @@ module.exports = (io) => {
 
         socket.on('disconnect', () => {
             delete activeGames[socket.id];
+            delete cooldowns[socket.id];
         });
     });
 };
@@ -79,18 +87,20 @@ async function endGame(socket, io) {
 
     // Only process rankings and database insertion if they are NOT a cheater
     if (!analysis.isCheater) {
-        // Calculate the authoritative Smash Score for ranking
+        // Smash Score = keys × 1337 + entropy² × 1.7 + KPS × 69 + profiles × 420
+        // Keys dominate, but entropy, speed, and profile count add noticeable bonuses
         const timerDuration = game.mode === 'blitz' ? 2 : 5;
         const kps = parseFloat((game.score / timerDuration).toFixed(1));
         const entropyVal = parseFloat(analysis.entropy) || 0;
+        const profileCount = analysis.profiles ? analysis.profiles.length : 0;
 
-        smashScore = (game.score * 1000) + Math.round(entropyVal * 10) + Math.round(kps * 10);
+        smashScore = Math.round((game.score * 1337) + (entropyVal * entropyVal * 1.7) + (kps * 69) + (profileCount * 420));
 
         // FETCH THE UPDATED ABSOLUTE GLOBAL RANK FOR THIS SPECIFIC SCORE RUN
         playerRank = await ScoreModel.getRank(smashScore, game.mode);
 
         // PASS THE MODE TO THE DATABASE MODEL!
-        await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal);
+        await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal, analysis.profiles);
 
         // Throttle leaderboard broadcasts to max once every 2 seconds to prevent Broadcast Storms
         const now = Date.now();
@@ -110,5 +120,6 @@ async function endGame(socket, io) {
         entropy: analysis.entropy
     });
 
+    cooldowns[socket.id] = Date.now(); // Start cooldown
     delete activeGames[socket.id];
 }

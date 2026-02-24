@@ -46,8 +46,10 @@ const initDB = async () => {
         await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS kps NUMERIC(5,1) DEFAULT 0.0`);
         await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS entropy NUMERIC(5,1) DEFAULT 0.0`);
         await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS smash_score BIGINT DEFAULT 0`);
+        await pool.query(`ALTER TABLE scores ADD COLUMN IF NOT EXISTS profiles TEXT DEFAULT '[]'`);
 
-        await pool.query(`UPDATE scores SET smash_score = (score * 1000) + ROUND(entropy * 10) + ROUND(kps * 10) WHERE smash_score = 0 OR smash_score IS NULL`);
+        // Recalculate all smash_scores: keys × 1337 + entropy² × 1.7 + KPS × 69 + profiles × 420
+        await pool.query(`UPDATE scores SET smash_score = ROUND((score * 1337) + (entropy * entropy * 1.7) + (kps * 69) + (COALESCE(json_array_length(profiles::json), 0) * 420)) WHERE score > 0`);
 
         await pool.query(`CREATE INDEX IF NOT EXISTS idx_smash_score ON scores (smash_score DESC)`);
         console.log("PostgreSQL Connected");
@@ -97,7 +99,7 @@ class ScoreModel {
 
             let query = `
                 WITH RankedScores AS (
-                    SELECT name, score, mode, kps, entropy, smash_score, created_at,
+                    SELECT name, score, mode, kps, entropy, smash_score, profiles, created_at,
                            ROW_NUMBER() OVER(ORDER BY smash_score DESC, created_at DESC) as global_rank
                     FROM scores
                     WHERE mode = $1
@@ -142,9 +144,12 @@ class ScoreModel {
         }
     }
 
-    static async save(name, score, mode = 'classic', kps = 0.0, entropy = 0.0) {
+    static async save(name, score, mode = 'classic', kps = 0.0, entropy = 0.0, profiles = []) {
         try {
-            const smashScore = (score * 1000) + Math.round(entropy * 10) + Math.round(kps * 10);
+            let profileCount = 0;
+            try { profileCount = Array.isArray(profiles) ? profiles.length : JSON.parse(profiles).length; } catch (e) { }
+            const smashScore = Math.round((score * 1337) + (entropy * entropy * 1.7) + (kps * 69) + (profileCount * 420));
+            const profilesJson = JSON.stringify(profiles);
 
             const checkSql = `SELECT id, score, smash_score FROM scores WHERE name = $1 AND mode = $2 LIMIT 1`;
             const { rows } = await pool.query(checkSql, [name, mode]);
@@ -154,13 +159,13 @@ class ScoreModel {
                 const existingSmashScore = rows[0].smash_score || 0;
 
                 if (smashScore > existingSmashScore) {
-                    const updateSql = `UPDATE scores SET score = $1, kps = $2, entropy = $3, smash_score = $4, created_at = CURRENT_TIMESTAMP WHERE id = $5`;
-                    await pool.query(updateSql, [score, kps, entropy, smashScore, existingId]);
+                    const updateSql = `UPDATE scores SET score = $1, kps = $2, entropy = $3, smash_score = $4, profiles = $5, created_at = CURRENT_TIMESTAMP WHERE id = $6`;
+                    await pool.query(updateSql, [score, kps, entropy, smashScore, profilesJson, existingId]);
                     console.log(`[DB] Updated high score for ${name} (${mode}): ${existingSmashScore} -> ${smashScore}`);
                 }
             } else {
-                const insertSql = `INSERT INTO scores (name, score, mode, kps, entropy, smash_score) VALUES ($1, $2, $3, $4, $5, $6)`;
-                await pool.query(insertSql, [name, score, mode, kps, entropy, smashScore]);
+                const insertSql = `INSERT INTO scores (name, score, mode, kps, entropy, smash_score, profiles) VALUES ($1, $2, $3, $4, $5, $6, $7)`;
+                await pool.query(insertSql, [name, score, mode, kps, entropy, smashScore, profilesJson]);
                 console.log(`[DB] Inserted new score for ${name} (${mode}): ${smashScore} (Keys:${score} KPS:${kps} ENV:${entropy})`);
             }
 

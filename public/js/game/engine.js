@@ -526,7 +526,8 @@ export function initGameEngine() {
                 smash_score: serverSmashScore,
                 rank: data.rank,
                 kps: data.kps || finalKPS,
-                entropy: state.finalEntropy
+                entropy: state.finalEntropy,
+                profiles: state.finalProfiles || []
             };
 
             fetchLeaderboard(false);

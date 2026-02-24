@@ -239,6 +239,16 @@ class ProfileEngine {
             };
         }
 
+        // --- SUSPECTED CHEATER (score still saves, but flagged in profiles) ---
+        // These are "grey zone" detections — suspicious but not 100% confirmed
+        if (kps > 150 && ent < 20) {
+            add("Suspected Cheater", "150+ keys per second with almost no variation. That's auto-clicker territory. Your score is saved, but we're watching.");
+        } else if (kps > 100 && ent < 15) {
+            add("Suspected Cheater", "Triple-digit KPS with near-zero entropy. Either you're a literal octopus or something fishy is going on.");
+        } else if (kps > 80 && ent < 5) {
+            add("Suspected Cheater", "High speed, one key. That's not smashing, that's a macro with extra steps.");
+        }
+
         // --- 2. SPECIAL / EXACT MEMES (exclusive) ---
         if (hasAlt && hasF4) {
             return {
