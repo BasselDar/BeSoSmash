@@ -2,6 +2,7 @@ const ScoreModel = require('../models/scoreModel');
 const ProfileEngine = require('../utils/ProfileEngine');
 
 const activeGames = {};
+let lastLeaderboardBroadcast = 0;
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
@@ -91,8 +92,12 @@ async function endGame(socket, io) {
         // PASS THE MODE TO THE DATABASE MODEL!
         await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal);
 
-        // Signal all clients to re-fetch the leaderboard (client ignores the payload and hits REST API anyway)
-        io.emit('updateLeaderboard');
+        // Throttle leaderboard broadcasts to max once every 2 seconds to prevent Broadcast Storms
+        const now = Date.now();
+        if (now - lastLeaderboardBroadcast > 2000) {
+            io.emit('updateLeaderboard');
+            lastLeaderboardBroadcast = now;
+        }
     }
 
     // Tell the player it's over (we still send the game over payload to them, just no DB/LB save)

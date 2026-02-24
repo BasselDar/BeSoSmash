@@ -55,16 +55,26 @@ class ScoreModel {
 
     static async getRank(smashScore, mode = 'classic') {
         try {
-            // Use Postgres for accurate ranking — counts rows with a strictly higher score.
-            // This is authoritative and immune to the Redis name-uniqueness collision problem.
-            const result = await pool.query(
-                `SELECT COUNT(*) FROM scores WHERE mode = $1 AND smash_score > $2`,
-                [mode, smashScore]
-            );
-            return parseInt(result.rows[0].count, 10) + 1; // Convert to 1-based rank
+            // HIGH-PERFORMANCE RANKING FOR 10K+ USERS
+            // Use Redis ZCOUNT for O(log(N)) performance instead of Postgres COUNT(*)
+            // Counts how many unique players have a strictly higher smash_score.
+            const higherRankCount = await redisClient.zCount(`leaderboard_${mode}`, `(${smashScore}`, '+inf');
+
+            // Return 1-based rank
+            return higherRankCount + 1;
         } catch (err) {
-            console.error("Error fetching rank from Postgres:", err);
-            return null;
+            console.error("Error fetching rank from Redis:", err);
+
+            // Fallback to Postgres if Redis drops
+            try {
+                const result = await pool.query(
+                    `SELECT COUNT(*) FROM scores WHERE mode = $1 AND smash_score > $2`,
+                    [mode, smashScore]
+                );
+                return parseInt(result.rows[0].count, 10) + 1;
+            } catch (pgErr) {
+                return null;
+            }
         }
     }
 
@@ -151,8 +161,9 @@ class ScoreModel {
             // The { GT: true } flag ensures Redis only updates the score if the new score is Greater Than the existing score.
             await redisClient.zAdd(`leaderboard_${mode}`, { score: smashScore, value: name }, { GT: true });
 
-            // Trim to top 1000 entries to prevent unbounded growth (remove rank 1001 and below)
-            await redisClient.zRemRangeByRank(`leaderboard_${mode}`, 0, -1001);
+            // Trimming removed to allow Redis to hold all entries, 
+            // enabling ultra-fast Global Ranking via ZCOUNT without touching Postgres.
+            // Redis can safely store millions of ZSET entries in memory.
 
         } catch (err) {
             console.error("Error saving score:", err);
