@@ -9,7 +9,11 @@ const pool = new Pool(process.env.DATABASE_URL ? {
 } : {});
 
 let redisConnectionString = process.env.REDIS_URL;
-let redisConfig = {};
+let redisConfig = {
+    // Upstash proactively closes idle connections. 
+    // This ping keeps the connection alive and prevents "SocketClosedUnexpectedlyError"
+    pingInterval: 120000
+};
 
 // Handle Upstash TLS requirements explicitly
 if (redisConnectionString) {
