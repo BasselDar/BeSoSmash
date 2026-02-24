@@ -668,7 +668,7 @@ class ProfileEngine {
                 add("The Distracted", "Checking your phone during a 5-second match? Disrespectful.");
             }
         }
-        if (totalKeys > 0 && finalKPS < 2) {
+        if (totalKeys > 0 && kps < 2) {
             add("The Sloth", "Are you moving underwater? Check your pulse.");
         }
 
