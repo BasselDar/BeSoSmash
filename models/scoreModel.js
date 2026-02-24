@@ -2,8 +2,13 @@ const { Pool } = require('pg');
 const { createClient } = require('redis');
 
 // 1. Setup Connections
-const pool = new Pool();
-const redisClient = createClient(); // Connects to localhost:6379 by default
+// Use DATABASE_URL for Postgres (e.g. Neon.tech) and REDIS_URL for Redis (e.g. Upstash)
+const pool = new Pool(process.env.DATABASE_URL ? {
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false } // Required for external hosted databases like Neon
+} : {});
+
+const redisClient = process.env.REDIS_URL ? createClient({ url: process.env.REDIS_URL }) : createClient();
 
 redisClient.on('error', (err) => console.log('❌ Redis Client Error', err));
 
