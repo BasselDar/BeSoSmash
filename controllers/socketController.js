@@ -27,27 +27,37 @@ module.exports = (io) => {
                 name: safeName,
                 score: 0,
                 isActive: true,
-                mode: data.mode, // Store the mode!
-                keyHistory: [] // Store the batches of keys for personality profiling
+                mode: data.mode,
+                keyHistory: [],
+                startTime: Date.now(),
+                timerDuration: timerDuration
             };
 
             socket.emit('gameStarted');
 
-            // Use dynamic timer but add 1500ms grace period for final network batch to arrive
-            // The client strictly controls its own UI timer limit anyway.
+            // SERVER SAFETY NET: hard cap at game duration + 3s
+            // Fallback if client never sends clientGameEnd (disconnect, tab close, etc.)
+            // The CLIENT is the authoritative timer — clientGameEnd triggers endGame immediately
             setTimeout(() => {
                 endGame(socket, io);
-            }, timerDuration + 1500);
+            }, timerDuration + 3000);
         });
 
         socket.on('keyPressBatch', (keys) => {
             const game = activeGames[socket.id];
 
             if (game && game.isActive) {
+                // Reject batches that arrive after the game should have ended (client timer + 1s grace)
+                const elapsed = Date.now() - game.startTime;
+                if (elapsed > game.timerDuration + 1000) {
+                    return; // Silently drop late keys
+                }
+
                 if (Array.isArray(keys) && keys.length > 0) {
-                    // No server-side cap — macro users are accepted and shamed via ProfileEngine diagnosis
-                    game.score += keys.length;
-                    game.keyHistory.push(keys); // Save the physical batch of keys pressed in this 100ms tick
+                    // Cap at 50 keys per batch to prevent flood abuse
+                    const capped = keys.slice(0, 50);
+                    game.score += capped.length;
+                    game.keyHistory.push(capped);
                     socket.emit('scoreUpdate', game.score);
                 }
             }
@@ -56,13 +66,13 @@ module.exports = (io) => {
         socket.on('clientGameEnd', (clientScore) => {
             const game = activeGames[socket.id];
             if (game && game.isActive) {
-                // OPTIMISTIC SYNC:
-                // Trust the client's final score if it's within 300 keys to account for packet latency drops.
+                // Trust the client's final score if it's within 300 keys (packet latency tolerance)
                 if (typeof clientScore === 'number' && clientScore > game.score && (clientScore - game.score) <= 300) {
                     game.score = clientScore;
                 }
 
-                // Do NOT end the game here. Wait for the 1500ms server grace period padding to finish natively.
+                // CLIENT IS AUTHORITATIVE: end the game immediately
+                endGame(socket, io);
             }
         });
 
