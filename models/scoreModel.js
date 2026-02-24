@@ -8,9 +8,29 @@ const pool = new Pool(process.env.DATABASE_URL ? {
     ssl: { rejectUnauthorized: false } // Required for external hosted databases like Neon
 } : {});
 
-const redisClient = process.env.REDIS_URL ? createClient({ url: process.env.REDIS_URL }) : createClient();
+let redisConnectionString = process.env.REDIS_URL;
+let redisConfig = {};
 
-redisClient.on('error', (err) => console.log('❌ Redis Client Error', err));
+// Handle Upstash TLS requirements explicitly
+if (redisConnectionString) {
+    if (redisConnectionString.startsWith('redis://') && redisConnectionString.includes('upstash')) {
+        redisConnectionString = redisConnectionString.replace('redis://', 'rediss://');
+        console.log("⚠️ Auto-upgraded Upstash URL to rediss:// for TLS");
+    }
+
+    redisConfig.url = redisConnectionString;
+
+    if (redisConnectionString.startsWith('rediss://')) {
+        redisConfig.socket = {
+            tls: true,
+            rejectUnauthorized: false
+        };
+    }
+}
+
+const redisClient = createClient(redisConfig);
+
+redisClient.on('error', (err) => console.log('❌ Redis Client Error:', err.message));
 
 const initDB = async () => {
     try {
@@ -78,6 +98,7 @@ class ScoreModel {
                 );
                 return parseInt(result.rows[0].count, 10) + 1;
             } catch (pgErr) {
+                console.error("❌ Error fetching rank from Postgres Fallback:", pgErr.message);
                 return null;
             }
         }
