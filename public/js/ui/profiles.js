@@ -1,10 +1,11 @@
 // public/js/ui/profiles.js — Profile card rendering, expand/collapse, and helpers
 
-import { categoryPalettes, profileCategoryMap, getProfilePalette, getProfileCategory } from '../utils/profileData.js';
+import { categoryPalettes, profileCategoryMap, getProfilePalette, getProfileCategory, profileFlavors } from '../utils/profileData.js';
 
 export function buildProfileCard(p) {
     const pal = getProfilePalette(p.title);
     const cat = categoryPalettes[getProfileCategory(p.title)];
+    const flavorText = profileFlavors[p.title] || p.flavor || "You did something weird.";
     return `
     <div class="flex items-start rounded-lg ${pal.bg} border ${pal.border} p-3 gap-3 transition-all duration-150">
         <div class="${pal.accent} w-1 shrink-0 self-stretch rounded-full"></div>
@@ -13,7 +14,7 @@ export function buildProfileCard(p) {
                 <span class="font-black text-xs uppercase tracking-wider ${pal.title}">${p.title}</span>
                 <span class="text-[9px] px-1.5 py-0.5 rounded ${pal.bg} border ${pal.border} ${pal.title} font-bold uppercase tracking-wide shrink-0 cursor-help" title="${cat.tip}">${cat.label}</span>
             </div>
-            <div class="text-[11px] text-slate-400/80 mt-1 leading-snug italic">"${p.flavor}"</div>
+            <div class="text-[11px] text-slate-400/80 mt-1 leading-snug italic">"${flavorText}"</div>
         </div>
     </div>`;
 }
@@ -71,7 +72,10 @@ export function renderProfiles(panel) {
     const search = (panel.dataset.search || '').toLowerCase();
 
     const filtered = search
-        ? profiles.filter(p => p.title.toLowerCase().includes(search) || p.flavor.toLowerCase().includes(search))
+        ? profiles.filter(p => {
+            const f = profileFlavors[p.title] || p.flavor || "";
+            return p.title.toLowerCase().includes(search) || f.toLowerCase().includes(search);
+        })
         : profiles;
 
     const grid = panel.querySelector('.profile-grid');

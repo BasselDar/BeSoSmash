@@ -205,8 +205,8 @@ const PROFILES = [
         condition: (s) => {
             const up = s.typedString.toUpperCase();
             return up.includes('FUCK') || up.includes('SHIT') || up.includes('BITCH') ||
-                   up.includes('DAMN') || up.includes('ASS') || up.includes('CRAP') ||
-                   up.includes('HELL') || up.includes('BASTARD') || up.includes('CUNT') || up.includes('PISS');
+                up.includes('DAMN') || up.includes('ASS') || up.includes('CRAP') ||
+                up.includes('HELL') || up.includes('BASTARD') || up.includes('CUNT') || up.includes('PISS');
         }
     },
     {
@@ -709,7 +709,7 @@ class ProfileEngine {
                 if (rows[0].has(key)) { rowCounts[0]++; s.topRowHits++; }
                 if (rows[1].has(key)) { rowCounts[1]++; }
                 if (rows[2].has(key)) { rowCounts[2]++; s.bottomRowHits++; }
-                
+
                 if (leftSideKeys.has(key)) s.leftHits++;
                 if (rightSideKeys.has(key)) s.rightHits++;
             }
@@ -726,7 +726,7 @@ class ProfileEngine {
                 s.metronomeCheats++;
             }
         }
-        
+
         s.uniqueKeys = s.uniqueKeysSet.size;
 
         s.maxSingleKeyCount = 0;
@@ -761,7 +761,7 @@ class ProfileEngine {
         for (let i = 0; i < 10 && i < keyHistory.length; i++) {
             if (Array.isArray(keyHistory[i])) s.fastStart += keyHistory[i].length;
         }
-        
+
         for (let i = 40; i < keyHistory.length; i++) {
             if (Array.isArray(keyHistory[i])) s.lateStart += keyHistory[i].length;
         }
@@ -789,7 +789,7 @@ class ProfileEngine {
 
         if (stats.totalKeys === 0) {
             return {
-                profiles: [{ title: "The Ghost", flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up." }],
+                profiles: [{ title: "The Ghost" }],
                 entropy: 0.0,
                 isCheater: true
             };
@@ -799,24 +799,22 @@ class ProfileEngine {
 
         for (const profile of PROFILES) {
             if (profile.condition(stats)) {
-                const flavorText = typeof profile.flavor === 'function' ? profile.flavor(stats) : profile.flavor;
-
                 if (profile.isExclusive) {
                     const result = {
-                        profiles: [{ title: profile.title, flavor: flavorText }],
+                        profiles: [{ title: profile.title }],
                         entropy: stats.normalizedEntropy,
                         isCheater: profile.isCheater || false
                     };
                     if (profile.forceSmashScore) result.forceSmashScore = profile.forceSmashScore;
                     return result;
                 }
-                
-                matched.push({ title: profile.title, flavor: flavorText });
+
+                matched.push({ title: profile.title });
             }
         }
 
         if (matched.length === 0) {
-            matched.push({ title: "The Panic Button", flavor: "Pure, unfiltered chaos. No strategy, no physical zones, just a terrifying blend of adrenaline and flailing fingers. We respect the panic." });
+            matched.push({ title: "The Panic Button" });
         }
 
         return {
