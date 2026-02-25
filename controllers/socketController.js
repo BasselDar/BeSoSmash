@@ -9,8 +9,6 @@ const {
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
-        console.log('User connected:', socket.id);
-
         socket.on('startGame', (data) => {
             // Rate limit: 3-second cooldown between games
             const now = Date.now();

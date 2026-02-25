@@ -123,7 +123,6 @@ class ScoreModel {
                     // New personal best — update everything (stats + profiles)
                     const updateSql = `UPDATE scores SET score = $1, kps = $2, entropy = $3, smash_score = $4, profiles = $5, created_at = CURRENT_TIMESTAMP WHERE id = $6`;
                     await pool.query(updateSql, [score, kps, entropy, newSmashScore, profilesJson, existingId]);
-                    console.log(`[DB] New high score for ${name} (${mode}): ${existingSmashScore} -> ${newSmashScore} (Profiles: ${profileCount})`);
                 } else if (hasNewProfiles) {
                     // Lower score run, but found new profiles — recalculate smash score using OLD stats + NEW profile count
                     const existingScore = rows[0].score;
@@ -133,14 +132,12 @@ class ScoreModel {
                     const updateSql = `UPDATE scores SET smash_score = $1, profiles = $2 WHERE id = $3`;
                     await pool.query(updateSql, [boostedSmashScore, profilesJson, existingId]);
                     await redisClient.zAdd(`leaderboard_${mode}`, { score: boostedSmashScore, value: name }, { GT: true });
-                    console.log(`[DB] New profiles for ${name} (${mode}): ${existingProfileCount} -> ${profileCount} profiles, score boosted: ${existingSmashScore} -> ${boostedSmashScore}`);
                 } else {
-                    console.log(`[DB] No update for ${name} (${mode}): score ${newSmashScore} <= ${existingSmashScore}, no new profiles`);
+                    // No high score and no new profiles, do nothing
                 }
             } else {
                 const insertSql = `INSERT INTO scores (name, score, mode, kps, entropy, smash_score, profiles) VALUES ($1, $2, $3, $4, $5, $6, $7)`;
                 await pool.query(insertSql, [name, score, mode, kps, entropy, newSmashScore, profilesJson]);
-                console.log(`[DB] Inserted new score for ${name} (${mode}): ${newSmashScore} (Profiles: ${profileCount})`);
             }
 
             // Always increment global total smashes regardless of personal best (self-healing upsert)
