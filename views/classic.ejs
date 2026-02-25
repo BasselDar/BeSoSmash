@@ -163,6 +163,51 @@
                         </div>
                     </div>
 
+                    <!-- Instructions Panel — visible during setup, hidden on game start -->
+                    <div id="instructions-panel"
+                        class="mb-5 glass-panel p-5 md:p-8 rounded-3xl relative overflow-hidden border border-rose-500/20">
+                        <div
+                            class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-rose-500/40 to-transparent">
+                        </div>
+                        <h3
+                            class="text-lg md:text-xl font-black text-rose-400 tracking-widest uppercase mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            HOW TO PLAY
+                        </h3>
+                        <ol class="space-y-3 text-sm md:text-base">
+                            <li class="flex items-start gap-3">
+                                <span
+                                    class="flex items-center justify-center w-6 h-6 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-black shrink-0 mt-0.5">1</span>
+                                <p class="text-slate-300">Enter your <strong class="text-white">codename</strong> above
+                                    — this is your identity on the
+                                    global leaderboard.</p>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span
+                                    class="flex items-center justify-center w-6 h-6 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-black shrink-0 mt-0.5">2</span>
+                                <p class="text-slate-300">Hit <strong class="text-white">SMASH</strong>, then press
+                                    any key to start the <strong class="text-orange-400">5-second</strong>
+                                    countdown. Smash as many keys as possible!</p>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span
+                                    class="flex items-center justify-center w-6 h-6 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-black shrink-0 mt-0.5">3</span>
+                                <p class="text-slate-300">After time's up, our <strong class="text-rose-300">Personality
+                                        Engine</strong> analyzes your keystrokes
+                                    and diagnoses your true gamer personality.</p>
+                            </li>
+                        </ol>
+                        <div
+                            class="mt-4 pt-4 border-t border-white/5 flex items-start gap-2 text-xs md:text-sm text-slate-500">
+                            <span class="text-yellow-500 shrink-0">💡</span>
+                            <p>Use <strong class="text-slate-400">diverse keys</strong> across the entire keyboard for
+                                higher entropy & more unique personality profiles!</p>
+                        </div>
+                    </div>
+
                     <!-- Post-Game Match Summary Panel -->
                     <div id="game-over-panel"
                         class="hidden mb-5 glass-panel p-10 rounded-3xl relative overflow-hidden group">

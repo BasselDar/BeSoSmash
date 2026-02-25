@@ -26,6 +26,8 @@ export function startGame(mode) {
     if (changeBtn) changeBtn.classList.remove('hidden');
 
     document.getElementById('setup-panel').classList.add('hidden');
+    const instructionsPanel = document.getElementById('instructions-panel');
+    if (instructionsPanel) instructionsPanel.classList.add('hidden');
     document.getElementById('smash-zone').classList.remove('hidden');
 
     // Hide leaderboard during game
@@ -156,6 +158,8 @@ export function resetGame() {
     state.currentSession = null;
     document.getElementById('game-over-panel').classList.add('hidden');
     document.getElementById('setup-panel').classList.remove('hidden');
+    const instructionsPanel = document.getElementById('instructions-panel');
+    if (instructionsPanel) instructionsPanel.classList.remove('hidden');
 
     // Refresh leaderboard to remove the pinned session
     fetchLeaderboard(false);
