@@ -84,16 +84,6 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
         // Absolute rank is now provided directly from the database Window Function!
         const rank = parseInt(player.global_rank, 10);
 
-        let medalHtml = `<span class="text-slate-500 font-mono text-xl w-10 text-center bg-slate-800/80 py-1 rounded-lg">#${rank}</span>`;
-        if (rank === 1) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]">🥇</span>`;
-        if (rank === 2) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(203,213,225,0.6)]">🥈</span>`;
-        if (rank === 3) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(217,119,6,0.6)]">🥉</span>`;
-
-        const themeColor = state.leaderboardMode === 'blitz' ? 'purple' : 'rose';
-        const nameColor = rank === 1 ? (state.leaderboardMode === 'blitz' ? 'text-purple-400' : 'text-yellow-400') :
-            rank === 2 ? 'text-slate-200' :
-                rank === 3 ? (state.leaderboardMode === 'blitz' ? 'text-fuchsia-400' : 'text-amber-500') : 'text-slate-300';
-
         // Parse profiles from DB JSON
         let profiles = [];
         try {
@@ -101,13 +91,29 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
         } catch (e) { profiles = []; }
 
         const entryId = `entry-${rank}-${index}`;
-        const playerCheater = isCheater(profiles);
+        const playerCheater = player.is_flagged || isCheater(profiles);
         const displayProfiles = profiles.filter(p => p.title !== 'Suspected Cheater');
         const hasProfiles = displayProfiles.length > 0;
         const profilesHtml = buildProfilesHtml(profiles, entryId);
 
+        // Flagged players: no medals, dimmed styling
+        let medalHtml = `<span class="text-slate-500 font-mono text-xl w-10 text-center bg-slate-800/80 py-1 rounded-lg">#${rank}</span>`;
+        if (!playerCheater) {
+            if (rank === 1) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]">🥇</span>`;
+            if (rank === 2) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(203,213,225,0.6)]">🥈</span>`;
+            if (rank === 3) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(217,119,6,0.6)]">🥉</span>`;
+        }
+
+        const themeColor = state.leaderboardMode === 'blitz' ? 'purple' : 'rose';
+        const nameColor = playerCheater ? 'text-red-400/60' :
+            rank === 1 ? (state.leaderboardMode === 'blitz' ? 'text-purple-400' : 'text-yellow-400') :
+                rank === 2 ? 'text-slate-200' :
+                    rank === 3 ? (state.leaderboardMode === 'blitz' ? 'text-fuchsia-400' : 'text-amber-500') : 'text-slate-300';
+
         const li = document.createElement('li');
-        li.className = `p-4 md:p-5 rounded-2xl bg-black/40 hover:bg-black/60 transform hover:scale-[1.01] transition-all duration-300 border border-white/5 hover:border-white/10 shadow-lg group relative overflow-hidden ${hasProfiles ? 'cursor-pointer select-none' : ''}`;
+        li.className = playerCheater
+            ? `p-4 md:p-5 rounded-2xl bg-red-950/20 transition-all duration-300 border border-red-500/20 shadow-lg group relative overflow-hidden opacity-40 ${hasProfiles ? 'cursor-pointer select-none' : ''}`
+            : `p-4 md:p-5 rounded-2xl bg-black/40 hover:bg-black/60 transform hover:scale-[1.01] transition-all duration-300 border border-white/5 hover:border-white/10 shadow-lg group relative overflow-hidden ${hasProfiles ? 'cursor-pointer select-none' : ''}`;
 
         li.innerHTML = `
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
@@ -123,7 +129,7 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
                     ${(() => { const rk = getRankTitle(player.score); return `<span class="text-[10px] font-black ${rk.color} uppercase tracking-wider mt-0.5">${rk.title}</span>`; })()}
                 </div>
                 <div class="ml-auto flex flex-col items-end gap-1.5 shrink-0">
-                    <span class="font-mono font-black text-2xl md:text-3xl text-${themeColor}-500 group-hover:text-${themeColor}-400 transition-colors leading-none" title="Smash Score">${player.smash_score != null ? parseInt(player.smash_score).toLocaleString() : '---'}</span>
+                    <span class="font-mono font-black text-2xl md:text-3xl ${playerCheater ? 'text-red-500/40 line-through decoration-red-500/60' : `text-${themeColor}-500 group-hover:text-${themeColor}-400`} transition-colors leading-none" title="Smash Score">${player.smash_score != null ? parseInt(player.smash_score).toLocaleString() : '---'}</span>
                     <div class="flex items-center gap-1.5 flex-wrap justify-end">
                         <span class="text-[10px] font-bold text-slate-500" title="Keys Pressed">💢${player.score}</span>
                         <span class="text-[10px] text-slate-700">·</span>

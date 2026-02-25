@@ -23,7 +23,7 @@ module.exports = (io) => {
 
             // Sanitize name: trim whitespace and strip HTML tags
             const rawName = typeof data.name === 'string' ? data.name : 'Anonymous';
-            const safeName = rawName.trim().replace(/<[^>]*>/g, '').slice(0, 12) || 'Anonymous';
+            const safeName = (rawName.trim().replace(/<[^>]*>/g, '').slice(0, 12) || 'Anonymous').toUpperCase();
 
             setGame(socket.id, {
                 name: safeName,

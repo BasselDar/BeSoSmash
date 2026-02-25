@@ -30,7 +30,12 @@ class ScoreModel {
             let query = `
                 WITH RankedScores AS (
                     SELECT name, score, mode, kps, entropy, smash_score, profiles, created_at,
-                           ROW_NUMBER() OVER(ORDER BY smash_score DESC, created_at DESC) as global_rank
+                           CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN true ELSE false END as is_flagged,
+                           ROW_NUMBER() OVER(
+                               ORDER BY
+                                   CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN 1 ELSE 0 END ASC,
+                                   smash_score DESC, created_at DESC
+                           ) as global_rank
                     FROM scores
                     WHERE mode = $1
                 )
