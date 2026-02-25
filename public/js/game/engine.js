@@ -75,6 +75,13 @@ function startActualGame(firstKeyCode) {
     const name = nameInput ? nameInput.value.trim() : 'Player';
     socket.emit('startGame', { name: name, mode: state.currentMode });
 
+    // Listen for the server's gameStarted event to capture the anti-cheat token
+    socket.once('gameStarted', (data) => {
+        if (data && data.token) {
+            state.gameToken = data.token;
+        }
+    });
+
     // OPTIMISTIC START
     // Start locally immediately instead of waiting for server gameStarted event
     state.active = true;
@@ -97,7 +104,7 @@ function startActualGame(firstKeyCode) {
 
             // Final Buffer Flush (Ensure we capture latency-delayed keys up to 0.0s)
             if (state.keyBuffer.length > 0) {
-                socket.emit('keyPressBatch', state.keyBuffer);
+                socket.emit('keyPressBatch', { keys: state.keyBuffer, token: state.gameToken });
                 state.keyBuffer = [];
             }
             // Explicitly tell the server the game is finished and pass our local optimistic score

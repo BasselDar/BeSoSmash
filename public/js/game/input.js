@@ -20,7 +20,7 @@ const BLOCKED_KEYS = new Set([
 // Flush key buffer to server immediately (called on threshold and by interval)
 export function flushKeyBuffer() {
     if (state.keyBuffer.length > 0) {
-        socket.emit('keyPressBatch', state.keyBuffer);
+        socket.emit('keyPressBatch', { keys: state.keyBuffer, token: state.gameToken });
         state.keyBuffer = [];
     }
 }

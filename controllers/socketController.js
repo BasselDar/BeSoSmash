@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const ScoreModel = require('../models/scoreModel');
 const ProfileEngine = require('../utils/ProfileEngine');
 const { calculateSmashScore } = require('../utils/scoring');
@@ -7,7 +8,33 @@ const {
     getLastBroadcastTime, setLastBroadcastTime,
 } = require('./gameManager');
 
+// ──────────────────────────────────────────────────────────
+// ANTI-CHEAT CONFIG
+// ──────────────────────────────────────────────────────────
+const ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'https://besosmash.onrender.com',
+    'https://www.besosmash.onrender.com'
+];
+const MAX_KEYS_PER_100MS = 20;    // Even the fastest human can't exceed ~15 keys/100ms
+const RATE_WINDOW_MS = 100;
+
 module.exports = (io) => {
+
+    // ── LAYER 1: Origin Validation ──────────────────────────
+    // Reject connections that don't come from the actual website.
+    // This kills raw Python/curl scripts dead on arrival.
+    io.use((socket, next) => {
+        const origin = socket.handshake.headers.origin || socket.handshake.headers.referer || '';
+        const isAllowed = ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed));
+
+        if (!isAllowed && process.env.NODE_ENV === 'production') {
+            console.warn(`🚫 Blocked socket from unauthorized origin: ${origin}`);
+            return next(new Error('Unauthorized origin'));
+        }
+        next();
+    });
+
     io.on('connection', (socket) => {
         socket.on('startGame', (data) => {
             // Rate limit: 3-second cooldown between games
@@ -23,6 +50,11 @@ module.exports = (io) => {
             const rawName = typeof data.name === 'string' ? data.name : 'Anonymous';
             const safeName = (rawName.trim().replace(/<[^>]*>/g, '').slice(0, 12) || 'Anonymous').toUpperCase();
 
+            // ── LAYER 2: Challenge Token ────────────────────────
+            // Generate a lightweight random hex token tied to this game session.
+            // The client must echo it back with every keyPressBatch.
+            const gameToken = crypto.randomBytes(8).toString('hex');
+
             setGame(socket.id, {
                 name: safeName,
                 score: 0,
@@ -30,24 +62,44 @@ module.exports = (io) => {
                 mode: data.mode,
                 keyHistory: [],
                 startTime: Date.now(),
-                timerDuration: timerDuration
+                timerDuration: timerDuration,
+                gameToken: gameToken,              // Anti-cheat token
+                rateWindow: { count: 0, windowStart: Date.now() } // Rate limiter state
             });
 
-            socket.emit('gameStarted');
+            // Send token to the legitimate browser client
+            socket.emit('gameStarted', { token: gameToken });
 
             // SERVER SAFETY NET: hard cap at game duration + 3s
-            // Fallback if client never sends clientGameEnd (disconnect, tab close, etc.)
-            // The CLIENT is the authoritative timer — clientGameEnd triggers endGame immediately
             setTimeout(() => {
                 endGame(socket, io);
             }, timerDuration + 3000);
         });
 
-        socket.on('keyPressBatch', (keys) => {
+        socket.on('keyPressBatch', (payload) => {
             const game = getGame(socket.id);
 
             if (game && game.isActive) {
-                // Reject batches that arrive after the game should have ended (client timer + 1s grace)
+                // ── LAYER 2: Token Validation ───────────────────
+                // Reject batches that don't include the correct session token.
+                let keys, token;
+                if (typeof payload === 'object' && !Array.isArray(payload) && payload !== null) {
+                    keys = payload.keys;
+                    token = payload.token;
+                } else if (Array.isArray(payload)) {
+                    // Legacy/unpatched client fallback — still accept arrays but flag them
+                    keys = payload;
+                    token = null;
+                } else {
+                    return; // Invalid payload shape
+                }
+
+                if (token !== game.gameToken) {
+                    // Token mismatch — either forged or from a script that doesn't know the token
+                    return; // Silently drop
+                }
+
+                // Reject batches that arrive after the game should have ended
                 const elapsed = Date.now() - game.startTime;
                 if (elapsed > game.timerDuration + 1000) {
                     return; // Silently drop late keys
@@ -56,6 +108,24 @@ module.exports = (io) => {
                 if (Array.isArray(keys) && keys.length > 0) {
                     // Cap at 50 keys per batch to prevent flood abuse
                     const capped = keys.slice(0, 50);
+
+                    // ── LAYER 3: Server Rate Limiter ────────────────
+                    // Track how many keys we've received in the current 100ms window
+                    const now = Date.now();
+                    if (now - game.rateWindow.windowStart > RATE_WINDOW_MS) {
+                        // New window
+                        game.rateWindow.windowStart = now;
+                        game.rateWindow.count = capped.length;
+                    } else {
+                        game.rateWindow.count += capped.length;
+                    }
+
+                    if (game.rateWindow.count > MAX_KEYS_PER_100MS) {
+                        // Impossibly fast — flag the key history for ProfileEngine to detect
+                        capped.forEach(() => game.keyHistory.push(['RATE_FLAGGED']));
+                        // Still count the keys but mark them as suspicious
+                    }
+
                     game.score += capped.length;
                     game.keyHistory.push(capped);
                     socket.emit('scoreUpdate', game.score);
@@ -63,15 +133,12 @@ module.exports = (io) => {
             }
         });
 
-        socket.on('clientGameEnd', (clientScore) => {
+        // ── LAYER 4: Remove Client Score Trust ──────────────────
+        // The server's count is the ONLY authoritative score.
+        // No more +300 tolerance for the client's "final score".
+        socket.on('clientGameEnd', () => {
             const game = getGame(socket.id);
             if (game && game.isActive) {
-                // Trust the client's final score if it's within 300 keys (packet latency tolerance)
-                if (typeof clientScore === 'number' && clientScore > game.score && (clientScore - game.score) <= 300) {
-                    game.score = clientScore;
-                }
-
-                // CLIENT IS AUTHORITATIVE: end the game immediately
                 endGame(socket, io);
             }
         });

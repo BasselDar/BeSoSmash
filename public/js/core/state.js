@@ -10,6 +10,7 @@ export const state = {
     gameDuration: 5000,
     keyBuffer: [],
     tickInterval: null,
+    gameToken: null,        // Anti-cheat session token from server
 
     // Leaderboard State
     currentLeaderboardPage: 1,
