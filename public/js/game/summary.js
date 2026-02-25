@@ -20,6 +20,8 @@ export function renderGameOverSummary(data) {
     // We sync inside the setTimeout, hidden behind the results panel appearing.
     const serverFinalScore = data.finalScore;
     const serverSmashScore = data.smash_score;
+    const serverHighestSmashScore = data.highestSmashScore;
+    const isPersonalBest = data.isPersonalBest;
     const serverKPS = data.kps;
     if (data.rank) state.finalAbsoluteRank = `#${data.rank}`;
     if (data.runProfiles) state.finalProfiles = data.runProfiles;
@@ -51,12 +53,30 @@ export function renderGameOverSummary(data) {
         // Show Post-Game Summary Panel
         document.getElementById('game-over-panel').classList.remove('hidden');
 
+        // Update Score Display
+        const scoreDisplay = document.getElementById('final-score-display');
         if (serverSmashScore) {
-            // If they have a smash score, display it as the primary result
-            document.getElementById('final-score-display').innerText = serverSmashScore.toLocaleString();
+            scoreDisplay.innerText = serverSmashScore.toLocaleString();
         } else {
-            // For Ghost/Cheater profiles that don't generate a smash score
-            document.getElementById('final-score-display').innerText = state.localScore;
+            scoreDisplay.innerText = state.localScore;
+        }
+
+        // Add High Score Banner
+        const scoreContainer = scoreDisplay.parentElement;
+        // Remove old banner if it exists
+        const oldBanner = scoreContainer.querySelector('.high-score-banner');
+        if (oldBanner) oldBanner.remove();
+
+        if (isPersonalBest && serverSmashScore > 0) {
+            const banner = document.createElement('div');
+            banner.className = 'high-score-banner absolute top-4 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-[10px] md:text-sm font-black tracking-widest px-4 py-1 rounded-full shadow-[0_0_15px_rgba(250,204,21,0.6)] animate-pulse border-2 border-white/50 z-20 whitespace-nowrap';
+            banner.innerText = '🌟 NEW HIGH SCORE! 🌟';
+            scoreContainer.appendChild(banner);
+        } else if (serverHighestSmashScore && !isPersonalBest) {
+            const pbBanner = document.createElement('div');
+            pbBanner.className = 'high-score-banner absolute bottom-24 bg-black/40 border border-white/10 text-slate-400 text-[10px] md:text-xs font-bold tracking-widest px-3 py-1 rounded-full z-20';
+            pbBanner.innerText = `PB: ${serverHighestSmashScore.toLocaleString()}`;
+            scoreContainer.appendChild(pbBanner);
         }
 
         // Populate new 4-column sub-stats
@@ -87,8 +107,15 @@ export function renderGameOverSummary(data) {
         if (profileContainer) {
             profileContainer.innerHTML = '';
 
+            // Detect NEW profiles: ones earned this run that were NOT already in the database
+            // The server sends us `existingProfileTitles` = profile titles from the DB BEFORE this run's merge
+            const existingProfileTitles = data.existingProfileTitles || [];
+
             if (state.finalProfiles && state.finalProfiles.length > 0) {
                 state.finalProfiles.forEach(prof => {
+                    // Only "NEW!" if this profile was NOT already in the DB before this run
+                    const isNewlyUnlocked = !existingProfileTitles.includes(prof.title);
+
                     // Handle Suspected Cheater as a flag, not a normal card
                     if (prof.title === 'Suspected Cheater') {
                         const flavorText = profileFlavors[prof.title] || prof.flavor || "";
@@ -105,11 +132,14 @@ export function renderGameOverSummary(data) {
                     const pal = categoryPalettes[cat];
 
                     const flavorText = profileFlavors[prof.title] || prof.flavor || "";
+                    const newBadgeHtml = isNewlyUnlocked ? `<div class="absolute -top-1 -right-1 bg-yellow-400 text-black text-[9px] font-black tracking-widest px-2 py-0.5 rounded-bl-lg shadow-md z-20 transform rotate-[-5deg] animate-pulse">NEW!</div>` : '';
+
                     profileContainer.innerHTML += `
                         <div class="${pal.bg} ${pal.border} ${pal.glow} p-4 rounded-xl border border-t-2 relative overflow-hidden cursor-default flex flex-col justify-center h-full text-center group">
+                            ${newBadgeHtml}
                             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
-                            <div class="flex items-center justify-center gap-2 mb-1 z-10 relative">
-                                <span class="text-[9px] px-2 py-0.5 rounded ${pal.bg} border ${pal.border} ${pal.text} font-bold uppercase tracking-wider cursor-help" title="${pal.tip}">${pal.label}</span>
+                            <div class="flex items-center justify-center gap-2 mb-1 z-10 relative text-center">
+                                <span class="inline-block text-[9px] px-2 py-0.5 rounded ${pal.bg} border ${pal.border} ${pal.text} font-bold uppercase tracking-wider cursor-help" title="${pal.tip}">${pal.label}</span>
                             </div>
                             <p class="text-xl md:text-2xl font-black ${pal.text} uppercase drop-shadow-md leading-none z-10 relative">${prof.title}</p>
                             <p class="text-sm font-bold text-slate-300 mt-2 italic px-2 z-10 relative">"${flavorText}"</p>
@@ -131,16 +161,22 @@ export function renderGameOverSummary(data) {
         if (lbSection) lbSection.classList.remove('hidden');
 
         const finalKPS = (state.localScore / (state.gameDuration / 1000)).toFixed(1);
-        state.currentLeaderboardPage = 1;
+
+        // Auto-paginate to the user's CURRENT run location so they see where this run landed
+        const rankNum = data.rank ? parseInt(data.rank, 10) : (data.pbRank ? parseInt(data.pbRank, 10) : 1);
+        state.currentLeaderboardPage = !isNaN(rankNum) && rankNum > 0 ? Math.ceil(rankNum / 10) : 1;
+
         state.currentSession = {
             name: playerName,
             score: state.localScore,
             smash_score: serverSmashScore,
             rank: data.rank,
+            pbRank: data.pbRank,
             kps: data.kps || finalKPS,
             entropy: state.finalEntropy,
             profiles: state.finalProfiles || [],
-            totalProfiles: state.totalProfiles || 0
+            totalProfiles: state.totalProfiles || 0,
+            isPersonalBest: isPersonalBest
         };
 
         fetchLeaderboard(false);

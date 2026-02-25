@@ -96,6 +96,11 @@ async function endGame(socket, io) {
     let smashScore = null;
     let finalProfiles = analysis.profiles; // Start with current run's profiles
 
+    let isPersonalBest = true;
+    let highestSmashScore = smashScore;
+    let currentRunRank = null;
+    let existingProfileTitles = [];
+
     // Only process rankings and database insertion if they are NOT a cheater
     if (!analysis.isCheater) {
         const timerDuration = game.mode === 'blitz' ? 2 : 5;
@@ -107,15 +112,22 @@ async function endGame(socket, io) {
         const savedData = await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal, analysis.profiles, analysis.forceSmashScore);
 
         if (savedData) {
-            smashScore = savedData.smashScore;
+            smashScore = savedData.smashScore; // Score for THIS EXACT run
             finalProfiles = savedData.mergedProfiles; // Update to the cumulative set
+            isPersonalBest = savedData.isPersonalBest;
+            highestSmashScore = savedData.highestSmashScore; // Their all-time best
+            existingProfileTitles = savedData.existingProfileTitles || [];
         } else {
             // Fallback if DB fails
             smashScore = analysis.forceSmashScore !== undefined ? analysis.forceSmashScore : calculateSmashScore(game.score, entropyVal, kps, profileCount);
+            highestSmashScore = smashScore;
         }
 
-        // FETCH THE UPDATED ABSOLUTE GLOBAL RANK FOR THIS SPECIFIC SCORE RUN
-        playerRank = await ScoreModel.getRank(smashScore, game.mode);
+        // FETCH RANKS
+        // 1. Where does this EXACT run rank? (For the post-game UI)
+        currentRunRank = await ScoreModel.getRank(smashScore, game.mode);
+        // 2. Where does their permanent PB rank? (For DB pagination)
+        playerRank = await ScoreModel.getRank(highestSmashScore, game.mode, game.name);
 
         // Emit the updated global smash count to everyone (for the home page counter)
         if (savedData && savedData.totalSmashes) {
@@ -134,10 +146,14 @@ async function endGame(socket, io) {
     socket.emit('gameOver', {
         finalScore: game.score,
         smash_score: smashScore,
+        highestSmashScore: highestSmashScore,
+        isPersonalBest: isPersonalBest,
         kps: game.mode === 'blitz' ? parseFloat((game.score / 2).toFixed(1)) : parseFloat((game.score / 5).toFixed(1)),
-        rank: playerRank,
+        rank: !analysis.isCheater ? currentRunRank : null,
+        pbRank: playerRank,
         profiles: finalProfiles, // Cumulative mapping used for Leaderboard's "Current Session"
         runProfiles: analysis.profiles, // The profiles earned *in this specific match*
+        existingProfileTitles: existingProfileTitles, // Profile titles that were in the DB BEFORE this run
         entropy: analysis.entropy,
         totalProfiles: ProfileEngine.getTotalCount()
     });

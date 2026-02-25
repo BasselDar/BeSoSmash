@@ -45,10 +45,10 @@ export const ranks = [
     { threshold: 370, title: "KEYCAP DESTROYER", color: "text-violet-500" },
     { threshold: 400, title: "WRIST BREAKER", color: "text-purple-500" },
     { threshold: 430, title: "SMASHER", color: "text-fuchsia-500" },
-    { threshold: 460, title: "GIGACHAD SMASHER", color: "text-pink-500 drop-shadow-[0_0_10px_rgba(236,72,153,0.5)]" },
-    { threshold: 490, title: "ABSOLUTE CINEMA", color: "text-rose-500 drop-shadow-[0_0_10px_rgba(244,63,94,0.5)]" },
-    { threshold: 520, title: "UNSTOPPABLE FORCE", color: "text-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.7)]" },
-    { threshold: 550, title: "BEYOND HUMAN", color: "text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]" },
-    { threshold: 580, title: "OMEGA SMASHER", color: "text-red-600 animate-pulse drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]" },
-    { threshold: 600, title: "THE SINGULARITY", color: "text-yellow-300 animate-pulse drop-shadow-[0_0_20px_rgba(250,204,21,0.9)]" }
+    { threshold: 460, title: "GIGACHAD SMASHER", color: "text-pink-500" },
+    { threshold: 490, title: "ABSOLUTE CINEMA", color: "text-rose-500" },
+    { threshold: 520, title: "UNSTOPPABLE FORCE", color: "text-red-500" },
+    { threshold: 550, title: "BEYOND HUMAN", color: "text-red-600" },
+    { threshold: 580, title: "OMEGA SMASHER", color: "text-red-600 animate-pulse" },
+    { threshold: 600, title: "THE SINGULARITY", color: "text-yellow-300 animate-pulse" }
 ];

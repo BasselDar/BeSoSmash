@@ -3,23 +3,44 @@ const { calculateSmashScore } = require('../utils/scoring');
 
 class ScoreModel {
 
-    static async getRank(smashScore, mode = 'classic') {
-        try {
-            const higherRankCount = await redisClient.zCount(`leaderboard_${mode}`, `(${smashScore}`, '+inf');
-            return higherRankCount + 1;
-        } catch (err) {
-            console.error("Error fetching rank from Redis:", err);
-
+    static async getRank(smashScore, mode = 'classic', name = null) {
+        if (name) {
             try {
-                const result = await pool.query(
-                    `SELECT COUNT(*) FROM scores WHERE mode = $1 AND smash_score > $2`,
-                    [mode, smashScore]
-                );
-                return parseInt(result.rows[0].count, 10) + 1;
-            } catch (pgErr) {
-                console.error("Error fetching rank from Postgres Fallback:", pgErr.message);
-                return null;
+                const query = `
+                    WITH RankedScores AS (
+                        SELECT name, ROW_NUMBER() OVER(
+                            ORDER BY
+                                CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN 1 ELSE 0 END ASC,
+                                smash_score DESC, created_at DESC
+                        ) as global_rank
+                        FROM scores
+                        WHERE mode = $1
+                    )
+                    SELECT global_rank FROM RankedScores WHERE name = $2 LIMIT 1
+                `;
+                const result = await pool.query(query, [mode, name]);
+                if (result.rows.length > 0) return parseInt(result.rows[0].global_rank, 10);
+            } catch (err) {
+                console.error("Error fetching exact postgres rank:", err.message);
             }
+        }
+
+        // If no name is provided (transient non-PB run), we need to calculate exactly where this score 
+        // would land amongst legit players in the Postgres database.
+        // We bypass Redis here because Redis doesn't filter out 'Suspected Cheater' flags!
+        try {
+            const query = `
+                SELECT COUNT(*) as higher_ranked 
+                FROM scores 
+                WHERE mode = $1 
+                  AND smash_score > $2 
+                  AND profiles::text NOT LIKE '%Suspected Cheater%'
+            `;
+            const result = await pool.query(query, [mode, smashScore]);
+            return parseInt(result.rows[0].higher_ranked, 10) + 1;
+        } catch (err) {
+            console.error("Error fetching transient rank from Postgres:", err.message);
+            return null;
         }
     }
 
@@ -88,10 +109,11 @@ class ScoreModel {
             let existingId = null;
             let existingSmashScore = 0;
             let existingProfileCount = 0;
+            let existingProfileTitles = [];
 
             if (rows.length > 0) {
                 existingId = rows[0].id;
-                existingSmashScore = rows[0].smash_score || 0;
+                existingSmashScore = parseInt(rows[0].smash_score, 10) || 0;
 
                 // Parse existing profiles safely
                 let existingProfiles = [];
@@ -102,6 +124,7 @@ class ScoreModel {
                 } catch (e) { }
                 if (!Array.isArray(existingProfiles)) existingProfiles = [];
                 existingProfileCount = existingProfiles.length;
+                existingProfileTitles = existingProfiles.map(p => p.title);
 
                 // Merge profiles — only profiles accumulate, not stats
                 const profileMap = new Map();
@@ -115,27 +138,39 @@ class ScoreModel {
             const newSmashScore = forceSmashScore !== null ? forceSmashScore : calculateSmashScore(score, entropy, kps, profileCount);
             const profilesJson = JSON.stringify(mergedProfiles);
 
+            let isPersonalBest = false;
+            let highestSmashScore = newSmashScore;
+
             if (rows.length > 0) {
                 const hasNewProfiles = profileCount > existingProfileCount;
                 const hasHigherScore = newSmashScore > existingSmashScore;
 
                 if (hasHigherScore) {
+                    isPersonalBest = true;
                     // New personal best — update everything (stats + profiles)
                     const updateSql = `UPDATE scores SET score = $1, kps = $2, entropy = $3, smash_score = $4, profiles = $5, created_at = CURRENT_TIMESTAMP WHERE id = $6`;
                     await pool.query(updateSql, [score, kps, entropy, newSmashScore, profilesJson, existingId]);
                 } else if (hasNewProfiles) {
+                    highestSmashScore = existingSmashScore; // They didn't beat their score
                     // Lower score run, but found new profiles — recalculate smash score using OLD stats + NEW profile count
                     const existingScore = rows[0].score;
                     const existingKps = rows[0].kps;
                     const existingEntropy = rows[0].entropy;
                     const boostedSmashScore = forceSmashScore !== null ? forceSmashScore : calculateSmashScore(existingScore, existingEntropy, existingKps, profileCount);
+
+                    if (boostedSmashScore > existingSmashScore) {
+                        highestSmashScore = boostedSmashScore;
+                    }
+
                     const updateSql = `UPDATE scores SET smash_score = $1, profiles = $2 WHERE id = $3`;
                     await pool.query(updateSql, [boostedSmashScore, profilesJson, existingId]);
                     await redisClient.zAdd(`leaderboard_${mode}`, { score: boostedSmashScore, value: name }, { GT: true });
                 } else {
+                    highestSmashScore = existingSmashScore;
                     // No high score and no new profiles, do nothing
                 }
             } else {
+                isPersonalBest = true;
                 const insertSql = `INSERT INTO scores (name, score, mode, kps, entropy, smash_score, profiles) VALUES ($1, $2, $3, $4, $5, $6, $7)`;
                 await pool.query(insertSql, [name, score, mode, kps, entropy, newSmashScore, profilesJson]);
             }
@@ -148,12 +183,15 @@ class ScoreModel {
             );
             const totalSmashes = statsRes.rows.length > 0 ? parseInt(statsRes.rows[0].total_smashes, 10) : 0;
 
-            await redisClient.zAdd(`leaderboard_${mode}`, { score: newSmashScore, value: name }, { GT: true });
+            await redisClient.zAdd(`leaderboard_${mode}`, { score: highestSmashScore, value: name }, { GT: true });
 
             return {
                 smashScore: newSmashScore,
                 mergedProfiles,
-                totalSmashes
+                totalSmashes,
+                isPersonalBest,
+                highestSmashScore,
+                existingProfileTitles
             };
         } catch (err) {
             console.error("Error saving score:", err);
