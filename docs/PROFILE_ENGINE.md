@@ -56,7 +56,7 @@ No hardcoded lists. No count constants to update.
 
 ## All Profiles
 
-For a full list of all available profiles, their triggers, and flavor texts, please refer to the [Profile Encyclopedia (ALL_PROFILES.md)](./ALL_PROFILES.md).
+For a full list of all 110 available profiles, their triggers, and flavor texts, please refer to the [Profile Encyclopedia (ALL_PROFILES.md)](./ALL_PROFILES.md).
 
 ---
 

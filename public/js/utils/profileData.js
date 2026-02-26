@@ -13,6 +13,7 @@ export const categoryPalettes = {
 export const profileCategoryMap = {
     // Cheater / Suspicious
     'The Script Kiddie': 'cheater', 'The Hardware Spoof': 'cheater', 'The Ghost': 'cheater',
+    'Suspected Cheater': 'cheater', 'The Overloader': 'cheater',
     // Rare / Exclusive
     'The Minimalist': 'rare', 'The Rage Quitter': 'rare', 'The Plagiarist': 'rare', 'The Glitch': 'rare',
     'The Konami Coder': 'rare', 'The Spacebar Supremacist': 'rare', 'The Start Menu Sommelier': 'rare', 'The Mobile Smasher': 'rare',

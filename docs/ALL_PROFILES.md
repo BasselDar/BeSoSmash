@@ -10,6 +10,8 @@ These profiles flag the run as suspicious.
 | The Script Kiddie | Nice try injecting JavaScript directly into the DOM. Caught in 4K. |
 | The Hardware Spoof | Your keyboard physically cannot send data this fast. Busted. |
 | The Overloader | You hit the server rate limit. Either you are a bot, or your forearms are literal pistons. |
+| The Ghost | Did you even touch the keyboard? Zero keys detected. Please wake up. |
+| The Panic Button | You smashed so randomly even the algorithm gave up. |
 
 ## 🏆 Easter Eggs & Specific Triggers
 These profiles require typing very specific words or key combinations.

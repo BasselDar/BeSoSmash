@@ -24,7 +24,7 @@ BeSoSmash is a real-time, highly interactive web application that gamifies the a
 - **Multiple Game Modes:**
   - **Classic:** 5 seconds to achieve maximum keystrokes, entropy, and keys-per-second (KPS).
   - **Blitz:** A chaotic 2-second burst mode for ultimate fast fingers.
-- **Personality Profiling Engine:** A rule-based engine analyzes keystrokes to generate funny, meme-oriented, and highly judgmental profiles (e.g., "The Script Kiddie", "The Spacebar Supremacist", "The Glitch"). Over 100 unique profiles exist, including Easter Eggs and anti-cheat detections.
+- **Personality Profiling Engine:** A rule-based engine analyzes keystrokes to generate funny, meme-oriented, and highly judgmental profiles (e.g., "The Script Kiddie", "The Spacebar Supremacist", "The Glitch"). 110 unique profiles exist, including Easter Eggs and anti-cheat detections.
 - **Profile Collection:** Profiles accumulate across all sessions. Discovering new profiles boosts your score — play different styles to collect them all.
 - **Global Leaderboard:** Features search, pagination, stat badges, and live ranking against the global database.
 - **Dynamic Scoring (Smash Score):** Total score is calculated using a specialized formula:
@@ -96,7 +96,7 @@ For a deeper dive into the system's architecture, game modes, and the complex in
 - [System Architecture](docs/ARCHITECTURE.md) — HTTP/WebSocket layers, database design, smart score saving, and project structure.
 - [Security Architecture](docs/SECURITY.md) — Anti-cheat layers, rate-limiting, batch frequency validation, and secure score saving.
 - [Game Modes](docs/GAME_MODES.md) — Classic vs Blitz, entropy math, and the Smash Score formula.
-- [Profile Engine](docs/PROFILE_ENGINE.md) — Rule-based engine architecture, 100+ personality profiles, Easter Eggs, and the profile collection system.
+- [Profile Engine](docs/PROFILE_ENGINE.md) — Rule-based engine architecture, 110 personality profiles, Easter Eggs, and the profile collection system.
 - [Testing Ecosystem](docs/TESTING.md) — Test suites, performance benchmarking, and anti-cheat simulations.
 
 ## License
