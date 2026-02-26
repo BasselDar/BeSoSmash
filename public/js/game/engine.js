@@ -19,9 +19,9 @@ export function startGame(mode) {
 
     // Lock codename to prevent name spamming in the same session, obfuscated via base64
     try {
-        localStorage.setItem('besosmash_codename', btoa(encodeURIComponent(name)));
+        localStorage.setItem('besosmash_codename_v2', btoa(encodeURIComponent(name)));
     } catch (e) {
-        localStorage.setItem('besosmash_codename', name); // fallback
+        localStorage.setItem('besosmash_codename_v2', name); // fallback
     }
     if (nameInput) {
         nameInput.disabled = true;
@@ -199,7 +199,7 @@ export function clearCodename() {
 // Initialize the game engine
 export function initGameEngine() {
     // Restore and lock Codename if previously set
-    let savedName = localStorage.getItem('besosmash_codename');
+    let savedName = localStorage.getItem('besosmash_codename_v2');
     if (savedName) {
         try {
             // Decode obfuscated name
