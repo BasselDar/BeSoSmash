@@ -126,7 +126,7 @@ module.exports = (io) => {
                         // Already at the ceiling — drop everything
                         game.violations++;
                         if (game.violations >= MAX_VIOLATIONS) {
-                            game.keyHistory.push(['SCRIPT_DETECTED']);
+                            game.keyHistory.push(['RATE_FLAGGED']); // FIXED: use RATE_FLAGGED
                             endGame(socket, io);
                         }
                         return;
@@ -140,12 +140,11 @@ module.exports = (io) => {
                         game.violations++;
                         if (game.violations >= MAX_VIOLATIONS) {
                             // Force-flag as cheater and end game immediately
-                            game.keyHistory.push(['SCRIPT_DETECTED']);
+                            game.keyHistory.push(['RATE_FLAGGED']); // FIXED: use RATE_FLAGGED
                             endGame(socket, io);
                             return; // Drop this batch if we just banned them
                         }
-                        // We DO NOT return here, so legitimate "final flush" batches 
-                        // that happen to arrive <15ms after the interval aren't dropped.
+                        return; // Actually drop the batch if it's too frequent but they haven't been banned yet
                     }
                     game.lastBatchTime = now; // Update last batch time for the next check
 

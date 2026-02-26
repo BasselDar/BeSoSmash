@@ -64,7 +64,7 @@ const PROFILES = [
         flavor: "You hit the server rate limit. Either you are a bot, or your forearms are literal pistons.",
         isExclusive: true,
         isCheater: true,
-        condition: (s) => s.keyCounts['SCRIPT_DETECTED'] > 0
+        condition: (s) => s.keyCounts['RATE_FLAGGED'] > 0 || s.keyCounts['SCRIPT_DETECTED'] > 0
     },
     {
         title: "The Rage Quitter",

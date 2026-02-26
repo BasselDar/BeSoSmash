@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "node scripts/test_profiles.js"
+    "test": "node tests/test_all.js"
   },
   "dependencies": {
     "dotenv": "^17.3.1",
