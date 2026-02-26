@@ -1,7 +1,7 @@
 # BeSoSmash
 
 <div align="center">
-  <img src="assets/banner.png" alt="BeSoSmash Banner" width="800"/>
+  <img src="assets/banner.png" alt="BeSoSmash Banner" width="500"/>
   <br/>
   <h2><a href="https://besosmash.onrender.com/">🎮 Play the Live Version Here! 🎮</a></h2>
 </div>
