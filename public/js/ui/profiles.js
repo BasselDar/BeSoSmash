@@ -25,25 +25,34 @@ export function isCheater(profiles) {
 
 export const cheaterBadgeHtml = `<span class="text-[10px] px-2 py-0.5 rounded bg-red-500/20 border border-red-500/40 text-red-400 font-black uppercase tracking-wider animate-pulse shrink-0" title="This player has been flagged for suspicious input patterns">⚠️ FLAGGED</span>`;
 
-export function buildProfilesHtml(profiles, id, totalProfiles = 0) {
+export function buildProfilesHtml(profiles, id, _totalProfilesOverride = 0) {
     if (!profiles || profiles.length === 0) return '';
 
     // Filter out cheater — it's shown as a flag badge on the name, not a profile card
     const displayProfiles = profiles.filter(p => p.title !== 'Suspected Cheater');
     if (displayProfiles.length === 0) return '';
 
+    const totalProfiles = _totalProfilesOverride > 0 ? _totalProfilesOverride : Object.keys(profileCategoryMap).filter(k => profileCategoryMap[k] !== 'cheater').length;
     const isCompletionist = totalProfiles > 0 && displayProfiles.length >= totalProfiles;
     const encodedProfiles = btoa(unescape(encodeURIComponent(JSON.stringify(displayProfiles))));
 
+    // Calculate incremental collector medals
+    let collectorMedals = '';
+    if (displayProfiles.length >= 10 && displayProfiles.length < 50) collectorMedals = `<img src="/assets/icons/medals/bronze.png" alt="Bronze Medal" class="h-4 w-4 ml-2 cursor-help" title="Novice Collector (10+ Profiles) - Keep exploring!" />`;
+    if (displayProfiles.length >= 50 && !isCompletionist) collectorMedals = `<img src="/assets/icons/medals/silver.png" alt="Silver Medal" class="h-4 w-4 ml-2 cursor-help" title="Master Collector (50+ Profiles) - Almost there!" />`;
+
     const headerHtml = isCompletionist
         ? `<div class="flex items-center justify-center gap-3 mb-3 py-2 px-4 rounded-lg bg-gradient-to-r from-yellow-500/20 via-amber-500/10 to-yellow-500/20 border border-yellow-400/30 shadow-[0_0_20px_rgba(250,204,21,0.15)]">
-               <span class="text-xl">🏆</span>
+               <img src="/assets/icons/medals/completionist.png" alt="Completionist Trophy" class="h-6 w-6" />
                <span class="text-xs font-black text-yellow-400 uppercase tracking-[0.2em] animate-pulse">COMPLETIONIST — ALL ${totalProfiles} PROFILES COLLECTED!</span>
-               <span class="text-xl">🏆</span>
+               <img src="/assets/icons/medals/completionist.png" alt="Completionist Trophy" class="h-6 w-6" />
            </div>`
         : `<div class="flex items-center gap-2 mb-3">
                <div class="h-px flex-grow bg-gradient-to-r from-fuchsia-500/50 to-transparent"></div>
-               <span class="text-[10px] font-black text-fuchsia-500/70 uppercase tracking-[0.2em]">Collected Profiles (${displayProfiles.length}${totalProfiles > 0 ? '/' + totalProfiles : ''})</span>
+               <span class="text-[10px] font-black text-fuchsia-500/70 uppercase tracking-[0.2em] flex items-center justify-center">
+                   Collected Profiles (${displayProfiles.length}${totalProfiles > 0 ? '/' + totalProfiles : ''})
+                   ${collectorMedals}
+               </span>
                <div class="h-px flex-grow bg-gradient-to-l from-fuchsia-500/50 to-transparent"></div>
            </div>`;
 

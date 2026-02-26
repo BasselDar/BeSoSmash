@@ -646,7 +646,7 @@ const PROFILES = [
     {
         title: "The Rhythm Gamer",
         flavor: "Perfect alternating patterns. You found the beat and stuck to it. Are you playing Friday Night Funkin' in another tab?",
-        condition: (s) => s.uniqueKeys >= 4 && s.uniqueKeys <= 6 && s.ent > 60 && s.kps > 10
+        condition: (s) => s.uniqueKeys >= 4 && s.uniqueKeys <= 6 && s.ent >= 20 && s.kps > 10 && s.maxSingleKeyCount < s.totalKeys * 0.4
     },
     {
         title: "The Mechanical Switch Tester",

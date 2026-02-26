@@ -3,8 +3,11 @@ import { state, ranks } from '../core/state.js';
 import { socket } from '../core/socket.js';
 import { timeAgo } from '../utils/time.js';
 import { showToast } from './toast.js';
+import { profileCategoryMap } from '../utils/profileData.js';
 import { isCheater, cheaterBadgeHtml, buildProfilesHtml, attachExpandHandler, chevronSvg } from './profiles.js';
 import { renderPagination } from './pagination.js';
+
+const totalLegitProfiles = Object.keys(profileCategoryMap).filter(k => profileCategoryMap[k] !== 'cheater').length;
 
 // Compute rank title from raw score (keys pressed) using client-side thresholds
 function getRankTitle(score) {
@@ -83,9 +86,9 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
         // Flagged players or injected runs: no medals, dimmed styling
         let medalHtml = `<span class="text-slate-500 font-mono text-xl w-10 text-center bg-slate-800/80 py-1 rounded-lg">${player.is_injected_run ? '-' : '#' + rank}</span>`;
         if (!playerCheater && !player.is_injected_run) {
-            if (rank === 1) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]">🥇</span>`;
-            if (rank === 2) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(203,213,225,0.6)]">🥈</span>`;
-            if (rank === 3) medalHtml = `<span class="text-4xl drop-shadow-[0_0_10px_rgba(217,119,6,0.6)]">🥉</span>`;
+            if (rank === 1) medalHtml = `<img src="/assets/icons/medals/gold.png" alt="Gold Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]" />`;
+            if (rank === 2) medalHtml = `<img src="/assets/icons/medals/silver.png" alt="Silver Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(203,213,225,0.6)]" />`;
+            if (rank === 3) medalHtml = `<img src="/assets/icons/medals/bronze.png" alt="Bronze Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(217,119,6,0.6)]" />`;
         }
 
         // Check if this row is the artificially injected current run OR a real PB run
@@ -138,6 +141,11 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
             isCurrentRun ? 'text-yellow-300 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]' :
                 `text-${themeColor}-500 group-hover:text-${themeColor}-400`;
 
+        let titleMedalHtml = '';
+        if (displayProfiles.length >= totalLegitProfiles) titleMedalHtml = `<img src="/assets/icons/medals/completionist.png" alt="Completionist Trophy" class="h-6 w-6 ml-2 cursor-help" title="Completionist (${displayProfiles.length}/${totalLegitProfiles} Profiles)" />`;
+        else if (displayProfiles.length >= 50) titleMedalHtml = `<img src="/assets/icons/medals/silver.png" alt="Silver Medal" class="h-5 w-5 ml-2 cursor-help" title="Master Collector (${displayProfiles.length}+ Profiles)" />`;
+        else if (displayProfiles.length >= 10) titleMedalHtml = `<img src="/assets/icons/medals/bronze.png" alt="Bronze Medal" class="h-5 w-5 ml-2 cursor-help" title="Novice Collector (${displayProfiles.length}+ Profiles)" />`;
+
         li.innerHTML = `
             ${bgHighlight}
             ${runBadge}
@@ -145,7 +153,10 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
                 <div class="flex items-center gap-3 md:gap-4 min-w-0">
                     <div class="flex items-center justify-center min-w-[3rem] shrink-0">${medalHtml}</div>
                     <div class="flex flex-col min-w-0">
-                        <span class="font-black text-lg md:text-xl tracking-wide ${nameColor} uppercase truncate">${player.name}</span>
+                        <span class="font-black text-lg md:text-xl tracking-wide ${nameColor} uppercase truncate flex items-center">
+                            ${player.name}
+                            ${titleMedalHtml}
+                        </span>
                         ${playerCheater ? cheaterBadgeHtml : ''}
                         <span class="text-[10px] text-slate-600 tracking-widest uppercase flex items-center gap-1 mt-0.5">
                             <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -158,12 +169,18 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
                     <div class="flex flex-col items-start md:items-end">
                         <span class="font-mono font-black text-xl md:text-3xl ${scoreColorClass} transition-colors leading-none" title="Smash Score">${player.smash_score != null ? parseInt(player.smash_score).toLocaleString() : '---'}</span>
                         <div class="flex items-center gap-2 flex-wrap mt-1">
-                            <span class="text-[10px] font-bold text-slate-500" title="Keys Pressed">💢${player.score}</span>
-                            <span class="text-[10px] font-bold text-slate-500" title="Keys Per Second">⚡${player.kps || '0'}</span>
-                            <span class="text-[10px] font-bold text-slate-500" title="Entropy">🌪️${Math.round(parseFloat(player.entropy) || 0)}%</span>
+                            <span class="text-[10px] font-bold text-slate-500 flex items-center gap-1" title="Keys Pressed">
+                                <img src="/assets/icons/misc/keys.png" alt="Keys" class="h-3 w-3" />${player.score}
+                            </span>
+                            <span class="text-[10px] font-bold text-slate-500 flex items-center gap-1" title="Keys Per Second">
+                                <img src="/assets/icons/misc/kps.png" alt="KPS" class="h-3 w-3" />${player.kps || '0'}
+                            </span>
+                            <span class="text-[10px] font-bold text-slate-500 flex items-center gap-1" title="Entropy">
+                                <img src="/assets/icons/misc/entropy.png" alt="Entropy" class="h-3 w-3" />${Math.round(parseFloat(player.entropy) || 0)}%
+                            </span>
                             ${hasProfiles ? `
                                 <span class="text-[10px] font-bold text-violet-400 flex items-center gap-1" title="Collected Profiles — Each unique profile adds +420 to Smash Score">
-                                    🧬${profiles.length}
+                                    <img src="/assets/icons/misc/profiles.png" alt="Profiles" class="h-3 w-3" />${profiles.length}
                                     <span class="w-3.5 h-3.5 rounded-full bg-violet-500/20 border border-violet-500/40 text-violet-400 flex items-center justify-center text-[8px] font-black cursor-help shrink-0">?</span>
                                 </span>
                             ` : ''}

@@ -44,10 +44,12 @@ export const profileCategoryMap = {
     'The Screamer': 'keyboard', 'The IT Support': 'keyboard', 'The Windows Key Victim': 'keyboard',
     'The Screenshot Hoarder': 'keyboard', 'The System Interrupter': 'keyboard', 'The Scroll Lock Champion': 'keyboard',
     'The Toggle Archaeologist': 'keyboard', 'The Mod Squad': 'keyboard',
-    // Pacing / Timing
+    // Pacing / Timing / Entropy
     'The Two-Finger Peck': 'pacing', 'The Stutterer': 'pacing', 'The Novelist': 'pacing',
     'The Pacifist': 'pacing', 'The AFK': 'pacing', 'The Early Bird': 'pacing', 'The Decaf Drinker': 'pacing',
     'The Anime Comeback': 'pacing', 'The Distracted': 'pacing', 'The Sloth': 'pacing', 'The Panic Button': 'pacing',
+    'The Heartbeat': 'pacing', 'The Chaotic Evil': 'pacing', 'The Lawful Good': 'pacing',
+    'The Overclocker': 'pacing', 'The Rhythm Gamer': 'pacing', 'The Mechanical Switch Tester': 'pacing',
 };
 
 export function getProfileCategory(title) {

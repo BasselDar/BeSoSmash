@@ -124,4 +124,9 @@ These relate to keyboard zones, pacing, and habits.
 | The Anime Comeback | You unlocked your final form at the very last second. |
 | The Distracted | Checking your phone during a 5-second match? Disrespectful. |
 | The Sloth | Are you moving underwater? Check your pulse. |
-
+| The Heartbeat | Uncanny consistency. The time between your keystrokes was so uniform we thought you were a metronome. |
+| The Chaotic Evil | 100% Entropy. Maximum chaos. You touched every single key on your keyboard with no discernible pattern. True randomness achieved. |
+| The Lawful Good | High KPS, minimal entropy. You had a solid strategy, pressed exactly what you needed to, and didn't panic. A respectable performance. |
+| The Overclocker | Your hardware runs hot. Very hot. You pushed out massive keystrokes with explosive surges. |
+| The Rhythm Gamer | Perfect alternating patterns. You found the beat and stuck to it. Are you playing Friday Night Funkin' in another tab? |
+| The Mechanical Switch Tester | You methodically went through your keyboard just listening to the clicks. Satisfying, isn't it? |

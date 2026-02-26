@@ -1,0 +1,92 @@
+
+🧪 TEST SUITE: Exclusive Profiles
+
+
+🧪 TEST SUITE: Easter Egg Profiles
+
+
+🧪 TEST SUITE: Accumulative Profiles
+
+
+🧪 TEST SUITE: Cheater Detection
+
+
+🧪 TEST SUITE: Entropy Calculation
+
+
+🧪 TEST SUITE: Profile Registry
+
+
+🧪 TEST SUITE: Game Mode Differences
+
+
+🧪 TEST SUITE: Flavor Text Integrity
+
+
+📊 RESULTS: 57 passed, 2 failed out of 59 tests
+
+❌ FAILED TESTS:
+  ❌ High entropy + 40+ unique keys → Chaotic Evil (got: The Precision Striker, The Drummer, The Stenographer, The Regex Nightmare, The Novelist, The Heartbeat)
+  ❌ Alternating patterns → Rhythm Gamer
+
+  ✅ Empty input → The Ghost
+  ✅ Ghost is flagged as cheater
+  ✅ Ghost has 0 entropy
+  ✅ SCRIPT_DETECTED flag → The Overloader
+  ✅ Overloader is flagged as cheater
+  ✅ Single key → The Minimalist
+  ✅ Untrusted keys → Script Kiddie
+  ✅ Script Kiddie is cheater
+  ✅ Alt+F4 → Rage Quitter
+  ✅ Ctrl+C/V heavy → Plagiarist
+  ✅ Konami code → Konami Coder
+  ✅ All spaces → Spacebar Supremacist
+  ✅ All touch → Mobile Smasher
+  ✅ DROP TABLE → SQL Dropper
+  ✅ SUDO → Sudo Override
+  ✅ POTATO → Accidental Potato
+  ✅ 80085 → Calculator Kid
+  ✅ 69 → The 69er
+  ✅ 420 → The Botanist
+  ✅ SPEEDRUN → The Any% Speedrunner
+  ✅ HACKER → The HackerMan
+  ✅ BESOSMASH → The Meta Gamer
+  ✅ BESOSE → The Creator
+  ✅ Profanity → The Swear Jar
+  ✅ N-word → The Instagram User
+  ✅ HELLO → The Polite Menace
+  ✅ EZ → The Disrespectful One
+  ✅ At least one profile matched (got 3)
+  ✅ Normal play is not cheater
+  ✅ WASD heavy → Sweaty Tryhard (got: The Pianist, The Fighting Game Scrub, The Sweaty Tryhard, The Left-Handed Demon, The Stutterer, The Early Bird, The Heartbeat)
+  ✅ All arrows → Arrow Key Boomer (got: The Drummer, The Arrow Key Boomer, The Fighting Game Scrub, The Consonant Crusader, The Stutterer, The Early Bird)
+  ✅ All vowels → Vowel Enthusiast (got: The Pianist, The Sweaty Tryhard, The Vowel Enthusiast, The Stutterer, The Early Bird, The Decaf Drinker, The Lawful Good)
+  ✅ No vowels → Consonant Crusader (got: The MOBA Toxic, The Sweaty Tryhard, The Consonant Crusader, The Left-Handed Demon, The Two-Finger Peck, The Stutterer, The Early Bird, The Decaf Drinker, The Lawful Good)
+  ✅ Touch+keyboard mix → Hybrid (got: The Hybrid, The Pianist, The Fighting Game Scrub, The Sweaty Tryhard, The Hexadecimal, The Vowel Vulture, The Left-Handed Demon, The Two-Finger Peck, The Stutterer, The Early Bird, The Decaf Drinker, The Lawful Good)
+  ✅ Multiple profiles stacked: 7 (titles: The Pianist, The Bunny Hopper, The Sweaty Tryhard, The Vowel Vulture, The Left-Handed Demon, The Stutterer, The Early Bird)
+  ✅ Backspace heavy → Typosquatter
+  ✅ Enter heavy → Executioner
+  ✅ Comma heavy → Punctuation Pedant
+  ❌ High entropy + 40+ unique keys → Chaotic Evil (got: The Precision Striker, The Drummer, The Stenographer, The Regex Nightmare, The Novelist, The Heartbeat)
+  ✅ Organized + fast → Lawful Good
+  ❌ Alternating patterns → Rhythm Gamer
+  ✅ Slow, many unique keys → Mechanical Switch Tester
+  ✅ Burst smash + high KPS → Overclocker
+  ✅ Inhuman speed → Hardware Spoof
+  ✅ Hardware Spoof is cheater
+  ✅ 150+ KPS low entropy → Suspected Cheater (got: Suspected Cheater, The Single-Key Murderer, The Fighting Game Scrub, The Sweaty Tryhard, The Hexadecimal, The Vowel Vulture, The Left-Handed Demon, The Stutterer, The Early Bird, The Decaf Drinker)
+  ✅ Fast but diverse → not cheater
+  ✅ Single key entropy: 0.0 (got 0.0)
+  ✅ Diverse keys entropy > 50% (got 78.2)
+  ✅ Entropy in range [0,100]: 0
+  ✅ Entropy in range [0,100]: 16.7
+  ✅ Entropy in range [0,100]: 78.2
+  ✅ Total profile count is positive: 110
+  ✅ getTotalCount matches TOTAL_PROFILES array
+  ✅ No duplicate profile titles (110 unique / 110 total)
+  ✅ All returned profile titles exist in TOTAL_PROFILES
+  ✅ Blitz returns at least one profile
+  ✅ Classic returns at least one profile
+  ✅ All profiles have valid, non-empty string flavor texts
+
+════════════════════════════════════════════════════════════
