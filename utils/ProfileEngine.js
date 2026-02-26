@@ -103,6 +103,18 @@ const PROFILES = [
         condition: (s) => s.typedString.includes('DROP TABLE')
     },
     {
+        title: "The Console Logger",
+        flavor: "Debugging your keyboard? Try console.log('grass') and go touch some.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('CONSOLELOG')
+    },
+    {
+        title: "The Lorem Ipsum",
+        flavor: "You are generating placeholder text manually. We have tools for this now.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('LOREM') || s.typedString.toUpperCase().includes('IPSUM')
+    },
+    {
         title: "The Sudo Override",
         flavor: "You don't have admin privileges here.",
         isExclusive: true,
@@ -836,9 +848,10 @@ class ProfileEngine {
 
         for (const profile of PROFILES) {
             if (profile.condition(stats)) {
+                let flavorText = typeof profile.flavor === 'function' ? profile.flavor(stats) : profile.flavor;
                 if (profile.isExclusive) {
                     const result = {
-                        profiles: [{ title: profile.title, flavor: profile.flavor }],
+                        profiles: [{ title: profile.title, flavor: flavorText }],
                         entropy: stats.normalizedEntropy,
                         isCheater: profile.isCheater || false
                     };
@@ -846,7 +859,7 @@ class ProfileEngine {
                     return result;
                 }
 
-                matched.push({ title: profile.title, flavor: profile.flavor });
+                matched.push({ title: profile.title, flavor: flavorText });
             }
         }
 

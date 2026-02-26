@@ -20,7 +20,7 @@ export const profileCategoryMap = {
     'The Accidental Potato': 'easter', 'The SQL Dropper': 'easter', 'The Sudo Override': 'easter', 'The Git Pusher': 'easter',
     'The Calculator Kid': 'easter', 'The Upside Down Genius': 'easter', 'The Satanist Calculator': 'easter',
     'The 69er': 'easter', 'The Botanist': 'easter', 'The 2013 Throwback': 'easter', 'The Yeet Lord': 'easter',
-    'The Any% Speedrunner': 'easter', 'The HackerMan': 'easter',
+    'The Any% Speedrunner': 'easter', 'The HackerMan': 'easter', 'The Console Logger': 'easter', 'The Lorem Ipsum': 'easter',
     'The Dark Souls Veteran': 'easter', 'The Hopeful Romantic': 'easter', 'The Confused': 'easter', 'The Drama Queen': 'easter',
     'The Trash Talker': 'easter', 'The Disrespectful One': 'easter', 'The Swear Jar': 'easter', 'The Instagram User': 'easter',
     'The Meta Gamer': 'easter', 'The Cry for Help': 'easter', 'The Polite Menace': 'easter', 'The 1337 Fossil': 'easter',
