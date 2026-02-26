@@ -77,7 +77,12 @@ function startActualGame(firstKeyCode) {
     document.getElementById('status-text').classList.remove('animate-pulse');
 
     const nameInput = document.getElementById('username');
-    const name = nameInput ? nameInput.value.trim() : 'Player';
+    let name = 'Player';
+    if (nameInput) {
+        name = nameInput.value.trim();
+        // If the input is disabled, it means we pre-filled it from localStorage.
+        // It's already the decoded value in the input field, so we just send it.
+    }
     socket.emit('startGame', { name: name, mode: state.currentMode });
 
     // Listen for the server's gameStarted event to capture the anti-cheat token
