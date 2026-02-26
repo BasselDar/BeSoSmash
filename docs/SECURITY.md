@@ -114,7 +114,7 @@ The server is the sole authoritative source of truth for score:
 - The client maintains a local optimistic counter for UI feedback only
 - The server's `game.score` accumulates accepted keys only
 - `clientGameEnd` triggers the server to finalize — the server count is used, never the client's reported number
-- Redis ZSET and PostgreSQL are both updated atomically after game resolution
+- Both Redis `ZSET` and PostgreSQL are updated atomically after game resolution. Flagged cheaters have their score negated in Redis (`-score`) to natively push them to the absolute bottom of the global rankings while preserving their stored metrics.
 
 ---
 

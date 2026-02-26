@@ -78,8 +78,9 @@ BeSoSmash is a real-time, highly interactive web application that gamifies the a
 For a deeper dive into the system's architecture, game modes, and the complex inner workings of the personality inference engine, please refer to the `docs/` folder:
 
 - [System Architecture](docs/ARCHITECTURE.md) — HTTP/WebSocket layers, database design, smart score saving, and project structure.
+- [Security Architecture](docs/SECURITY.md) — Anti-cheat layers, rate-limiting, batch frequency validation, and secure score saving.
 - [Game Modes](docs/GAME_MODES.md) — Classic vs Blitz, entropy math, and the Smash Score formula.
-- [Profile Engine](docs/PROFILE_ENGINE.md) — Rule-based engine architecture, 50+ personality profiles, Easter Eggs, and the profile collection system.
+- [Profile Engine](docs/PROFILE_ENGINE.md) — Rule-based engine architecture, 100+ personality profiles, Easter Eggs, and the profile collection system.
 
 ## License
 

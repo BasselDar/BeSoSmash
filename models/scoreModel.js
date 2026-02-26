@@ -4,50 +4,116 @@ const { calculateSmashScore } = require('../utils/scoring');
 class ScoreModel {
 
     static async getRank(smashScore, mode = 'classic', name = null) {
-        if (name) {
+        try {
+            if (name) {
+                // Instantly fetch exact rank from Redis (0-indexed, so add 1)
+                const redisRank = await redisClient.zRevRank(`leaderboard_${mode}`, name);
+                if (redisRank !== null) {
+                    return redisRank + 1;
+                }
+            }
+
+            // If name isn't in Redis (or wasn't provided for transient non-PB runs),
+            // calculate where the score *would* land by asking Redis how many scores are strictly higher
+            const higherRankedCount = await redisClient.zCount(`leaderboard_${mode}`, `(${smashScore}`, '+inf');
+            return higherRankedCount + 1;
+
+        } catch (err) {
+            console.error("Error fetching rank from Redis:", err.message);
+
+            // --- Fallback to Postgres if Redis is down ---
+            if (name) {
+                try {
+                    const query = `
+                        WITH RankedScores AS (
+                            SELECT name, ROW_NUMBER() OVER(
+                                ORDER BY
+                                    CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN 1 ELSE 0 END ASC,
+                                    smash_score DESC, created_at DESC
+                            ) as global_rank
+                            FROM scores
+                            WHERE mode = $1
+                        )
+                        SELECT global_rank FROM RankedScores WHERE name = $2 LIMIT 1
+                    `;
+                    const result = await pool.query(query, [mode, name]);
+                    if (result.rows.length > 0) return parseInt(result.rows[0].global_rank, 10);
+                } catch (dbErr) {
+                    console.error("Fallback error fetching exact postgres rank:", dbErr.message);
+                }
+            }
+
             try {
                 const query = `
-                    WITH RankedScores AS (
-                        SELECT name, ROW_NUMBER() OVER(
-                            ORDER BY
-                                CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN 1 ELSE 0 END ASC,
-                                smash_score DESC, created_at DESC
-                        ) as global_rank
-                        FROM scores
-                        WHERE mode = $1
-                    )
-                    SELECT global_rank FROM RankedScores WHERE name = $2 LIMIT 1
+                    SELECT COUNT(*) as higher_ranked 
+                    FROM scores 
+                    WHERE mode = $1 
+                      AND smash_score > $2 
+                      AND profiles::text NOT LIKE '%Suspected Cheater%'
                 `;
-                const result = await pool.query(query, [mode, name]);
-                if (result.rows.length > 0) return parseInt(result.rows[0].global_rank, 10);
-            } catch (err) {
-                console.error("Error fetching exact postgres rank:", err.message);
+                const result = await pool.query(query, [mode, smashScore]);
+                return parseInt(result.rows[0].higher_ranked, 10) + 1;
+            } catch (dbErr) {
+                console.error("Fallback error fetching transient rank from Postgres:", dbErr.message);
+                return null;
             }
-        }
-
-        // If no name is provided (transient non-PB run), we need to calculate exactly where this score 
-        // would land amongst legit players in the Postgres database.
-        // We bypass Redis here because Redis doesn't filter out 'Suspected Cheater' flags!
-        try {
-            const query = `
-                SELECT COUNT(*) as higher_ranked 
-                FROM scores 
-                WHERE mode = $1 
-                  AND smash_score > $2 
-                  AND profiles::text NOT LIKE '%Suspected Cheater%'
-            `;
-            const result = await pool.query(query, [mode, smashScore]);
-            return parseInt(result.rows[0].higher_ranked, 10) + 1;
-        } catch (err) {
-            console.error("Error fetching transient rank from Postgres:", err.message);
-            return null;
         }
     }
 
     static async getPaginatedLeaderboard(mode = 'classic', page = 1, limit = 10, search = '') {
         try {
             const offset = (page - 1) * limit;
+            const end = offset + limit - 1;
 
+            // If no search term, try to fetch standard pagination instantly from Redis
+            if (!search) {
+                try {
+                    // Fetch top N usernames from Redis sorted set
+                    const topNames = await redisClient.zRevRange(`leaderboard_${mode}`, offset, end);
+
+                    if (topNames && topNames.length > 0) {
+                        // Fetch their detailed stats from Postgres
+                        const query = `
+                            SELECT name, score, mode, kps, entropy, smash_score, profiles, created_at,
+                                   CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN true ELSE false END as is_flagged
+                            FROM scores
+                            WHERE mode = $1 AND name = ANY($2)
+                        `;
+                        const result = await pool.query(query, [mode, topNames]);
+
+                        // Postgres IN/ANY doesn't maintain array order, so sort in memory to match Redis exact rank
+                        const rowMap = new Map();
+                        result.rows.forEach(row => rowMap.set(row.name, row));
+
+                        const orderedData = topNames.map((name, idx) => {
+                            const row = rowMap.get(name);
+                            if (row) {
+                                row.global_rank = offset + idx + 1;
+                                return row;
+                            }
+                            return null;
+                        }).filter(Boolean);
+
+                        const totalCount = await redisClient.zCard(`leaderboard_${mode}`);
+                        const totalPages = Math.ceil(totalCount / limit);
+
+                        return {
+                            data: orderedData,
+                            pagination: {
+                                page: parseInt(page, 10),
+                                limit: parseInt(limit, 10),
+                                totalCount,
+                                totalPages,
+                                hasMore: page < totalPages
+                            }
+                        };
+                    }
+                } catch (redisErr) {
+                    console.error("Error fetching leaderboard from Redis, falling back to Postgres:", redisErr);
+                }
+            }
+
+            // --- Fallback to heavy Postgres query if Redis fails or user is searching ---
             let query = `
                 WITH RankedScores AS (
                     SELECT name, score, mode, kps, entropy, smash_score, profiles, created_at,
@@ -183,7 +249,17 @@ class ScoreModel {
             );
             const totalSmashes = statsRes.rows.length > 0 ? parseInt(statsRes.rows[0].total_smashes, 10) : 0;
 
-            await redisClient.zAdd(`leaderboard_${mode}`, { score: highestSmashScore, value: name }, { GT: true });
+            // Cache total smashes in Redis for instant homepage loads
+            try {
+                await redisClient.set('global_smash_count', totalSmashes.toString());
+            } catch (e) { console.error("Error saving global count to redis:", e); }
+
+            // Apply negative score penalty to cheaters so they naturally sink to the bottom of the Redis ZSET
+            try {
+                const isFlagged = mergedProfiles.some(p => p.title === 'Suspected Cheater');
+                const redisScore = isFlagged ? -highestSmashScore : highestSmashScore;
+                await redisClient.zAdd(`leaderboard_${mode}`, { score: redisScore, value: name }, { GT: true });
+            } catch (e) { console.error("Error saving rank to redis:", e); }
 
             return {
                 smashScore: newSmashScore,
@@ -201,8 +277,18 @@ class ScoreModel {
 
     static async getGlobalSmashCount() {
         try {
+            // First try instant fetch from Redis
+            const cached = await redisClient.get('global_smash_count');
+            if (cached) return parseInt(cached, 10);
+
+            // Fallback to Postgres
             const res = await pool.query(`SELECT total_smashes FROM global_stats LIMIT 1`);
-            return res.rows.length > 0 ? parseInt(res.rows[0].total_smashes, 10) : 0;
+            const total = res.rows.length > 0 ? parseInt(res.rows[0].total_smashes, 10) : 0;
+
+            // Try pushing it into the cache for next time
+            try { await redisClient.set('global_smash_count', total.toString()); } catch (e) { }
+
+            return total;
         } catch (err) {
             console.error("Error fetching global stats:", err);
             return 0;
