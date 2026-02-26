@@ -78,6 +78,7 @@ class ScoreModel {
                                    CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN true ELSE false END as is_flagged
                             FROM scores
                             WHERE mode = $1 AND name = ANY($2)
+                            ORDER BY smash_score ASC
                         `;
                         const result = await pool.query(query, [mode, topNames]);
 
@@ -115,16 +116,27 @@ class ScoreModel {
 
             // --- Fallback to heavy Postgres query if Redis fails or user is searching ---
             let query = `
-                WITH RankedScores AS (
+                WITH BestScores AS (
                     SELECT name, score, mode, kps, entropy, smash_score, profiles, created_at,
                            CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN true ELSE false END as is_flagged,
                            ROW_NUMBER() OVER(
-                               ORDER BY
+                               PARTITION BY name
+                               ORDER BY 
                                    CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN 1 ELSE 0 END ASC,
                                    smash_score DESC, created_at DESC
-                           ) as global_rank
+                           ) as user_rank
                     FROM scores
                     WHERE mode = $1
+                ),
+                RankedScores AS (
+                    SELECT *,
+                           ROW_NUMBER() OVER(
+                               ORDER BY 
+                                   is_flagged ASC,
+                                   smash_score DESC, created_at DESC
+                           ) as global_rank
+                    FROM BestScores
+                    WHERE user_rank = 1
                 )
                 SELECT * FROM RankedScores
             `;
@@ -140,7 +152,7 @@ class ScoreModel {
 
             const result = await pool.query(query, queryParams);
 
-            let countQuery = `SELECT COUNT(*) FROM scores WHERE mode = $1`;
+            let countQuery = `SELECT COUNT(DISTINCT name) FROM scores WHERE mode = $1`;
             const countParams = [mode];
             if (search) {
                 countQuery += ` AND name ILIKE $2`;

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { pool, redisClient } = require('../models/db');
 const ScoreModel = require('../models/scoreModel');
 
