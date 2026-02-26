@@ -73,12 +73,19 @@ const initDB = async () => {
         await redisClient.connect();
         console.log("Redis Connected");
 
-        const topScores = await pool.query(`SELECT name, smash_score FROM scores ORDER BY smash_score DESC LIMIT 10`);
+        const allScores = await pool.query(`SELECT name, mode, smash_score, profiles FROM scores`);
 
-        for (const row of topScores.rows) {
-            await redisClient.zAdd('leaderboard_classic', { score: row.smash_score, value: row.name });
+        for (const row of allScores.rows) {
+            let profs = [];
+            try { profs = typeof row.profiles === 'string' ? JSON.parse(row.profiles) : (row.profiles || []); } catch (e) { }
+
+            const isFlagged = profs.some(p => p.title === 'Suspected Cheater');
+            const redisScore = isFlagged ? -parseInt(row.smash_score, 10) : parseInt(row.smash_score, 10);
+            const mode = row.mode || 'classic';
+
+            await redisClient.zAdd(`leaderboard_${mode}`, { score: redisScore, value: row.name });
         }
-        console.log("Redis Cache Warmed Up");
+        console.log(`Redis Cache Automatically Resynced with ${allScores.rows.length} records.`);
 
     } catch (err) {
         console.error("Init Error:", err);
