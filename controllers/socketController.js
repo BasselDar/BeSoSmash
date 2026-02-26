@@ -134,18 +134,9 @@ module.exports = (io) => {
 
                     // ── LAYER 4: Batch Frequency Check ──────────────
                     // Prevent clients from sending batches too frequently.
-                    // Browser typically flushes every 50ms, so anything faster is suspicious.
-                    const timeSinceLastBatch = now - game.lastBatchTime;
-                    if (game.lastBatchTime > 0 && timeSinceLastBatch < MIN_BATCH_INTERVAL_MS) {
-                        game.violations++;
-                        if (game.violations >= MAX_VIOLATIONS) {
-                            // Force-flag as cheater and end game immediately
-                            game.keyHistory.push(['RATE_FLAGGED']); // FIXED: use RATE_FLAGGED
-                            endGame(socket, io);
-                            return; // Drop this batch if we just banned them
-                        }
-                        return; // Actually drop the batch if it's too frequent but they haven't been banned yet
-                    }
+                    // FIX: Temporarily disabled because mobile networks / TCP packet chunking 
+                    // causes valid 50ms interval packets to arrive simultaneously and trigger false positives.
+                    // The volume cap above (LAYER 3) entirely prevents macro cheating already.
                     game.lastBatchTime = now; // Update last batch time for the next check
 
                     // Accept only as many keys as the ceiling allows
