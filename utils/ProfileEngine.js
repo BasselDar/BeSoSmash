@@ -622,6 +622,36 @@ const PROFILES = [
         title: "The Sloth",
         flavor: "Are you moving underwater? Check your pulse.",
         condition: (s) => s.totalKeys > 0 && s.kps < 2
+    },
+    {
+        title: "The Heartbeat",
+        flavor: "Uncanny consistency. The time between your keystrokes was so uniform we thought you were a metronome.",
+        condition: (s) => s.kps > 4 && s.maxGap < 100 && s.totalKeys > 20 && s.fastStart < s.totalKeys * 0.4
+    },
+    {
+        title: "The Chaotic Evil",
+        flavor: "100% Entropy. Maximum chaos. You touched every single key on your keyboard with no discernible pattern. True randomness achieved.",
+        condition: (s) => s.ent >= 95 && s.uniqueKeys >= 40
+    },
+    {
+        title: "The Lawful Good",
+        flavor: "High KPS, minimal entropy. You had a solid strategy, pressed exactly what you needed to, and didn't panic. A respectable performance.",
+        condition: (s) => s.kps >= 8 && s.kps < 15 && s.ent < 35 && s.uniqueKeys <= 8
+    },
+    {
+        title: "The Overclocker",
+        flavor: "Your hardware runs hot. Very hot. You pushed out massive keystrokes with explosive surges.",
+        condition: (s) => s.maxRowSmashInSingleTick >= 8 && s.kps >= 25 && s.kps < 80
+    },
+    {
+        title: "The Rhythm Gamer",
+        flavor: "Perfect alternating patterns. You found the beat and stuck to it. Are you playing Friday Night Funkin' in another tab?",
+        condition: (s) => s.uniqueKeys >= 4 && s.uniqueKeys <= 6 && s.ent > 60 && s.kps > 10
+    },
+    {
+        title: "The Mechanical Switch Tester",
+        flavor: "You methodically went through your keyboard just listening to the clicks. Satisfying, isn't it?",
+        condition: (s) => s.kps < 8 && s.uniqueKeys >= 30 && s.maxSingleKeyCount < 5
     }
 ];
 
