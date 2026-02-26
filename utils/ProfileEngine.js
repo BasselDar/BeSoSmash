@@ -845,18 +845,13 @@ class ProfileEngine {
         }
 
         let matched = [];
+        let isCheaterRun = false;
 
         for (const profile of PROFILES) {
             if (profile.condition(stats)) {
                 let flavorText = typeof profile.flavor === 'function' ? profile.flavor(stats) : profile.flavor;
-                if (profile.isExclusive) {
-                    const result = {
-                        profiles: [{ title: profile.title, flavor: flavorText }],
-                        entropy: stats.normalizedEntropy,
-                        isCheater: profile.isCheater || false
-                    };
-                    if (profile.forceSmashScore) result.forceSmashScore = profile.forceSmashScore;
-                    return result;
+                if (profile.isCheater) {
+                    isCheaterRun = true;
                 }
 
                 matched.push({ title: profile.title, flavor: flavorText });
@@ -870,7 +865,7 @@ class ProfileEngine {
         return {
             profiles: matched,
             entropy: stats.normalizedEntropy,
-            isCheater: false
+            isCheater: isCheaterRun
         };
     }
 

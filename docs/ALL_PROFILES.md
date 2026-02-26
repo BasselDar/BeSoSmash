@@ -1,9 +1,9 @@
 # BeSoSmash - Profile Encyclopedia
 
-This document lists every single personality profile available in BeSoSmash, outlining their flavor texts and whether they are Exclusive (stops evaluation) or Accumulative (stacks with other profiles).
+This document lists every single personality profile available in BeSoSmash. They are all accumulative and can stack together if you match multiple conditions.
 
 ## 🚨 Anti-Cheat / Suspicious Profiles
-These profiles are given to players who act suspiciously or trip the server validation limits.
+These profiles flag the run as suspicious.
 
 | Profile Title | Flavor Text |
 | :--- | :--- |
@@ -11,8 +11,8 @@ These profiles are given to players who act suspiciously or trip the server vali
 | The Hardware Spoof | Your keyboard physically cannot send data this fast. Busted. |
 | The Overloader | You hit the server rate limit. Either you are a bot, or your forearms are literal pistons. |
 
-## 🏆 Exclusive Profiles & Easter Eggs
-These profiles are highly specific. If triggered, they override all other profiles for the match.
+## 🏆 Easter Eggs & Specific Triggers
+These profiles require typing very specific words or key combinations.
 
 | Profile Title | Flavor Text |
 | :--- | :--- |
@@ -57,8 +57,8 @@ These profiles are highly specific. If triggered, they override all other profil
 | The Nice Guy | You typed NICE. We agree. It is, in fact, quite nice. |
 | The Mobile Smasher | Tapping your screen to death. RIP to your oleophobic coating. |
 
-## 🧩 Accumulative Profiles (Playstyle)
-These relate to keyboard zones, pacing, and habits. You can earn multiple of these in a single match.
+## 🧩 Playstyle Profiles
+These relate to keyboard zones, pacing, and habits.
 
 | Profile Title | Flavor Text |
 | :--- | :--- |
