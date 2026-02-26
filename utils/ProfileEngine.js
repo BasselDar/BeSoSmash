@@ -224,7 +224,7 @@ const PROFILES = [
             const up = s.typedString.toUpperCase();
             return up.includes('FUCK') || up.includes('SHIT') || up.includes('BITCH') ||
                 up.includes('DAMN') || up.includes('ASS') || up.includes('CRAP') ||
-                up.includes('HELL') || up.includes('BASTARD') || up.includes('CUNT') || up.includes('PISS');
+                (up.includes('HELL') && !up.includes('HELLO')) || up.includes('BASTARD') || up.includes('CUNT') || up.includes('PISS');
         }
     },
     {
