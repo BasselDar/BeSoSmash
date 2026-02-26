@@ -28,12 +28,6 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
         const runRankNum = parseInt(currentSession.rank, 10);
         const expectedPage = !isNaN(runRankNum) && runRankNum > 0 ? Math.ceil(runRankNum / 10) : 1;
 
-        console.log('--- DEBUG INJECTION ---');
-        console.log('rank:', currentSession.rank);
-        console.log('pbRank:', currentSession.pbRank);
-        console.log('expectedPage:', expectedPage);
-        console.log('currentPage:', state.currentLeaderboardPage);
-
         // Only inject if the user is currently viewing the page this run belongs to,
         // OR if their expected page doesn't exist yet (db has fewer legit players than this rank)
         if (state.currentLeaderboardPage === expectedPage || expectedPage > state.currentLeaderboardPage) {
@@ -135,7 +129,7 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
 
         // Highlight background for current run
         const bgHighlight = isCurrentRun ? `<div class="absolute inset-0 bg-gradient-to-r from-yellow-400/15 via-transparent to-yellow-400/5 pointer-events-none"></div>` : `<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>`;
-        const runBadge = isCurrentRun ? `<div class="absolute top-0 left-6 bg-yellow-400 text-black text-[10px] font-black tracking-widest px-3 py-1 rounded-b-md shadow-md z-20 uppercase">${currentSession.isPersonalBest ? 'NEW HIGHSCORE' : 'YOUR RUN'}</div>` : isPBRow ? `<div class="absolute top-0 left-6 bg-slate-800 text-slate-300 text-[10px] font-black tracking-widest px-3 py-1 rounded-b-md shadow-md z-20 uppercase border border-t-0 border-white/10">YOUR PB</div>` : ``;
+        const runBadge = isCurrentRun ? `<div class="absolute top-0 left-6 bg-yellow-400 text-black text-[10px] font-black tracking-widest px-3 py-1 rounded-b-md shadow-md z-20 uppercase">${currentSession.isPersonalBest ? 'NEW HIGHSCORE' : 'YOUR RUN'}</div>` : isPBRow ? `<div class="absolute top-0 left-6 bg-slate-800 text-slate-300 text-[10px] font-black tracking-widest px-3 py-1 rounded-b-md shadow-md z-20 uppercase border border-t-0 border-white/10">PERSONAL BEST</div>` : ``;
 
         // Shift down the content slightly if it's the current run to make room for the badge
         const mtClass = (isCurrentRun || isPBRow) ? "mt-5" : "";

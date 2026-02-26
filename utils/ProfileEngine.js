@@ -831,7 +831,7 @@ class ProfileEngine {
             if (profile.condition(stats)) {
                 if (profile.isExclusive) {
                     const result = {
-                        profiles: [{ title: profile.title }],
+                        profiles: [{ title: profile.title, flavor: profile.flavor }],
                         entropy: stats.normalizedEntropy,
                         isCheater: profile.isCheater || false
                     };
@@ -839,12 +839,12 @@ class ProfileEngine {
                     return result;
                 }
 
-                matched.push({ title: profile.title });
+                matched.push({ title: profile.title, flavor: profile.flavor });
             }
         }
 
         if (matched.length === 0) {
-            matched.push({ title: "The Panic Button" });
+            matched.push({ title: "The Panic Button", flavor: "You smashed so randomly even the algorithm gave up." });
         }
 
         return {

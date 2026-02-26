@@ -1,5 +1,5 @@
-// controllers/httpController.js
 const ScoreModel = require('../models/scoreModel');
+const ProfileEngine = require('../utils/ProfileEngine');
 
 exports.renderHome = async (req, res) => {
     const globalSmashCount = await ScoreModel.getGlobalSmashCount();
@@ -29,6 +29,25 @@ exports.getLeaderboardApi = async (req, res) => {
         const search = req.query.search || '';
 
         const result = await ScoreModel.getPaginatedLeaderboard(mode, page, limit, search);
+
+        // Inject flavor text back into the profiles (DB only stores titles to save space)
+        if (result && result.data) {
+            result.data.forEach(row => {
+                let profiles = [];
+                try {
+                    profiles = typeof row.profiles === 'string' ? JSON.parse(row.profiles) : (row.profiles || []);
+                } catch (e) { }
+
+                profiles.forEach(p => {
+                    const engineProfile = ProfileEngine.PROFILES.find(ep => ep.title === p.title);
+                    if (engineProfile && !p.flavor) {
+                        p.flavor = engineProfile.flavor;
+                    }
+                });
+                row.profiles = JSON.stringify(profiles); // Leaderboard frontend expects stringified JSON
+            });
+        }
+
         res.json(result);
     } catch (err) {
         console.error("API error fetching leaderboard:", err);
