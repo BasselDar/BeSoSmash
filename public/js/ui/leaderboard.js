@@ -86,9 +86,9 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
         // Flagged players or injected runs: no medals, dimmed styling
         let medalHtml = `<span class="text-slate-500 font-mono text-xl w-10 text-center bg-slate-800/80 py-1 rounded-lg">${player.is_injected_run ? '-' : '#' + rank}</span>`;
         if (!playerCheater && !player.is_injected_run) {
-            if (rank === 1) medalHtml = `<img src="/assets/icons/medals/rank1.png" alt="1st Place Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]" />`;
-            if (rank === 2) medalHtml = `<img src="/assets/icons/medals/rank2.png" alt="2nd Place Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(203,213,225,0.6)]" />`;
-            if (rank === 3) medalHtml = `<img src="/assets/icons/medals/rank3.png" alt="3rd Place Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(217,119,6,0.6)]" />`;
+            if (rank === 1) medalHtml = `<img src="/assets/icons/medals/rank1.png" alt="1st Place Medal" class="h-[50px] w-auto object-contain drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]" />`;
+            if (rank === 2) medalHtml = `<img src="/assets/icons/medals/rank2.png" alt="2nd Place Medal" class="h-[50px] w-auto object-contain drop-shadow-[0_0_10px_rgba(203,213,225,0.6)]" />`;
+            if (rank === 3) medalHtml = `<img src="/assets/icons/medals/rank3.png" alt="3rd Place Medal" class="h-[50px] w-auto object-contain drop-shadow-[0_0_10px_rgba(217,119,6,0.6)]" />`;
         }
 
         // Check if this row is the artificially injected current run OR a real PB run
@@ -169,18 +169,12 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
                     <div class="flex flex-col items-start md:items-end">
                         <span class="font-mono font-black text-xl md:text-3xl ${scoreColorClass} transition-colors leading-none" title="Smash Score">${player.smash_score != null ? parseInt(player.smash_score).toLocaleString() : '---'}</span>
                         <div class="flex items-center gap-2 flex-wrap mt-1">
-                            <span class="text-[10px] font-bold text-slate-500 flex items-center gap-1" title="Keys Pressed">
-                                <img src="/assets/icons/misc/keys.png" alt="Keys" class="h-3 w-3" />${player.score}
-                            </span>
-                            <span class="text-[10px] font-bold text-slate-500 flex items-center gap-1" title="Keys Per Second">
-                                <img src="/assets/icons/misc/kps.png" alt="KPS" class="h-3 w-3" />${player.kps || '0'}
-                            </span>
-                            <span class="text-[10px] font-bold text-slate-500 flex items-center gap-1" title="Entropy">
-                                <img src="/assets/icons/misc/entropy.png" alt="Entropy" class="h-3 w-3" />${Math.round(parseFloat(player.entropy) || 0)}%
-                            </span>
+                            <span class="text-[10px] font-bold text-slate-500" title="Keys Pressed">💢${player.score}</span>
+                            <span class="text-[10px] font-bold text-slate-500" title="Keys Per Second">⚡${player.kps || '0'}</span>
+                            <span class="text-[10px] font-bold text-slate-500" title="Entropy">🌪️${Math.round(parseFloat(player.entropy) || 0)}%</span>
                             ${hasProfiles ? `
                                 <span class="text-[10px] font-bold text-violet-400 flex items-center gap-1" title="Collected Profiles — Each unique profile adds +420 to Smash Score">
-                                    <img src="/assets/icons/misc/profiles.png" alt="Profiles" class="h-3 w-3" />${profiles.length}
+                                    🗣️${profiles.length}
                                     <span class="w-3.5 h-3.5 rounded-full bg-violet-500/20 border border-violet-500/40 text-violet-400 flex items-center justify-center text-[8px] font-black cursor-help shrink-0">?</span>
                                 </span>
                             ` : ''}
