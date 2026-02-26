@@ -270,7 +270,11 @@ class ScoreModel {
             try {
                 const isFlagged = mergedProfiles.some(p => p.title === 'Suspected Cheater');
                 const redisScore = isFlagged ? -highestSmashScore : highestSmashScore;
-                await redisClient.zAdd(`leaderboard_${mode}`, { score: redisScore, value: name }, { GT: true });
+                if (isFlagged) {
+                    await redisClient.zAdd(`leaderboard_${mode}`, { score: redisScore, value: name });
+                } else {
+                    await redisClient.zAdd(`leaderboard_${mode}`, { score: redisScore, value: name }, { GT: true });
+                }
             } catch (e) { console.error("Error saving rank to redis:", e); }
 
             return {

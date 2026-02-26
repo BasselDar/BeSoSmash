@@ -53,6 +53,7 @@ const initDB = async () => {
         await pool.query(`UPDATE scores SET smash_score = ROUND((score * 1337) + (entropy * entropy * 1.7) + (kps * 69) + (COALESCE(json_array_length(profiles::json), 0) * 420)) WHERE score > 0`);
 
         await pool.query(`CREATE INDEX IF NOT EXISTS idx_smash_score ON scores (smash_score DESC)`);
+        await pool.query(`CREATE INDEX IF NOT EXISTS idx_mode_name ON scores (mode, name)`);
 
         // Track global stats (like total popcat count)
         await pool.query(`
