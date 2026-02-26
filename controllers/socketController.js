@@ -192,45 +192,42 @@ async function endGame(socket, io) {
     let currentRunRank = null;
     let existingProfileTitles = [];
 
-    // Only process rankings and database insertion if they are NOT a cheater
-    if (!analysis.isCheater) {
-        const timerDuration = game.mode === 'blitz' ? 2 : 5;
-        const kps = parseFloat((game.score / timerDuration).toFixed(1));
-        const entropyVal = parseFloat(analysis.entropy) || 0;
-        const profileCount = analysis.profiles ? analysis.profiles.length : 0;
+    const timerDuration = game.mode === 'blitz' ? 2 : 5;
+    const kps = parseFloat((game.score / timerDuration).toFixed(1));
+    const entropyVal = parseFloat(analysis.entropy) || 0;
+    const profileCount = analysis.profiles ? analysis.profiles.length : 0;
 
-        // Save first so we get the merged cumulative profiles and best performance stats
-        const savedData = await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal, analysis.profiles, analysis.forceSmashScore);
+    // Save first so we get the merged cumulative profiles and best performance stats
+    const savedData = await ScoreModel.save(game.name, game.score, game.mode, kps, entropyVal, analysis.profiles, analysis.forceSmashScore);
 
-        if (savedData) {
-            smashScore = savedData.smashScore; // Score for THIS EXACT run
-            finalProfiles = savedData.mergedProfiles; // Update to the cumulative set
-            isPersonalBest = savedData.isPersonalBest;
-            highestSmashScore = savedData.highestSmashScore; // Their all-time best
-            existingProfileTitles = savedData.existingProfileTitles || [];
-        } else {
-            // Fallback if DB fails
-            smashScore = analysis.forceSmashScore !== undefined ? analysis.forceSmashScore : calculateSmashScore(game.score, entropyVal, kps, profileCount);
-            highestSmashScore = smashScore;
-        }
+    if (savedData) {
+        smashScore = savedData.smashScore; // Score for THIS EXACT run
+        finalProfiles = savedData.mergedProfiles; // Update to the cumulative set
+        isPersonalBest = savedData.isPersonalBest;
+        highestSmashScore = savedData.highestSmashScore; // Their all-time best
+        existingProfileTitles = savedData.existingProfileTitles || [];
+    } else {
+        // Fallback if DB fails
+        smashScore = analysis.forceSmashScore !== undefined ? analysis.forceSmashScore : calculateSmashScore(game.score, entropyVal, kps, profileCount);
+        highestSmashScore = smashScore;
+    }
 
-        // FETCH RANKS
-        // 1. Where does this EXACT run rank? (For the post-game UI)
-        currentRunRank = await ScoreModel.getRank(smashScore, game.mode);
-        // 2. Where does their permanent PB rank? (For DB pagination)
-        playerRank = await ScoreModel.getRank(highestSmashScore, game.mode, game.name);
+    // FETCH RANKS
+    // 1. Where does this EXACT run rank? (For the post-game UI)
+    currentRunRank = await ScoreModel.getRank(smashScore, game.mode);
+    // 2. Where does their permanent PB rank? (For DB pagination)
+    playerRank = await ScoreModel.getRank(highestSmashScore, game.mode, game.name);
 
-        // Emit the updated global smash count to everyone (for the home page counter)
-        if (savedData && savedData.totalSmashes) {
-            io.emit('globalSmashCount', savedData.totalSmashes);
-        }
+    // Emit the updated global smash count to everyone (for the home page counter)
+    if (savedData && savedData.totalSmashes) {
+        io.emit('globalSmashCount', savedData.totalSmashes);
+    }
 
-        // Throttle leaderboard broadcasts to max once every 2 seconds to prevent Broadcast Storms
-        const now = Date.now();
-        if (now - getLastBroadcastTime() > 2000) {
-            io.emit('updateLeaderboard');
-            setLastBroadcastTime(now);
-        }
+    // Throttle leaderboard broadcasts to max once every 2 seconds to prevent Broadcast Storms
+    const now = Date.now();
+    if (now - getLastBroadcastTime() > 2000) {
+        io.emit('updateLeaderboard');
+        setLastBroadcastTime(now);
     }
 
     // Tell the player it's over (we still send the game over payload to them, just no DB/LB save if cheater)

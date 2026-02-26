@@ -855,11 +855,19 @@ class ProfileEngine {
                 }
 
                 matched.push({ title: profile.title, flavor: flavorText });
+
+                if (profile.isExclusive) {
+                    break;
+                }
             }
         }
 
         if (matched.length === 0) {
             matched.push({ title: "The Panic Button", flavor: "You smashed so randomly even the algorithm gave up." });
+        }
+
+        if (isCheaterRun && !matched.some(p => p.title === "Suspected Cheater")) {
+            matched.push({ title: "Suspected Cheater", flavor: "Your inputs were flagged by the anti-cheat system." });
         }
 
         return {
