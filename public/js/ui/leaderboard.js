@@ -86,9 +86,9 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
         // Flagged players or injected runs: no medals, dimmed styling
         let medalHtml = `<span class="text-slate-500 font-mono text-xl w-10 text-center bg-slate-800/80 py-1 rounded-lg">${player.is_injected_run ? '-' : '#' + rank}</span>`;
         if (!playerCheater && !player.is_injected_run) {
-            if (rank === 1) medalHtml = `<img src="/assets/icons/medals/gold.png" alt="Gold Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]" />`;
-            if (rank === 2) medalHtml = `<img src="/assets/icons/medals/silver.png" alt="Silver Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(203,213,225,0.6)]" />`;
-            if (rank === 3) medalHtml = `<img src="/assets/icons/medals/bronze.png" alt="Bronze Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(217,119,6,0.6)]" />`;
+            if (rank === 1) medalHtml = `<img src="/assets/icons/medals/rank1.png" alt="1st Place Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]" />`;
+            if (rank === 2) medalHtml = `<img src="/assets/icons/medals/rank2.png" alt="2nd Place Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(203,213,225,0.6)]" />`;
+            if (rank === 3) medalHtml = `<img src="/assets/icons/medals/rank3.png" alt="3rd Place Medal" class="h-10 w-10 drop-shadow-[0_0_10px_rgba(217,119,6,0.6)]" />`;
         }
 
         // Check if this row is the artificially injected current run OR a real PB run
