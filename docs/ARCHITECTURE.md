@@ -24,8 +24,9 @@ A centralized state manager for active game sessions. Each connected socket has 
 ## 4. The Database Layer (`models/scoreModel.js`)
 BeSoSmash utilizes a dual-database pattern for optimal performance:
 1. **PostgreSQL (Source of Truth)**: Permanently stores `id`, `name`, `score`, `mode`, `kps`, `entropy`, `smash_score`, and `profiles` (as JSON). Acts as the primary write database and fallback read-replica for complex wildcard searches.
-2. **Redis (Primary Read Cache)**: The primary engine for serving the leaderboard. Uses Sorted Sets (`ZSET`) to instantly return paginated lists (`ZREVRANGE`) and absolute player ranks (`ZREVRANK`) in O(log(N)) time. "Suspected Cheater" profiles are given negative scores here to naturally sink them to the absolute bottom of the leaderboard without deleting their data. Global counters are also heavily cached here.
-
+2. **Redis (Primary Read Cache)**: The primary engine for serving the leaderboard. Uses Sorted Sets (`ZSET`) to instantly return paginated lists (`ZREVRANGE`) and absolute player ranks (`ZREVRANK`) in O(log(N)) time. 
+   - **Cheater Penalty:** "Suspected Cheater" profiles are deliberately given a massive negative score here to naturally sink them to the absolute bottom of the leaderboard without deleting their data, skipping the `{ GT: true }` flag.
+   - **Separation of Concerns:** Redis strictly stores the lightweight `smash_score` and `name`. Once the rank and names are identified, PostgreSQL handles returning the heavy profile payloads using `idx_mode_name` indexed queries for maximum efficiency. Global counters are also heavily cached here.
 ### Smart Score Saving
 The score model implements intelligent update logic to protect player progress:
 
