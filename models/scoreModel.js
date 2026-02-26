@@ -69,7 +69,7 @@ class ScoreModel {
             if (!search) {
                 try {
                     // Fetch top N usernames from Redis sorted set
-                    const topNames = await redisClient.zRevRange(`leaderboard_${mode}`, offset, end);
+                    const topNames = await redisClient.zRange(`leaderboard_${mode}`, offset, end, { REV: true });
 
                     if (topNames && topNames.length > 0) {
                         // Fetch their detailed stats from Postgres

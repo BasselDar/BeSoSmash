@@ -60,6 +60,13 @@ const PROFILES = [
         condition: (s) => s.kps > 300 && s.ent < 10
     },
     {
+        title: "The Overloader",
+        flavor: "You hit the server rate limit. Either you are a bot, or your forearms are literal pistons.",
+        isExclusive: true,
+        isCheater: true,
+        condition: (s) => s.keyCounts['SCRIPT_DETECTED'] > 0
+    },
+    {
         title: "The Rage Quitter",
         flavor: "Alt+F4? Seriously? If you're going to rage quit a game about typing fast, at least unplug your keyboard.",
         isExclusive: true,
