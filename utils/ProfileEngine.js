@@ -864,4 +864,6 @@ class ProfileEngine {
     }
 }
 
+ProfileEngine.RAW_PROFILES = PROFILES;
+
 module.exports = ProfileEngine;

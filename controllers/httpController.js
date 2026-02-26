@@ -39,7 +39,7 @@ exports.getLeaderboardApi = async (req, res) => {
                 } catch (e) { }
 
                 profiles.forEach(p => {
-                    const engineProfile = ProfileEngine.PROFILES.find(ep => ep.title === p.title);
+                    const engineProfile = ProfileEngine.RAW_PROFILES.find(ep => ep.title === p.title);
                     if (engineProfile && !p.flavor) {
                         p.flavor = engineProfile.flavor;
                     }
