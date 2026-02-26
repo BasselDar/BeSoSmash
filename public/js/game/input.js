@@ -19,7 +19,7 @@ const BLOCKED_KEYS = new Set([
 
 // Flush key buffer to server immediately (called on threshold and by interval)
 export function flushKeyBuffer() {
-    if (state.keyBuffer.length > 0) {
+    if (state.keyBuffer.length > 0 && state.gameToken) {
         socket.emit('keyPressBatch', { keys: state.keyBuffer, token: state.gameToken });
         state.keyBuffer = [];
     }
@@ -58,11 +58,6 @@ export function processLocalKeyPress(keyCode, isTrusted = true) {
 
     // Add physical key to batch buffer
     state.keyBuffer.push(keyCode);
-
-    // Flush immediately when buffer hits threshold (fast typers get keys sent sooner)
-    if (state.keyBuffer.length >= 10) {
-        flushKeyBuffer();
-    }
 
     // Process local score immediately for responsiveness
     state.localScore++;

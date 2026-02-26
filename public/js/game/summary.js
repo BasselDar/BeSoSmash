@@ -2,7 +2,7 @@
 
 import { state, ranks } from '../core/state.js';
 import { fetchLeaderboard } from '../ui/leaderboard.js';
-import { categoryPalettes, profileCategoryMap, profileFlavors } from '../utils/profileData.js';
+import { categoryPalettes, profileCategoryMap } from '../utils/profileData.js';
 
 /**
  * Handle the gameOver socket event — populates the post-game results panel.
@@ -118,7 +118,7 @@ export function renderGameOverSummary(data) {
 
                     // Handle Suspected Cheater as a flag, not a normal card
                     if (prof.title === 'Suspected Cheater') {
-                        const flavorText = profileFlavors[prof.title] || prof.flavor || "";
+                        const flavorText = prof.flavor || "";
                         profileContainer.innerHTML += `
                             <div class="col-span-full bg-red-500/10 border-2 border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.3)] p-4 rounded-xl relative overflow-hidden flex flex-col justify-center items-center text-center animate-pulse">
                                 <p class="text-2xl md:text-3xl font-black text-red-400 uppercase drop-shadow-md">⚠️ FLAGGED</p>
@@ -131,7 +131,7 @@ export function renderGameOverSummary(data) {
                     const cat = profileCategoryMap[prof.title] || 'default';
                     const pal = categoryPalettes[cat];
 
-                    const flavorText = profileFlavors[prof.title] || prof.flavor || "";
+                    const flavorText = prof.flavor || "";
                     const newBadgeHtml = isNewlyUnlocked ? `<div class="absolute -top-1 -right-1 bg-yellow-400 text-black text-[9px] font-black tracking-widest px-2 py-0.5 rounded-bl-lg shadow-md z-20 transform rotate-[-5deg] animate-pulse">NEW!</div>` : '';
 
                     profileContainer.innerHTML += `

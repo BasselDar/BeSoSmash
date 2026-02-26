@@ -11,13 +11,18 @@ export function startGame(mode) {
     state.gameDuration = mode === 'blitz' ? 2000 : 5000;
     state.localScore = 0;
     state.keyBuffer = [];
+    state.gameToken = null;
 
     const nameInput = document.getElementById('username');
     const name = nameInput ? nameInput.value.trim() : '';
     if (!name) return showToast("ENTER A CODENAME FIRST");
 
-    // Lock codename to prevent name spamming in the same session
-    localStorage.setItem('besosmash_codename', name);
+    // Lock codename to prevent name spamming in the same session, obfuscated via base64
+    try {
+        localStorage.setItem('besosmash_codename', btoa(encodeURIComponent(name)));
+    } catch (e) {
+        localStorage.setItem('besosmash_codename', name); // fallback
+    }
     if (nameInput) {
         nameInput.disabled = true;
         nameInput.classList.add('opacity-50', 'cursor-not-allowed');
@@ -189,7 +194,15 @@ export function clearCodename() {
 // Initialize the game engine
 export function initGameEngine() {
     // Restore and lock Codename if previously set
-    const savedName = localStorage.getItem('besosmash_codename');
+    let savedName = localStorage.getItem('besosmash_codename');
+    if (savedName) {
+        try {
+            // Decode obfuscated name
+            savedName = decodeURIComponent(atob(savedName));
+        } catch (e) {
+            // Fallback for unencrypted legacy names
+        }
+    }
     const nameInput = document.getElementById('username');
     const changeBtn = document.getElementById('change-name-btn');
     if (savedName && nameInput) {

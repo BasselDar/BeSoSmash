@@ -16,8 +16,9 @@ const ALLOWED_ORIGINS = [
     'https://besosmash.onrender.com',
     'https://www.besosmash.onrender.com'
 ];
-const MAX_KEYS_PER_100MS = 20;    // Even the fastest human can't exceed ~15 keys/100ms
-const RATE_WINDOW_MS = 100;
+const MAX_KEYS_PER_SECOND = 300;    // Hard ceiling: max accepted keys per second (human max ~240 KPS forearm smash)
+const MIN_BATCH_INTERVAL_MS = 15;  // Minimum ms between batches (browser flushes every 50ms)
+const MAX_VIOLATIONS = 3;          // 3 rate limit strikes = game killed as cheater
 
 module.exports = (io) => {
 
@@ -64,7 +65,9 @@ module.exports = (io) => {
                 startTime: Date.now(),
                 timerDuration: timerDuration,
                 gameToken: gameToken,              // Anti-cheat token
-                rateWindow: { count: 0, windowStart: Date.now() } // Rate limiter state
+                rateWindow: { count: 0, windowStart: Date.now() }, // Rate limiter state
+                lastBatchTime: 0,                  // Batch frequency tracking
+                violations: 0                      // Rate limit violation counter
             });
 
             // Send token to the legitimate browser client
@@ -106,28 +109,50 @@ module.exports = (io) => {
                 }
 
                 if (Array.isArray(keys) && keys.length > 0) {
-                    // Cap at 50 keys per batch to prevent flood abuse
-                    const capped = keys.slice(0, 50);
+                    // Cap at 300 keys per batch — covers forearm slams with full N-key rollover
+                    const capped = keys.slice(0, 300);
 
-                    // ── LAYER 3: Server Rate Limiter ────────────────
-                    // Track how many keys we've received in the current 100ms window
+                    // ── LAYER 3: Elapsed-Time Rate Limiter ──────────
+                    // Hard ceiling: you can never have more keys than
+                    // (elapsed seconds × MAX_KPS) + an initial burst allowance. 
+                    // This is bulletproof because it compares total keys vs real wallclock time.
                     const now = Date.now();
-                    if (now - game.rateWindow.windowStart > RATE_WINDOW_MS) {
-                        // New window
-                        game.rateWindow.windowStart = now;
-                        game.rateWindow.count = capped.length;
-                    } else {
-                        game.rateWindow.count += capped.length;
+                    const elapsedSec = Math.max(0.1, (now - game.startTime) / 1000);
+                    // 300 burst buffer covers N-key rollover forearm slams on large mechanical keyboards
+                    const maxAllowedTotal = 300 + Math.floor(elapsedSec * MAX_KEYS_PER_SECOND);
+                    const headroom = maxAllowedTotal - game.score;
+
+                    if (headroom <= 0) {
+                        // Already at the ceiling — drop everything
+                        game.violations++;
+                        if (game.violations >= MAX_VIOLATIONS) {
+                            game.keyHistory.push(['SCRIPT_DETECTED']);
+                            endGame(socket, io);
+                        }
+                        return;
                     }
 
-                    if (game.rateWindow.count > MAX_KEYS_PER_100MS) {
-                        // Impossibly fast — flag the key history for ProfileEngine to detect
-                        capped.forEach(() => game.keyHistory.push(['RATE_FLAGGED']));
-                        // Still count the keys but mark them as suspicious
+                    // ── LAYER 4: Batch Frequency Check ──────────────
+                    // Prevent clients from sending batches too frequently.
+                    // Browser typically flushes every 50ms, so anything faster is suspicious.
+                    const timeSinceLastBatch = now - game.lastBatchTime;
+                    if (game.lastBatchTime > 0 && timeSinceLastBatch < MIN_BATCH_INTERVAL_MS) {
+                        game.violations++;
+                        if (game.violations >= MAX_VIOLATIONS) {
+                            // Force-flag as cheater and end game immediately
+                            game.keyHistory.push(['SCRIPT_DETECTED']);
+                            endGame(socket, io);
+                            return; // Drop this batch if we just banned them
+                        }
+                        // We DO NOT return here, so legitimate "final flush" batches 
+                        // that happen to arrive <15ms after the interval aren't dropped.
                     }
+                    game.lastBatchTime = now; // Update last batch time for the next check
 
-                    game.score += capped.length;
-                    game.keyHistory.push(capped);
+                    // Accept only as many keys as the ceiling allows
+                    const accepted = capped.slice(0, headroom);
+                    game.score += accepted.length;
+                    game.keyHistory.push(accepted);
                     socket.emit('scoreUpdate', game.score);
                 }
             }

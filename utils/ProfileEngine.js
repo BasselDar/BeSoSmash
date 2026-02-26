@@ -127,22 +127,21 @@ const PROFILES = [
     },
     {
         title: "The 69er",
-        flavor: "You smashed 69. Your score is now exactly 69. It is the law. Nice.",
+        flavor: "You smashed 69. Nice.",
         isExclusive: true,
-        forceSmashScore: 69,
         condition: (s) => s.typedString.includes('69')
     },
     {
-        title: "The Brainrot",
-        flavor: "Skibidi Toilet Rizz Ohio Gyatt. Please go outside immediately and touch grass.",
+        title: "The Any% Speedrunner",
+        flavor: "Frame-perfect inputs. You probably skipped half the text just to get here. WR pace.",
         isExclusive: true,
-        condition: (s) => s.typedString.toUpperCase().includes('SKIBIDI')
+        condition: (s) => s.typedString.toUpperCase().includes('SPEEDRUN') || s.typedString.toUpperCase().includes('FRAME')
     },
     {
-        title: "The Hawk Tuah",
-        flavor: "Spit on that thang! You are officially viral.",
+        title: "The HackerMan",
+        flavor: "I'm in. Bypassing the mainframe in 3... 2... 1...",
         isExclusive: true,
-        condition: (s) => s.typedString.toUpperCase().includes('HAWK') && s.typedString.toUpperCase().includes('TUAH')
+        condition: (s) => s.typedString.toUpperCase().includes('HACK') || s.typedString.toUpperCase().includes('MAINFRAME')
     },
     {
         title: "The Botanist",
@@ -231,10 +230,16 @@ const PROFILES = [
         condition: (s) => s.osHits > 0 && s.osHits / s.totalKeys > 0
     },
     {
+        title: "The Creator",
+        flavor: "BESOSE detected. We bow to the architect of this beautiful madness.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('BESOSE')
+    },
+    {
         title: "The Meta Gamer",
         flavor: "You typed the name of the game you are currently playing. Extremely self-aware. Extremely unhinged. We respect it.",
         isExclusive: true,
-        condition: (s) => s.typedString.toUpperCase().includes('BESOSMASH')
+        condition: (s) => s.typedString.toUpperCase().includes('BESOSMASH') && !s.typedString.toUpperCase().includes('BESOSE')
     },
     {
         title: "The Cry for Help",
@@ -308,6 +313,26 @@ const PROFILES = [
         title: "The Hybrid",
         flavor: "Using a touchscreen AND a keyboard? Unorthodox and deeply concerning.",
         condition: (s) => s.touchHits > 0 && s.touchHits !== s.totalKeys
+    },
+    {
+        title: "The Pianist",
+        flavor: "You didn't just smash keys, you played chords. Perfect simultaneous keystrokes detected. Are you playing a sonata?",
+        condition: (s) => s.maxRowSmashInSingleTick >= 4 && s.kps > 8 && s.maxRowSmashInSingleTick < 6
+    },
+    {
+        title: "The Precision Striker",
+        flavor: "You maintained a flawless unique key rate for a significant portion of the game. Absolute surgical accuracy.",
+        condition: (s) => s.uniqueKeys >= 25 && s.maxSingleKeyCount <= 2 && s.totalKeys >= 30
+    },
+    {
+        title: "The Drummer",
+        flavor: "A steady rhythm of alternating taps. You kept a high pace without ever flattening your hand on the board. Rock on.",
+        condition: (s) => s.kps >= 12 && s.maxRowSmashInSingleTick <= 2 && s.totalKeys >= 50
+    },
+    {
+        title: "The Stenographer",
+        flavor: "Typing faster than the speed of sound with zero wasted movements. Perfect distribution, no frantic repetition.",
+        condition: (s) => s.kps >= 10 && s.uniqueKeys >= 20 && s.maxSingleKeyCount / s.totalKeys < 0.15
     },
     {
         title: "The Forearm Sweep",
@@ -493,6 +518,11 @@ const PROFILES = [
         title: "The IT Support",
         flavor: "F1, F5, F12... Are you trying to refresh the page or open the developer console? Did you try turning the keyboard off and on again?",
         condition: (s) => s.fKeyHits / s.totalKeys > 0.10
+    },
+    {
+        title: "The Start Menu Sommelier",
+        flavor: "You pressed the Windows key mid-game. The Start Menu opened. Your score survived. Your dignity did not.",
+        condition: (s) => s.osHits > 0 && s.totalKeys >= 5
     },
     {
         title: "The Windows Key Victim",

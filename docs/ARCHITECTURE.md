@@ -9,17 +9,17 @@ The HTTP layer is handled by **Express** and configured in `app.js`. It delegate
 
 ## 2. The WebSocket Layer (Real-Time Engine)
 Located in `controllers/socketController.js`, this handles the entire game lifecycle.
-- **Connection & Lobby**: A user connects via Socket.io. Game settings (like the name and mode) are initialized on the server.
-- **Event: `startGame`**: Starts a server-side timer (e.g., 5 seconds for Classic, 2 seconds for Blitz) with a minor grace period catering to networking latency.
-- **Event: `keyPressBatch`**: Instead of emitting 100 times per second, the client batches typed keys locally and flushes them to the server constantly. The server accumulates these batches into a `keyHistory` matrix.
-- **Event: `clientGameEnd`**: Optimistic sync mechanism acknowledging the client timer has finished.
-- **Game End Resolution**: Upon server timeout, the server halts accepting payloads. It runs the entire keystroke matrix through the `ProfileEngine.js` for cheating validation and personality diagnosis.
+- **Connection & Lobby**: A user connects via Socket.io. Validates the `Origin` header (Anti-Cheat Layer 1).
+- **Event: `startGame`**: Starts a server-side timer (e.g., 5 seconds for Classic) and generates a unique game session token.
+- **Event: `keyPressBatch`**: The client batches typed keys locally. The server validates the token (Anti-Cheat Layer 2), enforces a hard elapsed-time speed limit of 300 KPS + 300 burst (Anti-Cheat Layer 3), and checks for impossible flush frequencies < 15ms (Anti-Cheat Layer 4).
+- **Event: `clientGameEnd`**: Used merely as a signal, but ignored for scoring.
+- **Game End Resolution**: Upon server timeout, the server halts accepting payloads. It runs the keystroke matrix through the `ProfileEngine.js` for cheating validation (Anti-Cheat Layer 5) and personality diagnosis.
 
 ## 3. The Game Manager (`controllers/gameManager.js`)
 A centralized state manager for active game sessions. Each connected socket has an associated `GameState` object tracking:
-- Player name, mode selection, and active status.
-- The keystroke `keyHistory` matrix accumulated during the game.
-- Server-side timer references for authoritative game end.
+- Player name (from Base64 obfuscated localStorage), mode selection, and active status.
+- The keystroke `keyHistory` matrix and current score.
+- Anti-cheat state: session token, batch frequency tracker, and violation count.
 
 ## 4. The Database Layer (`models/scoreModel.js`)
 BeSoSmash utilizes a dual-database pattern for optimal performance:
