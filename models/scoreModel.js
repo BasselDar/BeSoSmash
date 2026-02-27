@@ -178,139 +178,118 @@ class ScoreModel {
         }
     }
 
+    static _isCheater(profile) {
+        const cheaterTitles = ["The Script Kiddie", "The Hardware Spoof", "The Overloader", "Suspected Cheater"];
+        return profile.isCheater || cheaterTitles.includes(profile.title);
+    }
+
+    static _parseProfiles(profileData) {
+        try {
+            const parsed = typeof profileData === 'string' ? JSON.parse(profileData) : (profileData || []);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch { return []; }
+    }
+
+    static _mergeProfiles(oldProfiles, newProfiles) {
+        const profileMap = new Map();
+        oldProfiles.forEach(p => profileMap.set(p.title, p));
+        newProfiles.forEach(p => profileMap.set(p.title, p));
+        return Array.from(profileMap.values());
+    }
+
+    static async _updateGlobalStats(scoreIncrement) {
+        const statsRes = await pool.query(
+            `INSERT INTO global_stats (id, total_smashes) VALUES (1, $1)
+             ON CONFLICT (id) DO UPDATE SET total_smashes = global_stats.total_smashes + $1
+             RETURNING total_smashes`, [scoreIncrement]
+        );
+        const total = statsRes.rows.length > 0 ? parseInt(statsRes.rows[0].total_smashes, 10) : 0;
+        try { await redisClient.set('global_smash_count', total.toString()); } catch (e) { }
+        return total;
+    }
+
     static async save(name, score, mode = 'classic', kps = 0.0, entropy = 0.0, profiles = [], forceSmashScore = null) {
         try {
             const checkSql = `SELECT id, score, kps, entropy, smash_score, profiles FROM scores WHERE name = $1 AND mode = $2 LIMIT 1`;
             const { rows } = await pool.query(checkSql, [name, mode]);
 
+            const runIsFlagged = profiles.some(p => this._isCheater(p));
             let mergedProfiles = profiles;
-            let existingId = null;
-            let existingSmashScore = 0;
-            let existingProfileCount = 0;
+            let highestSmashScore = 0;
+            let isPersonalBest = true;
             let existingProfileTitles = [];
-
-            const runIsFlagged = profiles.some(p => p.isCheater);
             let alreadyFlagged = false;
 
             if (rows.length > 0) {
-                existingId = rows[0].id;
-                existingSmashScore = parseInt(rows[0].smash_score, 10) || 0;
+                const existingData = rows[0];
+                const existingId = existingData.id;
+                const existingSmashScore = parseInt(existingData.smash_score, 10) || 0;
 
-                // Parse existing profiles safely
-                let existingProfiles = [];
-                try {
-                    existingProfiles = typeof rows[0].profiles === 'string'
-                        ? JSON.parse(rows[0].profiles)
-                        : (rows[0].profiles || []);
-                } catch (e) { }
-                if (!Array.isArray(existingProfiles)) existingProfiles = [];
-                existingProfileCount = existingProfiles.length;
+                let existingProfiles = this._parseProfiles(existingData.profiles);
                 existingProfileTitles = existingProfiles.map(p => p.title);
-
-                alreadyFlagged = existingProfiles.some(p => p.isCheater);
+                alreadyFlagged = existingProfiles.some(p => this._isCheater(p));
 
                 if (runIsFlagged && !alreadyFlagged) {
                     // Prevent framing: An unflagged user's score shouldn't be overwritten by a hacked run
-                    return {
-                        smashScore: existingSmashScore,
-                        mergedProfiles: existingProfiles,
-                        totalSmashes: 0,
-                        isPersonalBest: false,
-                        highestSmashScore: existingSmashScore,
-                        existingProfileTitles: existingProfileTitles
-                    };
+                    return { smashScore: existingSmashScore, mergedProfiles: existingProfiles, totalSmashes: 0, isPersonalBest: false, highestSmashScore: existingSmashScore, existingProfileTitles };
                 }
 
                 const isResetting = (!runIsFlagged && alreadyFlagged);
 
                 if (isResetting) {
-                    // Clean run over a flagged history: remove only the cheater flags, keep the legit past profiles
-                    existingProfiles = existingProfiles.filter(p => !p.isCheater);
+                    existingProfiles = existingProfiles.filter(p => !this._isCheater(p));
                 }
 
-                // Merge profiles — only profiles accumulate, not stats
-                const profileMap = new Map();
-                existingProfiles.forEach(p => profileMap.set(p.title, p));
-                profiles.forEach(p => profileMap.set(p.title, p));
-                mergedProfiles = Array.from(profileMap.values());
-            }
+                mergedProfiles = this._mergeProfiles(existingProfiles, profiles);
+                const profileCount = mergedProfiles.length;
+                const newSmashScore = forceSmashScore !== null ? forceSmashScore : calculateSmashScore(score, entropy, kps, profileCount);
+                const profilesJson = JSON.stringify(mergedProfiles);
 
-            // Smash score uses THIS RUN's score/kps/entropy + cumulative profile count
-            const profileCount = mergedProfiles.length;
-            const newSmashScore = forceSmashScore !== null ? forceSmashScore : calculateSmashScore(score, entropy, kps, profileCount);
-            const profilesJson = JSON.stringify(mergedProfiles);
-
-            let isPersonalBest = false;
-            let highestSmashScore = newSmashScore;
-
-            if (rows.length > 0) {
-                const isResetting = (!runIsFlagged && alreadyFlagged);
-                const hasNewProfiles = profileCount > existingProfileCount;
+                const hasNewProfiles = profileCount > existingProfiles.length;
                 const hasHigherScore = newSmashScore > existingSmashScore;
 
                 if (hasHigherScore || isResetting) {
-                    isPersonalBest = true;
-                    if (isResetting) {
-                        highestSmashScore = newSmashScore; // Force the clean score over the old hacked one
-                    }
-                    // New personal best or reset — update everything (stats + profiles)
+                    highestSmashScore = isResetting ? newSmashScore : newSmashScore;
                     const updateSql = `UPDATE scores SET score = $1, kps = $2, entropy = $3, smash_score = $4, profiles = $5, created_at = CURRENT_TIMESTAMP WHERE id = $6`;
                     await pool.query(updateSql, [score, kps, entropy, newSmashScore, profilesJson, existingId]);
                 } else if (hasNewProfiles) {
-                    highestSmashScore = existingSmashScore; // They didn't beat their score
-                    // Lower score run, but found new profiles — recalculate smash score using OLD stats + NEW profile count
-                    const existingScore = rows[0].score;
-                    const existingKps = rows[0].kps;
-                    const existingEntropy = rows[0].entropy;
-                    const boostedSmashScore = forceSmashScore !== null ? forceSmashScore : calculateSmashScore(existingScore, existingEntropy, existingKps, profileCount);
-
-                    if (boostedSmashScore > existingSmashScore) {
-                        highestSmashScore = boostedSmashScore;
-                    }
-
+                    isPersonalBest = false;
+                    const boostedSmashScore = forceSmashScore !== null ? forceSmashScore : calculateSmashScore(existingData.score, existingData.entropy, existingData.kps, profileCount);
+                    highestSmashScore = Math.max(existingSmashScore, boostedSmashScore);
                     const updateSql = `UPDATE scores SET smash_score = $1, profiles = $2 WHERE id = $3`;
                     await pool.query(updateSql, [boostedSmashScore, profilesJson, existingId]);
-                    await redisClient.zAdd(`leaderboard_${mode}`, { score: boostedSmashScore, value: name }, { GT: true });
+                    if (boostedSmashScore > existingSmashScore) {
+                        await redisClient.zAdd(`leaderboard_${mode}`, { score: boostedSmashScore, value: name }, { GT: true });
+                    }
                 } else {
+                    isPersonalBest = false;
                     highestSmashScore = existingSmashScore;
-                    // No high score and no new profiles, do nothing
                 }
             } else {
-                isPersonalBest = true;
+                mergedProfiles = profiles;
+                const newSmashScore = forceSmashScore !== null ? forceSmashScore : calculateSmashScore(score, entropy, kps, profiles.length);
+                highestSmashScore = newSmashScore;
+                const profilesJson = JSON.stringify(mergedProfiles);
                 const insertSql = `INSERT INTO scores (name, score, mode, kps, entropy, smash_score, profiles) VALUES ($1, $2, $3, $4, $5, $6, $7)`;
                 await pool.query(insertSql, [name, score, mode, kps, entropy, newSmashScore, profilesJson]);
             }
 
-            // Always increment global total smashes regardless of personal best (self-healing upsert)
-            const statsRes = await pool.query(
-                `INSERT INTO global_stats (id, total_smashes) VALUES (1, $1)
-                 ON CONFLICT (id) DO UPDATE SET total_smashes = global_stats.total_smashes + $1
-                 RETURNING total_smashes`, [score]
-            );
-            const totalSmashes = statsRes.rows.length > 0 ? parseInt(statsRes.rows[0].total_smashes, 10) : 0;
+            const totalSmashes = await this._updateGlobalStats(score);
+            const isFlagged = mergedProfiles.some(p => this._isCheater(p));
+            const redisScore = isFlagged ? -(highestSmashScore > 0 ? highestSmashScore : 1) : highestSmashScore;
 
-            // Cache total smashes in Redis for instant homepage loads
             try {
-                await redisClient.set('global_smash_count', totalSmashes.toString());
-            } catch (e) { console.error("Error saving global count to redis:", e); }
-
-            // Apply negative score penalty to cheaters so they naturally sink to the bottom of the Redis ZSET
-            try {
-                const isFlagged = mergedProfiles.some(p => p.isCheater);
-                const isResetting = (!runIsFlagged && alreadyFlagged);
-                const redisScore = isFlagged ? -(highestSmashScore > 0 ? highestSmashScore : 1) : highestSmashScore;
-
-                if (isFlagged || isResetting) {
-                    // Force the score update (no GT constraint) because they are either sinking to the bottom,
-                    // or rising from the bottom via a clean reset wipe.
+                if (isFlagged || (!runIsFlagged && alreadyFlagged)) {
                     await redisClient.zAdd(`leaderboard_${mode}`, { score: redisScore, value: name });
                 } else {
                     await redisClient.zAdd(`leaderboard_${mode}`, { score: redisScore, value: name }, { GT: true });
                 }
             } catch (e) { console.error("Error saving rank to redis:", e); }
 
+            const finalSmashScore = forceSmashScore !== null ? forceSmashScore : calculateSmashScore(score, entropy, kps, mergedProfiles.length);
+
             return {
-                smashScore: newSmashScore,
+                smashScore: finalSmashScore,
                 mergedProfiles,
                 totalSmashes,
                 isPersonalBest,
