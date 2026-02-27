@@ -1,0 +1,57 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+    <%= typeof title !=='undefined' ? title : 'BeSoSmash' %>
+</title>
+<link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50,0 L65,35 L100,50 L65,65 L50,100 L35,65 L0,50 L35,35 Z' fill='%23f43f5e' stroke='%230f172a' stroke-width='8' stroke-linejoin='round'/><path d='M50,15 L60,40 L85,50 L60,60 L50,85 L40,60 L15,50 L40,40 Z' fill='%23eab308'/></svg>"
+    type="image/svg+xml">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Outfit:wght@400;700;900&display=swap"
+    rel="stylesheet">
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Outfit', 'sans-serif'],
+                    mono: ['"JetBrains Mono"', 'monospace'],
+                },
+                animation: {
+                    'gradient-x': 'gradient-x 15s ease infinite',
+                    'float': 'float 6s ease-in-out infinite',
+                },
+                keyframes: {
+                    'gradient-x': {
+                        '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+                        '50%': { 'background-size': '200% 200%', 'background-position': 'right center' },
+                    },
+                    'float': {
+                        '0%, 100%': { transform: 'translateY(0)' },
+                        '50%': { transform: 'translateY(-10px)' },
+                    }
+                }
+            }
+        }
+    }
+</script>
+<style>
+    .neon-glow {
+        text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+    }
+
+    .box-glow {
+        box-shadow: 0 0 15px currentColor, inset 0 0 10px currentColor;
+    }
+
+    .glass-panel {
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+</style>
+<%- typeof extraHead !=='undefined' ? extraHead : '' %>

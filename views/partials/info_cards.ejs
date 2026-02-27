@@ -1,0 +1,114 @@
+<!-- Information Grid -->
+<div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 z-10 mt-8 mb-16 md:mb-20 px-4 md:px-0">
+    <!-- How it works card -->
+    <div class="group relative">
+        <div
+            class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-3xl blur opacity-0 group-hover:opacity-25 transition duration-500">
+        </div>
+        <div
+            class="relative glass-panel p-5 md:p-8 rounded-3xl border border-slate-700/50 group-hover:border-cyan-500/30 transition-all duration-300 h-full">
+            <h3 class="text-xl md:text-2xl font-black text-white mb-4 flex items-center gap-3">
+                <span
+                    class="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                    </svg>
+                </span>
+                How to Play
+            </h3>
+            <ul class="space-y-3 md:space-y-4 text-slate-300 font-medium text-sm md:text-base">
+                <li class="flex items-start gap-3">
+                    <span class="text-cyan-400 font-black text-lg leading-tight mt-0.5 flex-shrink-0">1.</span>
+                    <p>Pick a mode & enter a nickname to claim your spot on the global leaderboard.</p>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-cyan-400 font-black text-lg leading-tight mt-0.5 flex-shrink-0">2.</span>
+                    <p>When the timer starts, <strong class="text-white">SMASH</strong> your keyboard as fast and
+                        erratically as humanly possible.</p>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-cyan-400 font-black text-lg leading-tight mt-0.5 flex-shrink-0">3.</span>
+                    <p>The server analyzes your keystrokes and diagnoses your true gamer personality.</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- The Smash Score card -->
+    <div class="group relative">
+        <div
+            class="absolute -inset-0.5 bg-gradient-to-r from-fuchsia-500 to-purple-500 rounded-3xl blur opacity-0 group-hover:opacity-25 transition duration-500">
+        </div>
+        <div
+            class="relative glass-panel p-5 md:p-8 rounded-3xl border border-slate-700/50 group-hover:border-fuchsia-500/30 transition-all duration-300 h-full">
+            <h3 class="text-xl md:text-2xl font-black text-white mb-4 flex items-center gap-3">
+                <span
+                    class="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-fuchsia-500/20 to-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-fuchsia-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                    </svg>
+                </span>
+                The Smash Score
+            </h3>
+            <p class="text-slate-300 mb-4 font-medium leading-relaxed text-sm md:text-base">
+                Your rank isn't just about speed. Your <span class="text-fuchsia-400 font-bold">Smash Score</span>
+                blends three metrics:
+            </p>
+            <div
+                class="space-y-2.5 md:space-y-3 font-mono text-xs md:text-sm bg-slate-900/50 p-3 md:p-4 rounded-xl border border-slate-800">
+                <div class="flex justify-between items-center gap-2">
+                    <span class="text-slate-400">Total Keys</span>
+                    <span class="text-rose-400 font-bold">Base Multiplier</span>
+                </div>
+                <div class="flex justify-between items-center gap-2">
+                    <span class="text-slate-400">Entropy (Spread)</span>
+                    <span class="text-purple-400 font-bold">Randomness Bonus</span>
+                </div>
+                <div class="flex justify-between items-center gap-2">
+                    <span class="text-slate-400">KPS (Keys/Sec)</span>
+                    <span class="text-yellow-400 font-bold">Speed Bonus</span>
+                </div>
+                <div class="flex justify-between items-center gap-2">
+                    <span class="text-slate-400">Total Profiles Collected</span>
+                    <span class="text-green-400 font-bold">+420 score / profile</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personality Profiling card (Full width) -->
+    <div class="group relative md:col-span-2">
+        <div
+            class="absolute -inset-0.5 bg-gradient-to-r from-rose-500 via-purple-500 to-yellow-500 rounded-3xl blur opacity-0 group-hover:opacity-20 transition duration-500">
+        </div>
+        <div
+            class="relative glass-panel p-5 md:p-8 rounded-3xl border border-slate-700/50 group-hover:border-rose-500/30 transition-all duration-300 overflow-hidden">
+            <h3 class="text-xl md:text-2xl font-black text-white mb-4 flex items-center gap-3 relative z-10">
+                <span
+                    class="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-rose-500/20 to-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                    </svg>
+                </span>
+                The Personality Engine
+            </h3>
+            <p class="text-slate-300 font-medium leading-relaxed max-w-4xl relative z-10 text-sm md:text-base">
+                Our server-side AI analyzes the exact topological history of your keystrokes.
+                Are you <strong class="text-rose-300">"The Sweaty Tryhard"</strong> who never leaves the WASD keys?
+                Are you <strong class="text-purple-300">"The Vim Escaper"</strong> trapped in your own developer
+                habits?
+                Or are you <strong class="text-red-500">"The Cheater"</strong> using a macro script?
+                <br class="hidden md:block" /><br class="hidden md:block" />
+                <span class="block mt-3 md:mt-0">There are over <span class="text-rose-400 font-bold">130+ unique
+                        personality diagnoses</span> and hidden
+                    easter eggs to discover. The engine knows all, and it judges harshly.</span>
+            </p>
+        </div>
+    </div>
+</div>

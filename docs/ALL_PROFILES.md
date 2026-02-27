@@ -32,6 +32,11 @@ These profiles require typing very specific words or key combinations.
 | The Calculator Kid | 80085. You are 12 years old and this is the funniest thing you have ever done. Respect. |
 | The Upside Down Genius | 5318008 upside down. You have not changed since 4th grade and honestly neither have we. |
 | The Satanist Calculator | 7734 upside down on a calculator. Hello indeed. The dark one has been summoned via numpad. |
+| The Perfectionist | A, B, C, D... all the way to Z. In perfect alphabetical order. You are a person of focus, commitment, and sheer flipping will. |
+| The Pi Calculator | 3.14159265... You calculated Pi by smashing your keyboard. The scientific community is baffled, but we're just impressed. |
+| The Fibonacci Sequence | 1, 1, 2, 3, 5, 8, 13... The golden ratio of keyboard smashing. Pure mathematical beauty hidden in the chaos. |
+| The Palindrome | Your keystroke string is exactly the same forwards as it is backwards. An incredibly rare symmetrical flex. |
+| The Typewriter | Letter, space, letter, space. You perfectly alternated between keys and the spacebar for a prolonged period. *Ding!* |
 | The 69er | You smashed 69. Nice. |
 | The Any% Speedrunner | Frame-perfect inputs. You probably skipped half the text just to get here. WR pace. |
 | The HackerMan | I'm in. Bypassing the mainframe in 3... 2... 1... |
@@ -132,3 +137,24 @@ These relate to keyboard zones, pacing, and habits.
 | The Overclocker | Your hardware runs hot. Very hot. You pushed out massive keystrokes with explosive surges. |
 | The Rhythm Gamer | Perfect alternating patterns. You found the beat and stuck to it. Are you playing Friday Night Funkin' in another tab? |
 | The Mechanical Switch Tester | You methodically went through your keyboard just listening to the clicks. Satisfying, isn't it? |
+
+## 🎯 Fun Pattern Profiles
+These trigger based on specific key patterns, sequences, and keyboard coverage.
+
+| Profile Title | Flavor Text |
+| :--- | :--- |
+| The Alphabet Tourist | A, B, C, D... You pressed every single letter of the alphabet at least once. Did you think this was a typing test? Gold star for literacy. |
+| The F-Key Summoner | You pressed nothing but function keys. F1 through F12 — like summoning the council of keyboard elders. The ritual is complete. Nothing happened. |
+| The Countdown | 1, 2, 3, 4, 5, 6, 7, 8, 9. You typed a perfect countdown. Were you launching a rocket or just procrastinating creatively? |
+| The Piano Scales | You played the keyboard like an actual keyboard. A methodical left-to-right sweep across every letter. Beethoven would be confused but impressed. |
+| The Binary Bot | 01100010... You only typed 0s and 1s. Either you're communicating with the mothership or you failed the Turing test. Beep boop. |
+| The Roll Call | A-B-C-D-E-F. You typed the first six letters of the alphabet in order. Were you doing roll call? Attendance: present. Intelligence: debatable. |
+| The Numpad Astronaut | Houston, we have a numpad. Every single key was from the number pad. You're either an accountant or you lost the rest of your keyboard in a boating accident. |
+| The Shift Warrior | You held Shift like your life depended on it. EVERYTHING IS VERY IMPORTANT WHEN IT'S IN CAPS. Your pinky finger filed a restraining order. |
+| The Tab Destroyer | Tab, Tab, Tab. You tabbed through approximately 47 invisible form fields. The web accessibility audit is complete. Everything failed. |
+| The Backspace Poet | Write. Delete. Write. Delete. The Hemingway of keyboard smashing. Your masterpiece was erased before the world could see it. Probably for the best. |
+| The Perfect Balance | Exactly 50/50 left and right hand usage. Thanos would be proud. Perfectly balanced, as all things should be. Your chiropractor is thrilled. |
+| The Number Cruncher | Nothing but digits. 0-9, that's your whole vocabulary. You turned a keyboard smashing game into a spreadsheet. Excel would be proud. |
+| The Home Row Anchor | A-S-D-F-J-K-L-; — you never left the home row. Your typing teacher from 2003 is smiling from heaven. Touch typing purist. Maximum efficiency, minimal excitement. |
+| The Reverse Engineer | 9, 8, 7, 6, 5, 4, 3, 2, 1. Counting backwards. Either you're defusing a bomb or you just really like dramatic countdowns. T-minus chaos. |
+| The Speed Demon | 60+ keys per second and somehow still human. Your fingers have their own heartbeat. Your keyboard is filing for workers' compensation. |

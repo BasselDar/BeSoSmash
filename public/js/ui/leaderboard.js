@@ -142,9 +142,11 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
                 `text-${themeColor}-500 group-hover:text-${themeColor}-400`;
 
         let titleMedalHtml = '';
-        if (displayProfiles.length >= totalLegitProfiles) titleMedalHtml = `<img src="/assets/icons/medals/completionist.png" alt="Completionist Trophy" class="h-6 w-6 ml-2 cursor-help" title="Completionist (${displayProfiles.length}/${totalLegitProfiles} Profiles)" />`;
-        else if (displayProfiles.length >= 50) titleMedalHtml = `<img src="/assets/icons/medals/silver.png" alt="Silver Medal" class="h-5 w-5 ml-2 cursor-help" title="Master Collector (${displayProfiles.length}+ Profiles)" />`;
-        else if (displayProfiles.length >= 10) titleMedalHtml = `<img src="/assets/icons/medals/bronze.png" alt="Bronze Medal" class="h-5 w-5 ml-2 cursor-help" title="Novice Collector (${displayProfiles.length}+ Profiles)" />`;
+        if (displayProfiles.length >= totalLegitProfiles) titleMedalHtml = `<img src="/assets/icons/medals/completionist.png" alt="Completionist Trophy" class="h-10 w-10 ml-2 drop-shadow-[0_0_15px_rgba(250,204,21,0.6)] cursor-help transition-transform hover:scale-110 -my-1" title="Completionist (${displayProfiles.length}/${totalLegitProfiles} Profiles)" />`;
+        else if (displayProfiles.length >= 100) titleMedalHtml = `<img src="/assets/icons/medals/gold.png" alt="Gold Medal" class="h-8 w-8 ml-2 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)] cursor-help transition-transform hover:scale-110 -my-1" title="Legendary Collector (${displayProfiles.length}+ Profiles)" />`;
+        else if (displayProfiles.length >= 50) titleMedalHtml = `<img src="/assets/icons/medals/silver.png" alt="Silver Medal" class="h-8 w-8 ml-2 drop-shadow-md cursor-help transition-transform hover:scale-110 -my-1" title="Master Collector (${displayProfiles.length}+ Profiles)" />`;
+        else if (displayProfiles.length >= 10) titleMedalHtml = `<img src="/assets/icons/medals/bronze.png" alt="Bronze Medal" class="h-7 w-7 ml-2 drop-shadow-md cursor-help transition-transform hover:scale-110 -my-0.5" title="Novice Collector (${displayProfiles.length}+ Profiles)" />`;
+        else titleMedalHtml = `<img src="/assets/icons/medals/noob.png" alt="Noob Medal" class="h-7 w-7 ml-2 drop-shadow-md cursor-help transition-transform hover:scale-110 filter grayscale opacity-70 -my-0.5" title="Noob Collector (<10 Profiles)" />`;
 
         li.innerHTML = `
             ${bgHighlight}

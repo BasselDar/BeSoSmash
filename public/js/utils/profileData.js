@@ -12,7 +12,7 @@ export const categoryPalettes = {
 // Map every profile title to its category
 export const profileCategoryMap = {
     // Cheater / Suspicious
-    'The Script Kiddie': 'cheater', 'The Hardware Spoof': 'cheater', 'The Ghost': 'cheater',
+    'The Script Kiddie': 'cheater', 'The Hardware Spoof': 'cheater', 'The Ghost': 'rare',
     'Suspected Cheater': 'cheater', 'The Overloader': 'cheater',
     // Rare / Exclusive
     'The Minimalist': 'rare', 'The Rage Quitter': 'rare', 'The Plagiarist': 'rare', 'The Glitch': 'rare',
@@ -21,12 +21,14 @@ export const profileCategoryMap = {
     'The Accidental Potato': 'easter', 'The SQL Dropper': 'easter', 'The Sudo Override': 'easter', 'The Git Pusher': 'easter',
     'The Calculator Kid': 'easter', 'The Upside Down Genius': 'easter', 'The Satanist Calculator': 'easter',
     'The 69er': 'easter', 'The Botanist': 'easter', 'The 2013 Throwback': 'easter', 'The Yeet Lord': 'easter',
-    'The Any% Speedrunner': 'easter', 'The HackerMan': 'easter', 'The Console Logger': 'easter', 'The Lorem Ipsum': 'easter',
+    'The HackerMan': 'easter', 'The Console Logger': 'easter', 'The Lorem Ipsum': 'easter',
     'The Dark Souls Veteran': 'easter', 'The Hopeful Romantic': 'easter', 'The Confused': 'easter', 'The Drama Queen': 'easter',
     'The Trash Talker': 'easter', 'The Disrespectful One': 'easter', 'The Swear Jar': 'easter', 'The Instagram User': 'easter',
     'The Meta Gamer': 'easter', 'The Cry for Help': 'easter', 'The Polite Menace': 'easter', 'The 1337 Fossil': 'easter',
     'The Keyboard Tourist': 'easter', 'The E-Sports Veteran': 'easter', 'The Home Row Devotee': 'easter', 'The Nice Guy': 'easter',
-    'The Creator': 'easter',
+    'The Creator': 'easter', 'The Perfectionist': 'easter', 'The Pi Calculator': 'easter', 'The Fibonacci Sequence': 'easter',
+    'The Palindrome': 'easter', 'The Typewriter': 'easter', 'The Alphabet Tourist': 'easter', 'The Roll Call': 'easter',
+    'Nice': 'easter',
     // Gamer Zones
     'The Hybrid': 'gamer', 'The Forearm Sweep': 'gamer', 'The Silverback': 'gamer', 'The Single-Key Murderer': 'gamer',
     'The Center of Attention': 'gamer', 'The BIOS Tech': 'gamer', 'The Flash Gamer': 'gamer',
@@ -37,6 +39,7 @@ export const profileCategoryMap = {
     // Nerd / Tech
     'The Vim Escaper': 'nerd', 'The HTML Hacker': 'nerd', 'The Regex Nightmare': 'nerd', 'The Hexadecimal': 'nerd',
     'The Terminal Typist': 'nerd', 'The Mad Scientist': 'nerd', 'The Angry Accountant': 'nerd',
+    'The F-Key Summoner': 'nerd', 'The Binary Bot': 'nerd', 'The Reverse Engineer': 'nerd',
     // Keyboard Zones
     'The Bottom Feeder': 'keyboard', 'The Top Row Tyrant': 'keyboard', 'The Vowel Enthusiast': 'keyboard',
     'The Consonant Crusader': 'keyboard', 'The Vowel Vulture': 'keyboard', 'The Left-Handed Demon': 'keyboard',
@@ -44,13 +47,17 @@ export const profileCategoryMap = {
     'The Executioner': 'keyboard', 'The Punctuation Pedant': 'keyboard', 'The QA Tester': 'keyboard',
     'The Screamer': 'keyboard', 'The IT Support': 'keyboard', 'The Windows Key Victim': 'keyboard',
     'The Screenshot Hoarder': 'keyboard', 'The System Interrupter': 'keyboard', 'The Scroll Lock Champion': 'keyboard',
-    'The Toggle Archaeologist': 'keyboard', 'The Mod Squad': 'keyboard',
+    'The Toggle Archaeologist': 'keyboard', 'The Mod Squad': 'keyboard', 'The Piano Scales': 'keyboard',
+    'The Numpad Astronaut': 'keyboard', 'The Shift Warrior': 'keyboard', 'The Tab Destroyer': 'keyboard',
+    'The Backspace Poet': 'keyboard', 'The Perfect Balance': 'keyboard', 'The Number Cruncher': 'keyboard',
+    'The Home Row Anchor': 'keyboard',
     // Pacing / Timing / Entropy
     'The Two-Finger Peck': 'pacing', 'The Stutterer': 'pacing', 'The Novelist': 'pacing',
     'The Pacifist': 'pacing', 'The AFK': 'pacing', 'The Early Bird': 'pacing', 'The Decaf Drinker': 'pacing',
     'The Anime Comeback': 'pacing', 'The Distracted': 'pacing', 'The Sloth': 'pacing', 'The Panic Button': 'pacing',
     'The Heartbeat': 'pacing', 'The Chaotic Evil': 'pacing', 'The Lawful Good': 'pacing',
     'The Overclocker': 'pacing', 'The Rhythm Gamer': 'pacing', 'The Mechanical Switch Tester': 'pacing',
+    'The Countdown': 'pacing', 'The Speed Demon': 'pacing',
 };
 
 export function getProfileCategory(title) {

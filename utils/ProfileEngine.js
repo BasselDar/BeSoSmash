@@ -145,6 +145,54 @@ const PROFILES = [
         condition: (s) => s.typedString.includes('7734')
     },
     {
+        title: "The Perfectionist",
+        flavor: "A, B, C, D... all the way to Z. In perfect alphabetical order. You are a person of focus, commitment, and sheer flipping will.",
+        isExclusive: true,
+        condition: (s) => s.typedString.toUpperCase().includes('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    },
+    {
+        title: "The Pi Calculator",
+        flavor: "3.14159265... You calculated Pi by smashing your keyboard. The scientific community is baffled, but we're just impressed.",
+        isExclusive: true,
+        condition: (s) => s.typedString.includes('314159265')
+    },
+    {
+        title: "The Fibonacci Sequence",
+        flavor: "1, 1, 2, 3, 5, 8, 13... The golden ratio of keyboard smashing. Pure mathematical beauty hidden in the chaos.",
+        isExclusive: true,
+        condition: (s) => s.typedString.includes('11235813')
+    },
+    {
+        title: "The Palindrome",
+        flavor: "Your keystroke string is exactly the same forwards as it is backwards. An incredibly rare symmetrical flex.",
+        isExclusive: true,
+        condition: (s) => {
+            let str = s.typedString.replace(/\s/g, '');
+            if (str.length < 10) return false;
+            let uniqueChars = new Set(str.split(''));
+            if (uniqueChars.size < 2) return false; // "AAAA..." is not a real palindrome
+            let rev = str.split('').reverse().join('');
+            return str === rev;
+        }
+    },
+    {
+        title: "The Typewriter",
+        flavor: "Letter, space, letter, space. You perfectly alternated between keys and the spacebar for a prolonged period. *Ding!*",
+        isExclusive: true,
+        condition: (s) => {
+            if (s.typedString.length < 20) return false;
+            let lettersCount = 0;
+            // Check if every other character is strictly space/non-space
+            for (let i = 0; i < 20; i++) {
+                const char = s.typedString[i];
+                if (i % 2 === 0 && char === ' ') return false;
+                if (i % 2 === 1 && char !== ' ') return false;
+                if (i % 2 === 0) lettersCount++;
+            }
+            return lettersCount >= 10;
+        }
+    },
+    {
         title: "The 69er",
         flavor: "You smashed 69. Nice.",
         isExclusive: true,
@@ -647,6 +695,111 @@ const PROFILES = [
         title: "The Rhythm Gamer",
         flavor: "Perfect alternating patterns. You found the beat and stuck to it. Are you playing Friday Night Funkin' in another tab?",
         condition: (s) => s.uniqueKeys >= 4 && s.uniqueKeys <= 6 && s.ent >= 20 && s.kps > 10 && s.maxSingleKeyCount < s.totalKeys * 0.4
+    },
+    // -------------------------------------------------------
+    // FUN PATTERN PROFILES
+    // -------------------------------------------------------
+    {
+        title: "The Alphabet Tourist",
+        flavor: "A, B, C, D... You pressed every single letter of the alphabet at least once. Did you think this was a typing test? Gold star for literacy.",
+        condition: (s) => {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let count = 0;
+            for (const ch of letters) {
+                if (s.keyCounts['Key' + ch] && s.keyCounts['Key' + ch] >= 1) count++;
+            }
+            return count === 26;
+        }
+    },
+    {
+        title: "The F-Key Summoner",
+        flavor: "You pressed nothing but function keys. F1 through F12 — like summoning the council of keyboard elders. The ritual is complete. Nothing happened.",
+        condition: (s) => s.fKeyHits > 0 && s.fKeyHits === s.totalKeys && s.uniqueKeys >= 3
+    },
+    {
+        title: "The Countdown",
+        flavor: "1, 2, 3, 4, 5, 6, 7, 8, 9. You typed a perfect countdown. Were you launching a rocket or just procrastinating creatively?",
+        condition: (s) => s.typedString.includes('123456789')
+    },
+    {
+        title: "The Piano Scales",
+        flavor: "You played the keyboard like an actual keyboard. A methodical left-to-right sweep across every letter. Beethoven would be confused but impressed.",
+        condition: (s) => s.typedString.includes('QWERTYUIOP') || s.typedString.includes('ASDFGHJKL') || s.typedString.includes('ZXCVBNM')
+    },
+    {
+        title: "The Binary Bot",
+        flavor: "01100010 01110010 01110101 01101000. You only typed 0s and 1s. Either you're communicating with the mothership or you failed the Turing test. Beep boop.",
+        condition: (s) => {
+            if (s.totalKeys < 5) return false;
+            const zeros = (s.keyCounts['Digit0'] || 0) + (s.keyCounts['Numpad0'] || 0);
+            const ones = (s.keyCounts['Digit1'] || 0) + (s.keyCounts['Numpad1'] || 0);
+            return (zeros + ones) === s.totalKeys && zeros > 0 && ones > 0;
+        }
+    },
+    {
+        title: "The Roll Call",
+        flavor: "A-B-C-D-E-F. You typed the first six letters of the alphabet in order. Were you doing roll call? Attendance: present. Intelligence: debatable.",
+        condition: (s) => s.typedString.includes('ABCDEF')
+    },
+    {
+        title: "The Numpad Astronaut",
+        flavor: "Houston, we have a numpad. Every single key was from the number pad. You're either an accountant or you lost the rest of your keyboard in a boating accident.",
+        condition: (s) => s.numpadHits > 0 && s.numpadHits === s.totalKeys && s.totalKeys >= 5
+    },
+    {
+        title: "The Shift Warrior",
+        flavor: "You held Shift like your life depended on it. EVERYTHING IS VERY IMPORTANT WHEN IT'S IN CAPS. Your pinky finger filed a restraining order.",
+        condition: (s) => ((s.keyCounts['ShiftLeft'] || 0) + (s.keyCounts['ShiftRight'] || 0)) / s.totalKeys > 0.25
+    },
+    {
+        title: "The Tab Destroyer",
+        flavor: "Tab, Tab, Tab. You tabbed through approximately 47 invisible form fields. The web accessibility audit is complete. Everything failed.",
+        condition: (s) => s.tabHits > 10 && s.tabHits / s.totalKeys > 0.20
+    },
+    {
+        title: "The Backspace Poet",
+        flavor: "Write. Delete. Write. Delete. The Hemingway of keyboard smashing. Your masterpiece was erased before the world could see it. Probably for the best.",
+        condition: (s) => s.deleteHits / s.totalKeys > 0.30 && s.totalKeys > 10
+    },
+    {
+        title: "The Perfect Balance",
+        flavor: "Exactly 50/50 left and right hand usage. Thanos would be proud. Perfectly balanced, as all things should be. Your chiropractor is thrilled.",
+        condition: (s) => {
+            if (s.leftHits + s.rightHits < 20) return false;
+            const ratio = s.leftHits / (s.leftHits + s.rightHits);
+            return ratio >= 0.45 && ratio <= 0.55;
+        }
+    },
+    {
+        title: "The Number Cruncher",
+        flavor: "Nothing but digits. 0-9, that's your whole vocabulary. You turned a keyboard smashing game into a spreadsheet. Excel would be proud.",
+        condition: (s) => {
+            if (s.totalKeys < 5) return false;
+            let digitHits = 0;
+            for (let i = 0; i <= 9; i++) {
+                digitHits += (s.keyCounts['Digit' + i] || 0);
+                digitHits += (s.keyCounts['Numpad' + i] || 0);
+            }
+            return digitHits === s.totalKeys;
+        }
+    },
+    {
+        title: "The Home Row Anchor",
+        flavor: "A-S-D-F-J-K-L-; — you never left the home row. Your typing teacher from 2003 is smiling from heaven. Touch typing purist. Maximum efficiency, minimal excitement.",
+        condition: (s) => {
+            const homeRowHits = [...rows[1]].reduce((sum, key) => sum + (s.keyCounts[key] || 0), 0);
+            return homeRowHits / s.totalKeys > 0.80 && s.totalKeys > 10 && s.uniqueKeys >= 4;
+        }
+    },
+    {
+        title: "The Reverse Engineer",
+        flavor: "9, 8, 7, 6, 5, 4, 3, 2, 1. Counting backwards. Either you're defusing a bomb or you just really like dramatic countdowns. T-minus chaos.",
+        condition: (s) => s.typedString.includes('987654321')
+    },
+    {
+        title: "The Speed Demon",
+        flavor: "60+ keys per second and somehow still human. Your fingers have their own heartbeat. Your keyboard is filing for workers' compensation.",
+        condition: (s) => s.kps >= 60 && s.kps < 85 && s.ent > 20
     },
     {
         title: "The Mechanical Switch Tester",

@@ -38,14 +38,16 @@ export function buildProfilesHtml(profiles, id, _totalProfilesOverride = 0) {
 
     // Calculate incremental collector medals
     let collectorMedals = '';
-    if (displayProfiles.length >= 10 && displayProfiles.length < 50) collectorMedals = `<img src="/assets/icons/medals/bronze.png" alt="Bronze Medal" class="h-4 w-4 ml-2 cursor-help" title="Novice Collector (10+ Profiles) - Keep exploring!" />`;
-    if (displayProfiles.length >= 50 && !isCompletionist) collectorMedals = `<img src="/assets/icons/medals/silver.png" alt="Silver Medal" class="h-4 w-4 ml-2 cursor-help" title="Master Collector (50+ Profiles) - Almost there!" />`;
+    if (displayProfiles.length >= 100 && !isCompletionist) collectorMedals = `<img src="/assets/icons/medals/gold.png" alt="Gold Medal" class="h-8 w-8 ml-2 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)] cursor-help transition-transform hover:scale-110" title="Legendary Collector (${displayProfiles.length}+ Profiles) - Flawless!" />`;
+    else if (displayProfiles.length >= 50 && !isCompletionist) collectorMedals = `<img src="/assets/icons/medals/silver.png" alt="Silver Medal" class="h-8 w-8 ml-2 drop-shadow-md cursor-help transition-transform hover:scale-110" title="Master Collector (${displayProfiles.length}+ Profiles) - Almost there!" />`;
+    else if (displayProfiles.length >= 10 && displayProfiles.length < 50) collectorMedals = `<img src="/assets/icons/medals/bronze.png" alt="Bronze Medal" class="h-7 w-7 ml-2 drop-shadow-md cursor-help transition-transform hover:scale-110" title="Novice Collector (${displayProfiles.length}+ Profiles) - Keep exploring!" />`;
+    else if (displayProfiles.length < 10) collectorMedals = `<img src="/assets/icons/medals/noob.png" alt="Noob Medal" class="h-7 w-7 ml-2 drop-shadow-md cursor-help transition-transform hover:scale-110 filter grayscale opacity-70" title="Noob Collector (<10 Profiles) - Keep smashing!" />`;
 
     const headerHtml = isCompletionist
         ? `<div class="flex items-center justify-center gap-3 mb-3 py-2 px-4 rounded-lg bg-gradient-to-r from-yellow-500/20 via-amber-500/10 to-yellow-500/20 border border-yellow-400/30 shadow-[0_0_20px_rgba(250,204,21,0.15)]">
-               <img src="/assets/icons/medals/completionist.png" alt="Completionist Trophy" class="h-6 w-6" />
+               <img src="/assets/icons/medals/completionist.png" alt="Completionist Trophy" class="h-9 w-9 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]" />
                <span class="text-xs font-black text-yellow-400 uppercase tracking-[0.2em] animate-pulse">COMPLETIONIST — ALL ${totalProfiles} PROFILES COLLECTED!</span>
-               <img src="/assets/icons/medals/completionist.png" alt="Completionist Trophy" class="h-6 w-6" />
+               <img src="/assets/icons/medals/completionist.png" alt="Completionist Trophy" class="h-9 w-9 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]" />
            </div>`
         : `<div class="flex items-center gap-2 mb-3">
                <div class="h-px flex-grow bg-gradient-to-r from-fuchsia-500/50 to-transparent"></div>
