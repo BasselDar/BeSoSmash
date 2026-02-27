@@ -1,160 +1,162 @@
-# BeSoSmash - Profile Encyclopedia
+# BeSoSmash - Profile Encyclopedia & Hunt Guide
 
-This document lists every single personality profile available in BeSoSmash. They are all accumulative and can stack together if you match multiple conditions.
+Welcome to the ultimate collector's guide for BeSoSmash. There are **131 unique personality profiles** hidden in the game. Some are common habits, some are extremely rare occurrences, and some are obscure Easter Eggs.
+
+This document lists every profile available in the game, along with a **Hint** to help you figure out how to unlock it. We don't want to spoil the exact combination, so put on your detective hat!
+
+Happy hunting.
 
 ## 🚨 Anti-Cheat / Suspicious Profiles
-These profiles flag the run as suspicious.
+These profiles flag the run as suspicious. Getting these means your run was invalid.
 
-| Profile Title | Flavor Text |
+| Profile Title | Hint |
 | :--- | :--- |
-| The Script Kiddie | Nice try injecting JavaScript directly into the DOM. Caught in 4K. |
-| The Hardware Spoof | Your keyboard physically cannot send data this fast. Busted. |
-| The Overloader | You hit the server rate limit. Either you are a bot, or your forearms are literal pistons. |
-| The Ghost | Did you even touch the keyboard? Zero keys detected. Please wake up. |
-| The Panic Button | You smashed so randomly even the algorithm gave up. |
+| The Script Kiddie | Did you try to manipulate the website code directly? |
+| The Hardware Spoof | Your keyboard sent impossibly fast, robotic signals. |
+| The Overloader | You triggered the server's emergency rate limits. |
+| The Ghost | A game played without ever touching a single key. |
+| The Panic Button | Total algorithmic confusion. The system gave up. |
+| Suspected Cheater | You performed an action that looked way too much like an auto-clicker or macro. |
 
 ## 🏆 Easter Eggs & Specific Triggers
-These profiles require typing very specific words or key combinations.
+These profiles require typing very specific words, numbers, or classic combinations. 
 
-| Profile Title | Flavor Text |
+| Profile Title | Hint |
 | :--- | :--- |
-| The Minimalist | You pressed exactly one key. Peak efficiency. Zero effort.GigChad. |
-| The Rage Quitter | Alt+F4? Seriously? If you're going to rage quit a game about typing fast, at least unplug your keyboard. |
-| The Plagiarist | Ctrl+C, Ctrl+V. Did you really just try to copy-paste your way to victory? Stack Overflow can't help you here. |
-| The Glitch | F5 F5 F5 F5. You're trying to refresh reality but you're just stuck in the matrix. Wake up. |
-| The Konami Coder | Up, Up, Down, Down, Left, Right, Left, Right, B, A. Infinite lives unlocked! Just kidding, you still have to pay taxes tomorrow. |
-| The Accidental Potato | A million monkeys on a typewriter, and you typed POTATO. |
-| The SQL Dropper | Did you just try to drop my production database? Nice try. |
-| The Console Logger | Debugging your keyboard? Try console.log('grass') and go touch some. |
-| The Lorem Ipsum | You are generating placeholder text manually. We have tools for this now. |
-| The Sudo Override | You don't have admin privileges here. |
-| The Git Pusher | Force pushing to main branch on a Friday? Pure chaos. |
-| The Calculator Kid | 80085. You are 12 years old and this is the funniest thing you have ever done. Respect. |
-| The Upside Down Genius | 5318008 upside down. You have not changed since 4th grade and honestly neither have we. |
-| The Satanist Calculator | 7734 upside down on a calculator. Hello indeed. The dark one has been summoned via numpad. |
-| The Perfectionist | A, B, C, D... all the way to Z. In perfect alphabetical order. You are a person of focus, commitment, and sheer flipping will. |
-| The Pi Calculator | 3.14159265... You calculated Pi by smashing your keyboard. The scientific community is baffled, but we're just impressed. |
-| The Fibonacci Sequence | 1, 1, 2, 3, 5, 8, 13... The golden ratio of keyboard smashing. Pure mathematical beauty hidden in the chaos. |
-| The Palindrome | Your keystroke string is exactly the same forwards as it is backwards. An incredibly rare symmetrical flex. |
-| The Typewriter | Letter, space, letter, space. You perfectly alternated between keys and the spacebar for a prolonged period. *Ding!* |
-| The 69er | You smashed 69. Nice. |
-| The Any% Speedrunner | Frame-perfect inputs. You probably skipped half the text just to get here. WR pace. |
-| The HackerMan | I'm in. Bypassing the mainframe in 3... 2... 1... |
-| The Botanist | 420. You are either very relaxed right now or you cannot count. Possibly both. |
-| The 2013 Throwback | YOLO. You Only Live Once, which is exactly why you spent one of your precious seconds typing this. |
-| The Yeet Lord | YEET. Thrown with force. No regrets. This is peak human expression and we will not debate it. |
-| The Dark Souls Veteran | Git gud. You said it to yourself. In a game you are currently losing. Peak self-awareness. |
-| The Hopeful Romantic | Wrong window. The keyboard game cannot send nudes. Have you tried a different app? |
-| The Confused | W-T-F. The only valid reaction to this game. We understand completely. |
-| The Drama Queen | OMG. You are emotionally overwhelmed by a 5-second keyboard game. Valid, actually. |
-| The Trash Talker | You called yourself a noob mid-game. The self-awareness is both impressive and heartbreaking. |
-| The Disrespectful One | EZ. You typed EZ. Bro. Please. |
-| The Swear Jar | Watch your language. This is a Muslim Minecraft server. That will be $1 per word. You owe us everything. |
-| The Instagram User | You typed NI*** , Spending too much time on Instagram are we? |
-| The Spacebar Supremacist | Every single keypress was the spacebar. You discovered the biggest key and committed. No regrets. No thoughts. Just space. |
-| The Start Menu Sommelier | You pressed the Windows key mid-game. The Start Menu opened. Your score survived. Your dignity did not. |
-| The Creator | BESOSE detected. We bow to the architect of this beautiful madness. |
-| The Meta Gamer | You typed the name of the game you are currently playing. Extremely self-aware. Extremely unhinged. We respect it. |
-| The Cry for Help | H-E-L-P. In a keyboard smashing game. We cannot help you. No one can. But we appreciate the honesty. |
-| The Polite Menace | You said hello to a keyboard smashing game. That is either adorable or deeply concerning. Probably both. |
-| The 1337 Fossil | l33tsp34k in the year of our lord? Did you time travel from a 2004 gaming forum? Welcome back, old timer. Nothing has gotten better. |
-| The Keyboard Tourist | You traced the top row like a tourist reading a subway map. You were not smashing. You were sightseeing. |
-| The E-Sports Veteran | GG. Two letters. You typed GG and called it a session. Based. |
-| The Home Row Devotee | A-S-D-F. Your fingers never left home base. Touch typist? Or just too lazy to move? Either way, respect. |
-| The Nice Guy | You typed NICE. We agree. It is, in fact, quite nice. |
-| The Mobile Smasher | Tapping your screen to death. RIP to your oleophobic coating. |
+| The Minimalist | Less is more. A lot less. |
+| The Rage Quitter | The classic shortcut to close a window. |
+| The Plagiarist | The classic shortcut for pasting text. |
+| The Glitch | Trying to artificially refresh the matrix over and over. |
+| The Konami Coder | Up, Up, Down, Down... you know the rest. |
+| The Accidental Potato | Mash a starchy vegetable into your keyboard. |
+| The SQL Dropper | Bobby Tables would be proud. |
+| The Console Logger | The JavaScript equivalent of "hello world" for debugging. |
+| The Lorem Ipsum | The classic Latin placeholder text used in web design. |
+| The Sudo Override | I am root. Make me a sandwich. |
+| The Git Pusher | How do you forcibly upload your commits? |
+| The Calculator Kid | The funniest number to type on a school calculator. |
+| The Upside Down Genius | 5318008. If you know, you know. |
+| The Satanist Calculator | The number of the beast, flipped upside down on a calculator. |
+| The Perfectionist | Everything in its right place, from A to Z. |
+| The Pi Calculator | Delicious math. 3.14... keep going. |
+| The Fibonacci Sequence | 1, 1, 2, 3... find the golden ratio. |
+| The Palindrome | Racecar. Kayak. Madam. But with keystrokes. |
+| The Typewriter | Sticking to a rigorous alternating rhythm involving the spacebar. |
+| The 69er | Nice. |
+| The Any% Speedrunner | A ridiculously short game that skips everything. |
+| The HackerMan | "I'm in." (A common trope) |
+| The Botanist | A time of day famously associated with greenery. |
+| The 2013 Throwback | You Only Live Once. |
+| The Yeet Lord | Throw it as hard as you can. |
+| The Dark Souls Veteran | Get good. But spelled differently. |
+| The Hopeful Romantic | Sending inappropriate pictures maybe? (A 5-letter word) |
+| The Confused | What... The... F...? |
+| The Drama Queen | Oh My God. |
+| The Trash Talker | Calling someone inexperienced. |
+| The Disrespectful One | Two letters that mean it was too easy. |
+| The Swear Jar | Wash your mouth out with soap (Type a prohibited word). |
+| The Instagram User | Using specific inappropriate vocabulary associated with comment sections. |
+| The Spacebar Supremacist | The biggest key on the board, and the only one you used. |
+| The Start Menu Sommelier | Accidentally leaving the game to open your PC's main menu. |
+| The Creator | The name of the architect of this game. |
+| The Meta Gamer | Acknowledging the actual name of the game you are playing. |
+| The Cry for Help | Literally begging for assistance. |
+| The Polite Menace | Greeting the game directly. |
+| The 1337 Fossil | Elite speak. Welcome to 2004. |
+| The Keyboard Tourist | Taking a leisurely stroll across the numerals. |
+| The E-Sports Veteran | Good Game. |
+| The Home Row Devotee | A-S-D-F. The touch typist's anchor. |
+| The Nice Guy | Saying something is pleasant. |
+| The Mobile Smasher | Playing on a device without a physical keyboard. |
+| Nice | Literally just the word "Nice". |
 
 ## 🧩 Playstyle Profiles
 These relate to keyboard zones, pacing, and habits.
 
-| Profile Title | Flavor Text |
+| Profile Title | Hint |
 | :--- | :--- |
-| Suspected Cheater | 150+ keys per second with almost no variation. That's auto-clicker territory. Your score is saved, but we're watching. |
-| Suspected Cheater | Triple-digit KPS with near-zero entropy. Either you're a literal octopus or something fishy is going on. |
-| Suspected Cheater | High speed, one key. That's not smashing, that's a macro with extra steps. |
-| The Hybrid | Using a touchscreen AND a keyboard? Unorthodox and deeply concerning. |
-| The Pianist | You didn't just smash keys, you played chords. Perfect simultaneous keystrokes detected. Are you playing a sonata? |
-| The Precision Striker | You maintained a flawless unique key rate for a significant portion of the game. Absolute surgical accuracy. |
-| The Drummer | A steady rhythm of alternating taps. You kept a high pace without ever flattening your hand on the board. Rock on. |
-| The Stenographer | Typing faster than the speed of sound with zero wasted movements. Perfect distribution, no frantic repetition. |
-| The Forearm Sweep | Forearm slam detected. The hardware is begging for mercy. |
-| The Silverback | No human fingers move like this. You either rolled your face across the desk, or you just forearm-slammed your mechanical keyboard. The hardware is begging for mercy. |
-| The Single-Key Murderer | Please apologize to your key. Its warranty is void. |
-| The Center of Attention | Laser-focused on the dead center. Tunnel vision at its finest. |
-| The BIOS Tech | Are you trying to boot into Safe Mode? Coward. |
-| The Flash Gamer | Playing this like it's a 2004 browser game on Miniclip. |
-| The Arrow Key Boomer | WASD was invented 20 years ago. Let go of the arrow keys, grandpa. |
-| The Left-Handed Boomer | You are playing this on the arrow keys. Either you are left-handed, or you boldly refused to adapt to standard gaming controls after 1998. |
-| The MOBA Toxic | Q, W, E, R dominance. You just tried to pop your ultimate, didn't you? Go back to the fountain. |
-| The Osu! Addict | Tapping Z and X at the speed of light. Have you blinked since 2019? |
-| The Fighting Game Scrub | Just mashing heavy punch and hoping for a combo, huh? |
-| The MMO Raider | Cycling through your 40-button rotation. Too bad the boss enraged. |
-| The Crouch Spammer | Teabagging the keyboard won't give you a higher score. |
-| The Bunny Hopper | Your spacebar is currently holding on by a single, snapping plastic thread. You can stop jumping now. You're already dead. |
-| The Sweaty Tryhard | We get it, you are hardstuck Platinum in Valorant. Your hands naturally form a claw over the WASD keys. Please go take a shower. |
-| The Alt-Tabber | Boss walking by? You hit Alt-Tab more times than actual keys. Your 'spreadsheets' are safe. |
-| The Vim Escaper | You can't :wq your way out of this one. |
-| The HTML Hacker | You're closing tags faster than your browser is crashing. |
-| The Regex Nightmare | Nobody knows what those symbols do, including you. |
-| The Hexadecimal | Speaking strictly in base-16. You are a robot. |
-| The Terminal Typist | Waiting for the command prompt to execute your garbage. |
-| The Mad Scientist | Plus, minus, multiply, divide. You're out here solving the Riemann Hypothesis instead of playing the game. |
-| The Angry Accountant | Did the taxes not balance this year? You completely ignored the letters and attacked the calculator zone with lethal intent. HR has been notified. |
-| The Bottom Feeder | You stayed rigidly glued to the ZXCVBNM row. Did you spill coffee on the top half of your keyboard, or are you just afraid of heights? |
-| The Top Row Tyrant | QWERTYUIOP. You dominated the top row exclusively. A minimalist approach, but mathematically inefficient. |
-| The Vowel Enthusiast | Are you trying to buy a vowel? This isn't Wheel of Fortune. |
-| The Consonant Crusader | Wh nds vwls nywy? Y sk t ths gm. |
-| The Vowel Vulture | A, E, I, O, U... and sometimes Y? You strictly targeted vowels. We're not playing Wheel of Fortune, you don't need to buy them. |
-| The Left-Handed Demon | Right hand was busy? We won't ask. |
-| The Right-Handed Menace | Refusing to use the left side. Unbalanced. |
-| The Escape Artist | You spent the entire match mashing Escape. Are you trying to open the pause menu? Are you trying to flee the simulation? There is no escape. |
-| The Typosquatter | You hit Backspace more times than a regretful ex texting at 2 AM. You can't un-type the chaos, just embrace it. |
-| The Executioner | Smashing the Enter key won't send your messages faster, and it certainly won't help you win. Stop trying to submit the game. |
-| The Punctuation Pedant | Commas, periods, semicolons... Did you accidentally open your IDE? The compiler is going to reject your high score. |
-| The QA Tester | Smashing Tab. Are you checking the form accessibility index? The UI is fine, please stop filing Jira tickets. |
-| The Screamer | WHY ARE WE YELLING? You hit CapsLock repeatedly. Your keyboard doesn't have a volume dial, but you certainly found a way to shout. |
-| The IT Support | F1, F5, F12... Are you trying to refresh the page or open the developer console? Did you try turning the keyboard off and on again? |
-| The Start Menu Sommelier | You pressed the Windows key mid-game. The Start Menu opened. Your score survived. Your dignity did not. |
-| The Windows Key Victim | You opened the Start Menu, the game lost focus, and you typed exactly nothing useful. Skill issue. |
-| The Screenshot Hoarder | PrintScreen during a keyboard smashing game. What exactly were you trying to document? The suffering? |
-| The System Interrupter | You hit Pause. During a 5-second game. There is no pause in life either, but at least you tried. |
-| The Scroll Lock Champion | Scroll Lock. The loneliest key on the keyboard. It does nothing. You pressed it anyway. We see you. |
-| The Toggle Archaeologist | Insert key. You activated Insert mode on a game that has no text cursor. Explorer of the useless. Pioneer of nothing. |
-| The Mod Squad | Shift, Ctrl, Alt... You know these keys don't actually DO anything on their own, right? You're just boldly modifying nothing. |
-| The Two-Finger Peck | Typing like a confused detective in a 1990s movie. |
-| The Stutterer | You pressed [W] exactly 42 times. Are you okay? Is that your emotional support key? |
-| The Novelist | Are you typing 'pls let me win' in the chat? Your keystroke distribution looks like you just wrote a 3-page essay on Shrek lore instead of fighting. |
-| The Pacifist | Refusing to fight. Gandhi would be proud; your score is not. |
-| The AFK | You were completely dead for 80% of the game and woke up at the very end in a panic. Ping 999ms. |
-| The Early Bird | You smashed the keyboard for the first half-second and then just gave up entirely. Stamina issue? |
-| The Decaf Drinker | You ran out of gas 1 second in. Pathetic stamina. |
-| The Anime Comeback | You unlocked your final form at the very last second. |
-| The Distracted | Checking your phone during a 5-second match? Disrespectful. |
-| The Sloth | Are you moving underwater? Check your pulse. |
-| The Heartbeat | Uncanny consistency. The time between your keystrokes was so uniform we thought you were a metronome. |
-| The Chaotic Evil | 100% Entropy. Maximum chaos. You touched every single key on your keyboard with no discernible pattern. True randomness achieved. |
-| The Lawful Good | High KPS, minimal entropy. You had a solid strategy, pressed exactly what you needed to, and didn't panic. A respectable performance. |
-| The Overclocker | Your hardware runs hot. Very hot. You pushed out massive keystrokes with explosive surges. |
-| The Rhythm Gamer | Perfect alternating patterns. You found the beat and stuck to it. Are you playing Friday Night Funkin' in another tab? |
-| The Mechanical Switch Tester | You methodically went through your keyboard just listening to the clicks. Satisfying, isn't it? |
+| The Hybrid | Mixing touch and physical keys. Is that legal? |
+| The Pianist | Pressing multiple keys at the exact same millisecond. Repeatedly. |
+| The Precision Striker | Flawlessly hitting unique keys without slipping. |
+| The Drummer | Alternating hands in a rhythmic, percussion-like manner. |
+| The Stenographer | Impeccable speed and distribution across the whole board. |
+| The Forearm Sweep | Too many keys pressed at once. Sounds painful. |
+| The Silverback | The forearm sweep, but worse. Pure animalistic rage. |
+| The Single-Key Murderer | Focusing all your hatred on one specific piece of plastic. |
+| The Center of Attention | Refusing to leave the middle of the keyboard. |
+| The BIOS Tech | Trying to reach the boot menu. |
+| The Flash Gamer | The classic flash game arrows. |
+| The Arrow Key Boomer | Playing exclusively on the arrows. |
+| The Left-Handed Boomer | Using the arrow keys exclusively with high speed. |
+| The MOBA Toxic | Q-W-E-R. Pop your ultimate! |
+| The Osu! Addict | Two specific letters tapped at the speed of light. |
+| The Fighting Game Scrub | Mashing a specific 3-key combo hoping for a Hadouken. |
+| The MMO Raider | Cycling through a massive number row rotation. |
+| The Crouch Spammer | Spamming the biggest modifier key. |
+| The Bunny Hopper | Spamming the biggest key on the board. |
+| The Sweaty Tryhard | The classic FPS shooter claw grip (WASD). |
+| The Alt-Tabber | Trying to quickly switch to another window to hide the game. |
+| The Vim Escaper | Trying to desperately exit a terminal text editor. |
+| The HTML Hacker | Opening and closing tags furiously. |
+| The Regex Nightmare | Spamming special characters and symbols. |
+| The Hexadecimal | Only typing the characters valid in base-16. |
+| The Terminal Typist | Preparing to execute a command. |
+| The Mad Scientist | Only performing mathematical operations. |
+| The Angry Accountant | Taking your rage out on the numbers. |
+| The Bottom Feeder | Refusing to leave the lowest row of letters. |
+| The Top Row Tyrant | Refusing to leave the highest row of letters. |
+| The Vowel Enthusiast | Only hitting A, E, I, O, U. |
+| The Consonant Crusader | Avoiding vowels like the plague. |
+| The Vowel Vulture | Targeting vowels almost exclusively. |
+| The Left-Handed Demon | The right hand was busy doing... something else. |
+| The Right-Handed Menace | Refusing to use the left side of the keyboard. |
+| The Escape Artist | Trying to flee the simulation immediately. |
+| The Typosquatter | Erasing your mistakes over and over. |
+| The Executioner | Trying to forcefully submit the form too many times. |
+| The Punctuation Pedant | Commas, periods, semicolons... only. |
+| The QA Tester | Tabbing through the interface looking for bugs. |
+| The Screamer | WE CAN HEAR YOU NOW! |
+| The IT Support | Trying to use the function row to fix something. |
+| The Windows Key Victim | Accidentally opening the start menu and breaking your streak. |
+| The Screenshot Hoarder | Trying to capture the moment. |
+| The System Interrupter | Trying to pause a 5-second game. |
+| The Scroll Lock Champion | Pressing the most useless key ever invented. |
+| The Toggle Archaeologist | Exploring the 'Insert' key. |
+| The Mod Squad | Spamming modifier keys that don't produce letters. |
+| The Two-Finger Peck | Extremely slow, deliberate typing. |
+| The Stutterer | Pressing the exact same key over 40 times. |
+| The Novelist | Taking way too long between deliberate keystrokes. |
+| The Pacifist | Refusing to type anything at all. |
+| The AFK | Waking up at the very last second. |
+| The Early Bird | Giving up after the first half-second. |
+| The Decaf Drinker | Running out of stamina very early on. |
+| The Anime Comeback | Unlocking your true potential in the final second. |
+| The Distracted | Taking a long pause in the middle of a flurry. |
+| The Sloth | Barely moving. Check your pulse. |
+| The Heartbeat | Perfect consistency. Like a metronome. |
+| The Chaotic Evil | Maximum entropy. Pure randomness. |
+| The Lawful Good | High speed, minimal randomness. A calculated effort. |
+| The Overclocker | Massive, explosive surges of keystrokes. |
+| The Rhythm Gamer | Perfect alternating patterns. Finding the beat. |
+| The Mechanical Switch Tester | Methodically pressing everything to hear the clicks. |
 
 ## 🎯 Fun Pattern Profiles
 These trigger based on specific key patterns, sequences, and keyboard coverage.
 
-| Profile Title | Flavor Text |
+| Profile Title | Hint |
 | :--- | :--- |
-| The Alphabet Tourist | A, B, C, D... You pressed every single letter of the alphabet at least once. Did you think this was a typing test? Gold star for literacy. |
-| The F-Key Summoner | You pressed nothing but function keys. F1 through F12 — like summoning the council of keyboard elders. The ritual is complete. Nothing happened. |
-| The Countdown | 1, 2, 3, 4, 5, 6, 7, 8, 9. You typed a perfect countdown. Were you launching a rocket or just procrastinating creatively? |
-| The Piano Scales | You played the keyboard like an actual keyboard. A methodical left-to-right sweep across every letter. Beethoven would be confused but impressed. |
-| The Binary Bot | 01100010... You only typed 0s and 1s. Either you're communicating with the mothership or you failed the Turing test. Beep boop. |
-| The Roll Call | A-B-C-D-E-F. You typed the first six letters of the alphabet in order. Were you doing roll call? Attendance: present. Intelligence: debatable. |
-| The Numpad Astronaut | Houston, we have a numpad. Every single key was from the number pad. You're either an accountant or you lost the rest of your keyboard in a boating accident. |
-| The Shift Warrior | You held Shift like your life depended on it. EVERYTHING IS VERY IMPORTANT WHEN IT'S IN CAPS. Your pinky finger filed a restraining order. |
-| The Tab Destroyer | Tab, Tab, Tab. You tabbed through approximately 47 invisible form fields. The web accessibility audit is complete. Everything failed. |
-| The Backspace Poet | Write. Delete. Write. Delete. The Hemingway of keyboard smashing. Your masterpiece was erased before the world could see it. Probably for the best. |
-| The Perfect Balance | Exactly 50/50 left and right hand usage. Thanos would be proud. Perfectly balanced, as all things should be. Your chiropractor is thrilled. |
-| The Number Cruncher | Nothing but digits. 0-9, that's your whole vocabulary. You turned a keyboard smashing game into a spreadsheet. Excel would be proud. |
-| The Home Row Anchor | A-S-D-F-J-K-L-; — you never left the home row. Your typing teacher from 2003 is smiling from heaven. Touch typing purist. Maximum efficiency, minimal excitement. |
-| The Reverse Engineer | 9, 8, 7, 6, 5, 4, 3, 2, 1. Counting backwards. Either you're defusing a bomb or you just really like dramatic countdowns. T-minus chaos. |
-| The Speed Demon | 60+ keys per second and somehow still human. Your fingers have their own heartbeat. Your keyboard is filing for workers' compensation. |
+| The Alphabet Tourist | Tracing every letter from A to Z once. |
+| The F-Key Summoner | Using only the function keys across the top. |
+| The Countdown | 1, 2, 3, 4, 5... blastoff! |
+| The Piano Scales | Sweeping across the keys rhythmically from left to right. |
+| The Binary Bot | Only dealing in 1s and 0s. |
+| The Roll Call | The first six letters, in order. |
+| The Numpad Astronaut | Exclusively utilizing the number pad on the right. |
+| The Shift Warrior | Holding down the modifier that makes things capital. |
+| The Tab Destroyer | Tabbing furiously through everything. |
+| The Backspace Poet | Typing something, then enthusiastically deleting it. |
+| The Perfect Balance | Exactly 50/50 usage between your left and right hand. |
+| The Number Cruncher | Utilizing only the top number row. |
+| The Home Row Anchor | Never leaving the middle resting row. |
+| The Reverse Engineer | 9, 8, 7, 6... counting down! |
+| The Speed Demon | Reaching over 60 keys per second. Incredible speed. |
