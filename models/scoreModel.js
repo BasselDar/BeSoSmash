@@ -28,7 +28,7 @@ class ScoreModel {
                         WITH RankedScores AS (
                             SELECT name, ROW_NUMBER() OVER(
                                 ORDER BY
-                                    CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN 1 ELSE 0 END ASC,
+                                    CASE WHEN profiles::text LIKE '%"isCheater":true%' THEN 1 ELSE 0 END ASC,
                                     smash_score DESC, created_at DESC
                             ) as global_rank
                             FROM scores
@@ -49,7 +49,7 @@ class ScoreModel {
                     FROM scores 
                     WHERE mode = $1 
                       AND smash_score > $2 
-                      AND profiles::text NOT LIKE '%Suspected Cheater%'
+                      AND profiles::text NOT LIKE '%"isCheater":true%'
                 `;
                 const result = await pool.query(query, [mode, smashScore]);
                 return parseInt(result.rows[0].higher_ranked, 10) + 1;
@@ -75,7 +75,7 @@ class ScoreModel {
                         // Fetch their detailed stats from Postgres
                         const query = `
                             SELECT name, score, mode, kps, entropy, smash_score, profiles, created_at,
-                                   CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN true ELSE false END as is_flagged
+                                   CASE WHEN profiles::text LIKE '%"isCheater":true%' THEN true ELSE false END as is_flagged
                             FROM scores
                             WHERE mode = $1 AND name = ANY($2)
                             ORDER BY smash_score ASC
@@ -118,11 +118,11 @@ class ScoreModel {
             let query = `
                 WITH BestScores AS (
                     SELECT name, score, mode, kps, entropy, smash_score, profiles, created_at,
-                           CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN true ELSE false END as is_flagged,
+                           CASE WHEN profiles::text LIKE '%"isCheater":true%' THEN true ELSE false END as is_flagged,
                            ROW_NUMBER() OVER(
                                PARTITION BY name
                                ORDER BY 
-                                   CASE WHEN profiles::text LIKE '%Suspected Cheater%' THEN 1 ELSE 0 END ASC,
+                                   CASE WHEN profiles::text LIKE '%"isCheater":true%' THEN 1 ELSE 0 END ASC,
                                    smash_score DESC, created_at DESC
                            ) as user_rank
                     FROM scores
@@ -189,6 +189,9 @@ class ScoreModel {
             let existingProfileCount = 0;
             let existingProfileTitles = [];
 
+            const runIsFlagged = profiles.some(p => p.isCheater);
+            let alreadyFlagged = false;
+
             if (rows.length > 0) {
                 existingId = rows[0].id;
                 existingSmashScore = parseInt(rows[0].smash_score, 10) || 0;
@@ -203,6 +206,27 @@ class ScoreModel {
                 if (!Array.isArray(existingProfiles)) existingProfiles = [];
                 existingProfileCount = existingProfiles.length;
                 existingProfileTitles = existingProfiles.map(p => p.title);
+
+                alreadyFlagged = existingProfiles.some(p => p.isCheater);
+
+                if (runIsFlagged && !alreadyFlagged) {
+                    // Prevent framing: An unflagged user's score shouldn't be overwritten by a hacked run
+                    return {
+                        smashScore: existingSmashScore,
+                        mergedProfiles: existingProfiles,
+                        totalSmashes: 0,
+                        isPersonalBest: false,
+                        highestSmashScore: existingSmashScore,
+                        existingProfileTitles: existingProfileTitles
+                    };
+                }
+
+                const isResetting = (!runIsFlagged && alreadyFlagged);
+
+                if (isResetting) {
+                    // Clean run over a flagged history: remove only the cheater flags, keep the legit past profiles
+                    existingProfiles = existingProfiles.filter(p => !p.isCheater);
+                }
 
                 // Merge profiles — only profiles accumulate, not stats
                 const profileMap = new Map();
@@ -220,12 +244,16 @@ class ScoreModel {
             let highestSmashScore = newSmashScore;
 
             if (rows.length > 0) {
+                const isResetting = (!runIsFlagged && alreadyFlagged);
                 const hasNewProfiles = profileCount > existingProfileCount;
                 const hasHigherScore = newSmashScore > existingSmashScore;
 
-                if (hasHigherScore) {
+                if (hasHigherScore || isResetting) {
                     isPersonalBest = true;
-                    // New personal best — update everything (stats + profiles)
+                    if (isResetting) {
+                        highestSmashScore = newSmashScore; // Force the clean score over the old hacked one
+                    }
+                    // New personal best or reset — update everything (stats + profiles)
                     const updateSql = `UPDATE scores SET score = $1, kps = $2, entropy = $3, smash_score = $4, profiles = $5, created_at = CURRENT_TIMESTAMP WHERE id = $6`;
                     await pool.query(updateSql, [score, kps, entropy, newSmashScore, profilesJson, existingId]);
                 } else if (hasNewProfiles) {
@@ -268,9 +296,13 @@ class ScoreModel {
 
             // Apply negative score penalty to cheaters so they naturally sink to the bottom of the Redis ZSET
             try {
-                const isFlagged = mergedProfiles.some(p => p.title === 'Suspected Cheater');
-                const redisScore = isFlagged ? -highestSmashScore : highestSmashScore;
-                if (isFlagged) {
+                const isFlagged = mergedProfiles.some(p => p.isCheater);
+                const isResetting = (!runIsFlagged && alreadyFlagged);
+                const redisScore = isFlagged ? -(highestSmashScore > 0 ? highestSmashScore : 1) : highestSmashScore;
+
+                if (isFlagged || isResetting) {
+                    // Force the score update (no GT constraint) because they are either sinking to the bottom,
+                    // or rising from the bottom via a clean reset wipe.
                     await redisClient.zAdd(`leaderboard_${mode}`, { score: redisScore, value: name });
                 } else {
                     await redisClient.zAdd(`leaderboard_${mode}`, { score: redisScore, value: name }, { GT: true });

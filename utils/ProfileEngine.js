@@ -364,16 +364,22 @@ const PROFILES = [
     {
         title: "Suspected Cheater", // kps > 150
         flavor: "150+ keys per second with almost no variation. That's auto-clicker territory. Your score is saved, but we're watching.",
+        isCheater: true,
+        isExclusive: true,
         condition: (s) => s.kps > 150 && s.ent < 20
     },
     {
         title: "Suspected Cheater", // kps > 100
         flavor: "Triple-digit KPS with near-zero entropy. Either you're a literal octopus or something fishy is going on.",
+        isCheater: true,
+        isExclusive: true,
         condition: (s) => s.kps > 100 && s.kps <= 150 && s.ent < 15
     },
     {
         title: "Suspected Cheater", // kps > 80
         flavor: "High speed, one key. That's not smashing, that's a macro with extra steps.",
+        isCheater: true,
+        isExclusive: true,
         condition: (s) => s.kps > 80 && s.kps <= 100 && s.ent < 5
     },
     {
@@ -1013,7 +1019,7 @@ class ProfileEngine {
             return {
                 profiles: [{ title: "The Ghost", flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up." }],
                 entropy: 0.0,
-                isCheater: true
+                isCheater: false
             };
         }
 
@@ -1021,9 +1027,9 @@ class ProfileEngine {
 
         if (stats.totalKeys === 0) {
             return {
-                profiles: [{ title: "The Ghost" }],
+                profiles: [{ title: "The Ghost", flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up." }],
                 entropy: 0.0,
-                isCheater: true
+                isCheater: false
             };
         }
 
@@ -1033,11 +1039,14 @@ class ProfileEngine {
         for (const profile of PROFILES) {
             if (profile.condition(stats)) {
                 let flavorText = typeof profile.flavor === 'function' ? profile.flavor(stats) : profile.flavor;
+
+                let matchedProfile = { title: profile.title, flavor: flavorText };
                 if (profile.isCheater) {
                     isCheaterRun = true;
+                    matchedProfile.isCheater = true;
                 }
 
-                matched.push({ title: profile.title, flavor: flavorText });
+                matched.push(matchedProfile);
 
                 if (profile.isExclusive) {
                     break;
@@ -1050,7 +1059,7 @@ class ProfileEngine {
         }
 
         if (isCheaterRun && !matched.some(p => p.title === "Suspected Cheater")) {
-            matched.push({ title: "Suspected Cheater", flavor: "Your inputs were flagged by the anti-cheat system." });
+            matched.push({ title: "Suspected Cheater", flavor: "Your inputs were flagged by the anti-cheat system.", isCheater: true });
         }
 
         return {
