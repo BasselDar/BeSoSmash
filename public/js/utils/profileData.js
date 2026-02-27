@@ -12,7 +12,7 @@ export const categoryPalettes = {
 // Map every profile title to its category
 export const profileCategoryMap = {
     // Cheater / Suspicious
-    'The Script Kiddie': 'cheater', 'The Hardware Spoof': 'cheater', 'The Ghost': 'rare',
+    'The Script Kiddie': 'cheater', 'The Hardware Spoof': 'cheater', 'The Ghost': 'cheater',
     'Suspected Cheater': 'cheater', 'The Overloader': 'cheater',
     // Rare / Exclusive
     'The Minimalist': 'rare', 'The Rage Quitter': 'rare', 'The Plagiarist': 'rare', 'The Glitch': 'rare',

@@ -15,7 +15,6 @@ These profiles flag the run as suspicious. Getting these means your run was inva
 | The Hardware Spoof | No human hands can move like this. |
 | The Overloader | The gates were flooded. |
 | The Ghost | A presence without a touch. |
-| The Panic Button | Total chaos that breaks the mold. |
 | Suspected Cheater | A robotic consistency. |
 
 ## 🏆 Easter Eggs & Specific Triggers
@@ -139,6 +138,7 @@ These relate to keyboard zones, pacing, and habits.
 | The Overclocker | Running too hot too quickly. |
 | The Rhythm Gamer | Finding the groove. |
 | The Mechanical Switch Tester | Listening to every click. |
+| The Panic Button | Total chaos that breaks the mold. |
 
 ## 🎯 Fun Pattern Profiles
 These trigger based on specific key patterns, sequences, and keyboard coverage.
