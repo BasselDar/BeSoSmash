@@ -209,7 +209,103 @@ console.log('\n🧪 TEST SUITE: Easter Egg Profiles\n');
 })();
 
 // ============================================================================
-// TEST 3: ACCUMULATIVE PROFILES (Multiple can trigger)
+// TEST 3: TIME-BASED PROFILES
+// ============================================================================
+
+console.log('\n🧪 TEST SUITE: Time-Based Profiles\n');
+
+(function testThePacifist() {
+    // Needs first active tick > 30.
+    // Tick 1 is the 'start' key press. Tick 2-35 are empty. Tick 36 has a key.
+    const history = [['KeyA'], ...Array(34).fill([]), ['KeyB']];
+    const result = ClassicProfileEngine.analyze(history, 'classic');
+    const titles = result.profiles.map(p => p.title);
+    assert(titles.includes('The Pacifist'), `Delayed start > 30 ticks → The Pacifist (got: ${titles.join(', ')})`);
+})();
+
+(function testTheAFK() {
+    // AFK requires > 60 ticks (60% of 100).
+    const history = [['KeyA'], ...Array(65).fill([]), ['KeyB']];
+    const result = ClassicProfileEngine.analyze(history, 'classic');
+    const titles = result.profiles.map(p => p.title);
+    assert(titles.includes('The AFK'), `Extreme delayed start > 60 ticks → The AFK (got: ${titles.join(', ')})`);
+})();
+
+(function testTheDistracted() {
+    // maxGap > 15, needs > 3 active ticks, > 5 total keys.
+    const history = [['KeyA', 'KeyB'], ...Array(20).fill([]), ['KeyC', 'KeyD'], ...Array(5).fill([]), ['KeyE'], ['KeyF']];
+    const result = ClassicProfileEngine.analyze(history, 'classic');
+    const titles = result.profiles.map(p => p.title);
+    assert(titles.includes('The Distracted'), `Large gap mid-game (>15 ticks) → The Distracted (got: ${titles.join(', ')})`);
+})();
+
+(function testTheHeartbeat() {
+    // Metronome: KPS > 4, totalKeys > 20, fastStart < totalKeys * 0.4, maxGap < 100 (which is default).
+    // Keys spaced evenly: 1 key per tick. 30 ticks = 30 keys.
+    const history = Array(30).fill(['KeyA']);
+    const result = ClassicProfileEngine.analyze(history, 'classic');
+    const titles = result.profiles.map(p => p.title);
+    assert(titles.includes('The Heartbeat'), `Evenly paced inputs → The Heartbeat (got: ${titles.join(', ')})`);
+})();
+
+(function testTheSniper() {
+    // Single burst in 1 tick, early in the game: totalKeys >= 5, tickTimestamps.length <= 2, lastHitTick < 15% of 100
+    const history = [Array(8).fill('KeyA'), ...Array(80).fill([])];
+    const result = ClassicProfileEngine.analyze(history, 'classic');
+    const titles = result.profiles.map(p => p.title);
+    assert(titles.includes('The Sniper'), `Single burst then silence → The Sniper (got: ${titles.join(', ')})`);
+})();
+
+(function testTheSprinter() {
+    // fastStart > 70% of totalKeys, totalKeys > 15, lastHitTick < 40% of expectedTicks
+    // 20 keys packed into first 5 ticks (4 per tick), nothing after
+    const history = [
+        ...Array(5).fill(['KeyA', 'KeyB', 'KeyC', 'KeyD']),
+        ...Array(60).fill([])
+    ];
+    const result = ClassicProfileEngine.analyze(history, 'classic');
+    const titles = result.profiles.map(p => p.title);
+    assert(titles.includes('The Sprinter'), `Front-loaded burst then quit → The Sprinter (got: ${titles.join(', ')})`);
+})();
+
+(function testTheMarathonRunner() {
+    // totalKeys > 20, active >= 60% of ticks, maxGap <= 3, kps 4-25
+    // 1 key per tick across 70 ticks = 70 keys, 14 KPS
+    const history = Array(70).fill(['KeyA']);
+    const result = ClassicProfileEngine.analyze(history, 'classic');
+    const titles = result.profiles.map(p => p.title);
+    assert(titles.includes('The Marathon Runner'), `Consistent pressure the whole game → The Marathon Runner (got: ${titles.join(', ')})`);
+})();
+
+(function testTheLagSpike() {
+    // totalKeys > 8, 2-8 active ticks, maxGap > 10
+    // Burst at start, 25 ticks of silence, burst again, then pad to 100 ticks
+    const history = [
+        ['KeyA', 'KeyB', 'KeyC', 'KeyD', 'KeyE'],
+        ...Array(25).fill([]),
+        ['KeyF', 'KeyG', 'KeyH', 'KeyI'],
+        ...Array(73).fill([])
+    ];
+    const result = ClassicProfileEngine.analyze(history, 'classic');
+    const titles = result.profiles.map(p => p.title);
+    assert(titles.includes('The Lag Spike'), `Burst-gap-burst pattern → The Lag Spike (got: ${titles.join(', ')})`);
+})();
+
+(function testTheWarmUpAct() {
+    // totalKeys > 10, lateStart > fastStart*1.5, firstHitTick > 5
+    // 50 empty ticks, then 10 active ticks of 3 keys each (30 keys from tick 51-60), then 40 empty
+    const history = [
+        ...Array(50).fill([]),
+        ...Array(10).fill(['KeyA', 'KeyB', 'KeyC']),
+        ...Array(40).fill([])
+    ];
+    const result = ClassicProfileEngine.analyze(history, 'classic');
+    const titles = result.profiles.map(p => p.title);
+    assert(titles.includes('The Warm-Up Act'), `Slow start + explosive finish → The Warm-Up Act (got: ${titles.join(', ')})`);
+})();
+
+// ============================================================================
+// TEST 4: ACCUMULATIVE PROFILES (Multiple can trigger)
 // ============================================================================
 
 console.log('\n🧪 TEST SUITE: Accumulative Profiles\n');

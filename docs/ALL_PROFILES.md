@@ -1,6 +1,6 @@
 # BeSoSmash - Profile Encyclopedia & Hunt Guide
 
-Welcome to the ultimate collector's guide for BeSoSmash. There are **100+ unique personality profiles** hidden in the game. Some are common habits, some are extremely rare occurrences, and some are obscure Easter Eggs.
+Welcome to the ultimate collector's guide for BeSoSmash. There are **130+ unique personality profiles** hidden in the game. Some are common habits, some are extremely rare occurrences, and some are obscure Easter Eggs.
 
 This document lists every profile available in the game, along with a **Hint** to help you figure out how to unlock it. The hints below are cryptic, vague, and designed as riddles. We don't want to spoil the exact combination! 
 
@@ -138,6 +138,12 @@ These relate to keyboard zones, pacing, and habits.
 | 61 | The Overclocker | Running too hot too quickly. |
 | 62 | The Rhythm Gamer | Finding the groove. |
 | 63 | The Mechanical Switch Tester | Listening to every click. |
+| 64 | The Sniper ⏱️ | One shot, one opportunity. Silence after. |
+| 65 | The Sprinter ⏱️ | An explosive start with zero endurance. |
+| 66 | The Marathon Runner ⏱️ | Unwavering consistency from bell to bell. |
+| 67 | The Lag Spike ⏱️ | Buffering... buffering... EXPLOSION... buffering. |
+| 68 | The Warm-Up Act ⏱️ | A slow engine that ignites late. |
+| 69 | The Pure Smasher | Raw, unfiltered aggression. |
 
 ## 🎯 Fun Pattern Profiles
 These trigger based on specific key patterns, sequences, and keyboard coverage.

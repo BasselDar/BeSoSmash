@@ -671,6 +671,31 @@ const PROFILES = [
         flavor: "Perfect alternating patterns. You found the beat and stuck to it. Are you playing Friday Night Funkin' in another tab?",
         condition: (s) => s.uniqueKeys >= 3 && s.uniqueKeys <= 7 && s.ent >= 15 && s.kps > 8 && s.maxSingleKeyCount < s.totalKeys * 0.4
     },
+    {
+        title: "The Sniper",
+        flavor: "One precise burst, then silence. You treated this like a single headshot — calculated, deadly, done.",
+        condition: (s) => s.totalKeys >= 5 && s.tickTimestamps.length <= 2 && s.lastHitTick < s.expectedTicks * 0.15
+    },
+    {
+        title: "The Sprinter",
+        flavor: "You gave it everything for the first second and then completely died. That's called burnout, not strategy.",
+        condition: (s) => s.fastStart > s.totalKeys * 0.7 && s.totalKeys > 15 && s.lastHitTick < s.expectedTicks * 0.4
+    },
+    {
+        title: "The Marathon Runner",
+        flavor: "Consistent pressure from start to finish. No bursts, no breaks, just pure endurance. You'd survive a zombie apocalypse.",
+        condition: (s) => s.totalKeys > 20 && s.tickTimestamps.length >= s.expectedTicks * 0.6 && s.maxGap <= 3 && s.kps >= 4 && s.kps < 25
+    },
+    {
+        title: "The Lag Spike",
+        flavor: "Nothing, nothing, nothing, EXPLOSION, nothing. Your gameplay looks like buffering on 2G internet.",
+        condition: (s) => s.totalKeys > 8 && s.tickTimestamps.length >= 2 && s.tickTimestamps.length <= 8 && s.maxGap > 10
+    },
+    {
+        title: "The Warm-Up Act",
+        flavor: "Slow start, explosive finish. You needed 3 seconds to remember where your keyboard was.",
+        condition: (s) => s.totalKeys > 10 && s.lateStart > s.fastStart * 1.5 && s.firstHitTick > 5
+    },
     // -------------------------------------------------------
     // FUN PATTERN PROFILES
     // -------------------------------------------------------
@@ -957,7 +982,7 @@ class ClassicProfileEngine {
             if (Array.isArray(keyHistory[i])) s.lateStart += keyHistory[i].length;
         }
 
-        if (s.tickTimestamps.length > 3) {
+        if (s.tickTimestamps.length > 1) {
             for (let i = 1; i < s.tickTimestamps.length; i++) {
                 let gap = s.tickTimestamps[i] - s.tickTimestamps[i - 1];
                 if (gap > s.maxGap) s.maxGap = gap;

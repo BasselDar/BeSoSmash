@@ -58,6 +58,10 @@ export const profileCategoryMap = {
     'The Heartbeat': 'pacing', 'The Chaotic Evil': 'pacing', 'The Lawful Good': 'pacing',
     'The Overclocker': 'pacing', 'The Rhythm Gamer': 'pacing', 'The Mechanical Switch Tester': 'pacing',
     'The Countdown': 'pacing', 'The Speed Demon': 'pacing',
+    'The Sniper': 'pacing', 'The Sprinter': 'pacing', 'The Marathon Runner': 'pacing',
+    'The Lag Spike': 'pacing', 'The Warm-Up Act': 'pacing',
+    // Gamer (continued)
+    'The Pure Smasher': 'gamer',
 };
 
 export function getProfileCategory(title) {
