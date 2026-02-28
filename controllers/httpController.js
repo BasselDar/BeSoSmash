@@ -1,5 +1,6 @@
 const ScoreModel = require('../models/scoreModel');
-const ProfileEngine = require('../utils/ProfileEngine');
+const ClassicProfileEngine = require('../utils/ClassicProfileEngine');
+const BlitzProfileEngine = require('../utils/BlitzProfileEngine');
 
 exports.renderHome = async (req, res) => {
     const globalSmashCount = await ScoreModel.getGlobalSmashCount();
@@ -38,8 +39,9 @@ exports.getLeaderboardApi = async (req, res) => {
                     profiles = typeof row.profiles === 'string' ? JSON.parse(row.profiles) : (row.profiles || []);
                 } catch (e) { }
 
+                const engine = mode === 'blitz' ? BlitzProfileEngine : ClassicProfileEngine;
                 profiles.forEach(p => {
-                    const engineProfile = ProfileEngine.RAW_PROFILES.find(ep => ep.title === p.title);
+                    const engineProfile = engine.RAW_PROFILES.find(ep => ep.title === p.title);
                     if (engineProfile && !p.flavor) {
                         p.flavor = engineProfile.flavor;
                     }

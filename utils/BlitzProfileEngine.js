@@ -130,23 +130,7 @@ const PROFILES = [
         flavor: "7734 upside down on a calculator. Hello indeed. The dark one has been summoned via numpad.",
         condition: (s) => s.typedString.includes('7734')
     },
-    {
-        title: "The Perfectionist",
-        flavor: "A, B, C, D... all the way to Z. In perfect alphabetical order. You are a person of focus, commitment, and sheer flipping will.",
-        condition: (s) => s.typedString.toUpperCase().includes('ABCDEFGHIJKLMNOP')
-    },
-    {
-        title: "The Alphabet Tourist",
-        flavor: "A, B, C, D... You pressed every single letter of the alphabet at least once. Did you think this was a typing test? Gold star for literacy.",
-        condition: (s) => {
-            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            let count = 0;
-            for (const ch of letters) {
-                if (s.keyCounts['Key' + ch] && s.keyCounts['Key' + ch] >= 1) count++;
-            }
-            return count === 26;
-        }
-    },
+
     {
         title: "The Countdown",
         flavor: "1, 2, 3, 4, 5, 6, 7, 8, 9. You typed a perfect countdown. Were you launching a rocket or just procrastinating creatively?",
@@ -611,36 +595,7 @@ const PROFILES = [
         flavor: "Are you typing 'pls let me win' in the chat? Your keystroke distribution looks like you just wrote a 3-page essay on Shrek lore instead of fighting.",
         condition: (s) => s.uniqueKeys > 15 && s.maxRowSmashInSingleTick < 4
     },
-    {
-        title: "The Pacifist",
-        flavor: "Refusing to fight. Gandhi would be proud; your score is not.",
-        condition: (s) => s.totalKeys > 0 && s.firstHitTick > 30
-    },
-    {
-        title: "The AFK",
-        flavor: "You were completely dead for 80% of the game and woke up at the very end in a panic. Ping 999ms.",
-        condition: (s) => s.totalKeys > 0 && s.firstHitTick > s.expectedTicks * 0.6
-    },
-    {
-        title: "The Early Bird",
-        flavor: "You smashed the keyboard for the first half-second and then just gave up entirely. Stamina issue?",
-        condition: (s) => s.lastHitTick < s.expectedTicks * 0.3
-    },
-    {
-        title: "The Decaf Drinker",
-        flavor: "You ran out of gas 1 second in. Pathetic stamina.",
-        condition: (s) => s.fastStart > 30 && (s.totalKeys - s.fastStart) < 5 && s.expectedTicks === 100 // Updated the bug `=== 50` to `=== 100` mode based check
-    },
-    {
-        title: "The Anime Comeback",
-        flavor: "You unlocked your final form at the very last second.",
-        condition: (s) => s.lateStart > 30 && (s.totalKeys - s.lateStart) < 15 && s.expectedTicks === 100 // Updated the bug `=== 50` to `=== 100`
-    },
-    {
-        title: "The Distracted",
-        flavor: "Checking your phone during a 5-second match? Disrespectful.",
-        condition: (s) => s.tickTimestamps.length > 3 && s.maxGap > 15 && s.totalKeys > 5
-    },
+
     {
         title: "The Sloth",
         flavor: "Are you moving underwater? Check your pulse.",
@@ -757,8 +712,8 @@ const PROFILES = [
     }
 ];
 
-class ProfileEngine {
-    static calculateStats(keyHistory, mode) {
+class BlitzProfileEngine {
+    static calculateStats(keyHistory) {
         let s = {
             totalKeys: 0,
             wasdHits: 0,
@@ -810,8 +765,8 @@ class ProfileEngine {
             lateStart: 0,
             maxGap: 0,
             isHex: true,
-            expectedTicks: mode === 'blitz' ? 40 : 100,
-            gameSeconds: mode === 'blitz' ? 2 : 5
+            expectedTicks: 40,
+            gameSeconds: 2
         };
 
         const leftSideKeys = new Set(['KeyQ', 'KeyW', 'KeyE', 'KeyR', 'KeyT', 'KeyA', 'KeyS', 'KeyD', 'KeyF', 'KeyG', 'KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB']);
@@ -957,7 +912,7 @@ class ProfileEngine {
         return s;
     }
 
-    static analyze(keyHistory, mode) {
+    static analyze(keyHistory) {
         if (!keyHistory || keyHistory.length === 0) {
             return {
                 profiles: [],
@@ -966,7 +921,7 @@ class ProfileEngine {
             };
         }
 
-        const stats = this.calculateStats(keyHistory, mode);
+        const stats = this.calculateStats(keyHistory);
 
         if (stats.totalKeys === 0) {
             return {
@@ -1012,10 +967,10 @@ class ProfileEngine {
     static TOTAL_PROFILES = Array.from(new Set(PROFILES.map(p => p.title)));
 
     static getTotalCount() {
-        return ProfileEngine.TOTAL_PROFILES.length;
+        return BlitzProfileEngine.TOTAL_PROFILES.length;
     }
 }
 
-ProfileEngine.RAW_PROFILES = PROFILES;
+BlitzProfileEngine.RAW_PROFILES = PROFILES;
 
-module.exports = ProfileEngine;
+module.exports = BlitzProfileEngine;

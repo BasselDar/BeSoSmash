@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const ScoreModel = require('../models/scoreModel');
-const ProfileEngine = require('../utils/ProfileEngine');
+const ClassicProfileEngine = require('../utils/ClassicProfileEngine');
+const BlitzProfileEngine = require('../utils/BlitzProfileEngine');
 const { calculateSmashScore } = require('../utils/scoring');
 const {
     getGame, setGame, deleteGame,
@@ -172,7 +173,8 @@ async function endGame(socket, io) {
     game.isActive = false;
 
     // Analyze personality profiles based on keystroke history (can be multiple!)
-    const analysis = ProfileEngine.analyze(game.keyHistory, game.mode);
+    const engine = game.mode === 'blitz' ? BlitzProfileEngine : ClassicProfileEngine;
+    const analysis = engine.analyze(game.keyHistory);
 
     let playerRank = null;
     let smashScore = null;
@@ -234,7 +236,7 @@ async function endGame(socket, io) {
         runProfiles: analysis.profiles, // The profiles earned *in this specific match*
         existingProfileTitles: existingProfileTitles, // Profile titles that were in the DB BEFORE this run
         entropy: analysis.entropy,
-        totalProfiles: ProfileEngine.getTotalCount()
+        totalProfiles: ClassicProfileEngine.getTotalCount()
     });
 
     setCooldown(socket.id, Date.now()); // Start cooldown

@@ -1,10 +1,12 @@
 # BeSoSmash - Profile Encyclopedia & Hunt Guide
 
-Welcome to the ultimate collector's guide for BeSoSmash. There are **131 unique personality profiles** hidden in the game. Some are common habits, some are extremely rare occurrences, and some are obscure Easter Eggs.
+Welcome to the ultimate collector's guide for BeSoSmash. There are **100+ unique personality profiles** hidden in the game. Some are common habits, some are extremely rare occurrences, and some are obscure Easter Eggs.
 
 This document lists every profile available in the game, along with a **Hint** to help you figure out how to unlock it. The hints below are cryptic, vague, and designed as riddles. We don't want to spoil the exact combination! 
 
 Happy hunting.
+
+> **⏱️ = Classic Mode Only** — These profiles are not available in Blitz mode due to the 2-second time limit.
 
 ## 🚨 Anti-Cheat / Suspicious Profiles
 These profiles flag the run as suspicious. Getting these means your run was invalid.
@@ -35,7 +37,7 @@ These profiles require typing very specific words, numbers, or classic combinati
 | 12 | The Calculator Kid | An immature numeric joke. |
 | 13 | The Upside Down Genius | An immature numeric joke, inverted. |
 | 14 | The Satanist Calculator | A greeting from the underworld, inverted. |
-| 15 | The Perfectionist | Complete order from a to z. |
+| 15 | The Perfectionist ⏱️ | Complete order from a to z. |
 | 16 | The Pi Calculator | A slice of irrational math. |
 | 17 | The Fibonacci Sequence | Nature's spiral of numbers. |
 | 18 | The Palindrome | A perfect mirror image. |
@@ -123,12 +125,12 @@ These relate to keyboard zones, pacing, and habits.
 | 48 | The Two-Finger Peck | A cautious, slow approach. |
 | 49 | The Stutterer | A broken record on a single note. |
 | 50 | The Novelist | Taking your sweet, deliberate time. |
-| 51 | The Pacifist | Total inaction. |
-| 52 | The AFK | A late awakening. |
-| 53 | The Early Bird | A premature end to the effort. |
-| 54 | The Decaf Drinker | Lacking stamina. |
-| 55 | The Anime Comeback | A dramatic final push. |
-| 56 | The Distracted | A sudden, prolonged pause. |
+| 51 | The Pacifist ⏱️ | Total inaction. |
+| 52 | The AFK ⏱️ | A late awakening. |
+| 53 | The Early Bird ⏱️ | A premature end to the effort. |
+| 54 | The Decaf Drinker ⏱️ | Lacking stamina. |
+| 55 | The Anime Comeback ⏱️ | A dramatic final push. |
+| 56 | The Distracted ⏱️ | A sudden, prolonged pause. |
 | 57 | The Sloth | Moving like molasses. |
 | 58 | The Heartbeat | A steady, metronomic pulse. |
 | 59 | The Chaotic Evil | Unpredictable madness. |
@@ -142,7 +144,7 @@ These trigger based on specific key patterns, sequences, and keyboard coverage.
 
 | # | Profile Title | Hint |
 | :--- | :--- | :--- |
-| 1 | The Alphabet Tourist | A phonetic journey. |
+| 1 | The Alphabet Tourist ⏱️ | A phonetic journey. |
 | 2 | The F-Key Summoner | A functional gathering. |
 | 3 | The Countdown | Preparing for liftoff. |
 | 4 | The Binary Bot | Speaking only in machine code. |
