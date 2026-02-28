@@ -14,7 +14,9 @@ const {
 // ──────────────────────────────────────────────────────────
 const ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    'https://besosmash.onrender.com',
+    'https://besosmash.com',
+    'https://www.besosmash.com',
+    'https://besosmash.onrender.com', // Keep for transition
     'https://www.besosmash.onrender.com'
 ];
 const MAX_KEYS_PER_SECOND = 300;    // Hard ceiling: max accepted keys per second (human max ~240 KPS forearm smash)

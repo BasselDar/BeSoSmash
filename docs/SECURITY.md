@@ -12,6 +12,8 @@ All WebSocket connections are rejected in production if the `Origin` header does
 
 ```
 Allowed: http://localhost:3000
+         https://besosmash.com
+         https://www.besosmash.com
          https://besosmash.onrender.com
          https://www.besosmash.onrender.com
 

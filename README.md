@@ -3,7 +3,7 @@
 <div align="center">
   <img src="assets/banner.png" alt="BeSoSmash Banner" width="500"/>
   <br/>
-  <h2><a href="https://besosmash.onrender.com/">🎮 Play the Live Version Here! 🎮</a></h2>
+  <h2><a href="https://besosmash.com/">🎮 Play the Live Version Here! 🎮</a></h2>
 </div>
 
 BeSoSmash is a real-time, highly interactive web application that gamifies the act of randomly smashing your keyboard. Built with Node.js, Express, Socket.io, PostgreSQL, and Redis, it turns chaotic typing into a competitive sport complete with leaderboards, global rankings, profile collection, and highly specific, often hilarious personality profiling.

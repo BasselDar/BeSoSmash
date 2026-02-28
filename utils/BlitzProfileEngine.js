@@ -703,12 +703,17 @@ const PROFILES = [
     {
         title: "The Speed Demon",
         flavor: "60+ keys per second and somehow still human. Your fingers have their own heartbeat. Your keyboard is filing for workers' compensation.",
-        condition: (s) => s.kps >= 45 && s.kps < 85 && s.ent > 15
+        condition: (s) => s.kps >= 90 && s.ent > 25
     },
     {
         title: "The Mechanical Switch Tester",
         flavor: "You methodically went through your keyboard just listening to the clicks. Satisfying, isn't it?",
         condition: (s) => s.kps < 8 && s.uniqueKeys >= 30 && s.maxSingleKeyCount < 5
+    },
+    {
+        title: "The Pure Smasher",
+        flavor: "No patterns, no scripts, just raw keyboard violence. You didn't come here to win, you came here to break something.",
+        condition: (s) => s.totalKeys > 20
     }
 ];
 
