@@ -155,10 +155,14 @@ export function renderLeaderboard(data, append = false, currentSession = null) {
                 <div class="flex items-center gap-3 md:gap-4 min-w-0">
                     <div class="flex items-center justify-center min-w-[3rem] shrink-0">${medalHtml}</div>
                     <div class="flex flex-col min-w-0">
-                        <span class="font-black text-lg md:text-xl tracking-wide ${nameColor} uppercase truncate flex items-center">
-                            ${player.name}
-                            ${titleMedalHtml}
-                        </span>
+                        <div class="flex items-center min-w-0">
+                            <span class="font-black text-lg md:text-xl tracking-wide ${nameColor} uppercase truncate">
+                                ${player.name}
+                            </span>
+                            <div class="flex items-center shrink-0">
+                                ${titleMedalHtml}
+                            </div>
+                        </div>
                         ${playerCheater ? cheaterBadgeHtml : ''}
                         <span class="text-[10px] text-slate-600 tracking-widest uppercase flex items-center gap-1 mt-0.5">
                             <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>

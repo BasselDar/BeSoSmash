@@ -145,15 +145,14 @@ These trigger based on specific key patterns, sequences, and keyboard coverage.
 | 1 | The Alphabet Tourist | A phonetic journey. |
 | 2 | The F-Key Summoner | A functional gathering. |
 | 3 | The Countdown | Preparing for liftoff. |
-
-| The Binary Bot | Speaking only in machine code. |
-| The Roll Call | Only the first six. |
-| The Numpad Astronaut | An exploratory side-mission to the right. |
-| The Shift Warrior | Holding onto emphasis. |
-| The Tab Destroyer | Shifting focus continuously. |
-| The Backspace Poet | Cycles of creation and destruction. |
-| The Perfect Balance | Equilibrium achieved between both hands. |
-| The Number Cruncher | Only dealing with absolute values. |
-| The Home Row Anchor | Refusing to leave the nest. |
-| The Reverse Engineer | Counting backwards in time. |
-| The Speed Demon | Breaking the physical sound barrier. |
+| 4 | The Binary Bot | Speaking only in machine code. |
+| 5 | The Roll Call | Only the first six. |
+| 6 | The Numpad Astronaut | An exploratory side-mission to the right. |
+| 7 | The Shift Warrior | Holding onto emphasis. |
+| 8 | The Tab Destroyer | Shifting focus continuously. |
+| 9 | The Backspace Poet | Cycles of creation and destruction. |
+| 10 | The Perfect Balance | Equilibrium achieved between both hands. |
+| 11 | The Number Cruncher | Only dealing with absolute values. |
+| 12 | The Home Row Anchor | Refusing to leave the nest. |
+| 13 | The Reverse Engineer | Counting backwards in time. |
+| 14 | The Speed Demon | Breaking the physical sound barrier. |
