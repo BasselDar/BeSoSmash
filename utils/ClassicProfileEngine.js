@@ -329,6 +329,40 @@ const PROFILES = [
         flavor: "Tapping your screen to death. RIP to your oleophobic coating.",
         condition: (s) => s.touchHits === s.totalKeys
     },
+    {
+        title: "The Rick Roll",
+        flavor: "Never gonna give you up, never gonna let you down. You just rick-rolled yourself in a keyboard game. We're proud.",
+        condition: (s) => s.typedString.toUpperCase().includes('RICK') || s.typedString.toUpperCase().includes('NEVER GONNA')
+    },
+    {
+        title: "The Matrix",
+        flavor: "There is no spoon. There is no keyboard. There is only The Matrix. You chose the red pill.",
+        condition: (s) => s.typedString.toUpperCase().includes('MATRIX') || s.typedString.toUpperCase().includes('NEO') || s.typedString.toUpperCase().includes('REDPILL')
+    },
+    {
+        title: "The Crypto Bro",
+        flavor: "TO THE MOON. 🚀 Sir this is a keyboard game, not a Coinbase wallet. Your portfolio is down 98% and so is your score.",
+        condition: (s) => s.typedString.toUpperCase().includes('BITCOIN') || s.typedString.toUpperCase().includes('CRYPTO') || s.typedString.toUpperCase().includes('MOON') || s.typedString.toUpperCase().includes('HODL')
+    },
+    {
+        title: "The Password",
+        flavor: "password123. Congratulations, you just gave us your Netflix login. Your score security is as weak as your digital hygiene.",
+        condition: (s) => s.typedString.toUpperCase().includes('PASSWORD') || s.typedString.includes('123456') || s.typedString.toUpperCase().includes('QWERTY123')
+    },
+    {
+        title: "The Rage Typer",
+        flavor: "AAAAAAAAA. This is the keyboard equivalent of screaming into the void. We hear you. It changes nothing.",
+        condition: (s) => {
+            const up = s.typedString.toUpperCase();
+            return /(.)\1{7,}/.test(up) && s.totalKeys > 10;
+        }
+    },
+    {
+        title: "The Philosopher",
+        flavor: "WHY? An existential question worth asking. Unfortunately, this keyboard game has no answers for you.",
+        condition: (s) => s.typedString.toUpperCase().includes('WHY')
+    },
+
 
     // -------------------------------------------------------
     // ACCUMULATIVE profiles: collect ALL that match
@@ -779,6 +813,11 @@ const PROFILES = [
         title: "The Mechanical Switch Tester",
         flavor: "You methodically went through your keyboard just listening to the clicks. Satisfying, isn't it?",
         condition: (s) => s.kps < 8 && s.uniqueKeys >= 30 && s.maxSingleKeyCount < 5
+    },
+    {
+        title: "Nice",
+        flavor: "Score of exactly 69. You knew exactly what you were doing. Absolute legend.",
+        condition: (s) => s.totalKeys === 69
     },
     {
         title: "The Pure Smasher",

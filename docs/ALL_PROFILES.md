@@ -1,6 +1,6 @@
 # BeSoSmash - Profile Encyclopedia & Hunt Guide
 
-Welcome to the ultimate collector's guide for BeSoSmash. There are **130+ unique personality profiles** hidden in the game. Some are common habits, some are extremely rare occurrences, and some are obscure Easter Eggs.
+Welcome to the ultimate collector's guide for BeSoSmash. There are **100 unique personality profiles** hidden in the game. Some are common habits, some are extremely rare occurrences, and some are obscure Easter Eggs.
 
 This document lists every profile available in the game, along with a **Hint** to help you figure out how to unlock it. The hints below are cryptic, vague, and designed as riddles. We don't want to spoil the exact combination! 
 
@@ -69,6 +69,12 @@ These profiles require typing very specific words, numbers, or classic combinati
 | 44 | The Nice Guy | A pleasant acknowledgment. |
 | 45 | The Mobile Smasher | No physical keys required. |
 | 46 | Nice | Just pleasant. |
+| 47 | The Rick Roll | We're no strangers to this. |
+| 48 | The Matrix | Choosing the red pill. |
+| 49 | The Crypto Bro | To the moon. Diamond hands. |
+| 50 | The Password | Your digital hygiene is showing. |
+| 51 | The Rage Typer | AAAAAAAAAA. |
+| 52 | The Philosopher | Asking the real questions. |
 
 ## 🧩 Playstyle Profiles
 These relate to keyboard zones, pacing, and habits.
@@ -131,7 +137,7 @@ These relate to keyboard zones, pacing, and habits.
 | 54 | The Decaf Drinker ⏱️ | Lacking stamina. |
 | 55 | The Anime Comeback ⏱️ | A dramatic final push. |
 | 56 | The Distracted ⏱️ | A sudden, prolonged pause. |
-| 57 | The Sloth | Moving like molasses. |
+| 57 | The Sloth ⏱️ | Moving like molasses. |
 | 58 | The Heartbeat | A steady, metronomic pulse. |
 | 59 | The Chaotic Evil | Unpredictable madness. |
 | 60 | The Lawful Good | Predictable speed. |

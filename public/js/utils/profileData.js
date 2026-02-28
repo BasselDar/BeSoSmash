@@ -29,7 +29,8 @@ export const profileCategoryMap = {
     'The Creator': 'easter', 'The Perfectionist': 'easter', 'The Pi Calculator': 'easter', 'The Fibonacci Sequence': 'easter',
     'The Palindrome': 'easter', 'The Typewriter': 'easter', 'The Alphabet Tourist': 'easter', 'The Roll Call': 'easter',
     'Nice': 'easter',
-    // Gamer Zones
+    'The Rick Roll': 'easter', 'The Matrix': 'easter', 'The Crypto Bro': 'easter',
+    'The Password': 'easter', 'The Rage Typer': 'easter', 'The Philosopher': 'easter',
     'The Hybrid': 'gamer', 'The Forearm Sweep': 'gamer', 'The Silverback': 'gamer', 'The Single-Key Murderer': 'gamer',
     'The Center of Attention': 'gamer', 'The BIOS Tech': 'gamer', 'The Flash Gamer': 'gamer',
     'The Arrow Key Boomer': 'gamer', 'The Left-Handed Boomer': 'gamer', 'The MOBA Toxic': 'gamer',
