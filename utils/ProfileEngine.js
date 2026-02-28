@@ -42,7 +42,6 @@ const PROFILES = [
     {
         title: "The Minimalist",
         flavor: "You pressed exactly one key. Peak efficiency. Zero effort.GigChad.",
-        isExclusive: true,
         condition: (s) => s.totalKeys === 1
     },
     {
@@ -69,106 +68,111 @@ const PROFILES = [
     {
         title: "The Rage Quitter",
         flavor: "Alt+F4? Seriously? If you're going to rage quit a game about typing fast, at least unplug your keyboard.",
-        isExclusive: true,
         condition: (s) => s.hasAlt && s.hasF4
     },
     {
         title: "The Plagiarist",
         flavor: "Ctrl+C, Ctrl+V. Did you really just try to copy-paste your way to victory? Stack Overflow can't help you here.",
-        isExclusive: true,
         condition: (s) => s.copyPasteHits / s.totalKeys > 0.8 && s.uniqueKeys <= 5
     },
     {
         title: "The Glitch",
         flavor: "F5 F5 F5 F5. You're trying to refresh reality but you're just stuck in the matrix. Wake up.",
-        isExclusive: true,
         condition: (s) => s.keyCounts['F5'] && s.keyCounts['F5'] / s.totalKeys > 0.5
     },
     {
         title: "The Konami Coder",
         flavor: "Up, Up, Down, Down, Left, Right, Left, Right, B, A. Infinite lives unlocked! Just kidding, you still have to pay taxes tomorrow.",
-        isExclusive: true,
         condition: (s) => s.konamiAchieved
     },
     {
         title: "The Accidental Potato",
         flavor: "A million monkeys on a typewriter, and you typed POTATO.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('POTATO')
     },
     {
         title: "The SQL Dropper",
         flavor: "Did you just try to drop my production database? Nice try.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('DROP TABLE')
     },
     {
         title: "The Console Logger",
         flavor: "Debugging your keyboard? Try console.log('grass') and go touch some.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('CONSOLELOG')
     },
     {
         title: "The Lorem Ipsum",
         flavor: "You are generating placeholder text manually. We have tools for this now.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('LOREM') || s.typedString.toUpperCase().includes('IPSUM')
     },
     {
         title: "The Sudo Override",
         flavor: "You don't have admin privileges here.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('SUDO')
     },
     {
         title: "The Git Pusher",
         flavor: "Force pushing to main branch on a Friday? Pure chaos.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('GIT PUSH')
     },
     {
         title: "The Calculator Kid",
         flavor: "80085. You are 12 years old and this is the funniest thing you have ever done. Respect.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('80085') || s.typedString.toUpperCase().includes('BOOBS')
     },
     {
         title: "The Upside Down Genius",
         flavor: "5318008 upside down. You have not changed since 4th grade and honestly neither have we.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('5318008')
     },
     {
         title: "The Satanist Calculator",
         flavor: "7734 upside down on a calculator. Hello indeed. The dark one has been summoned via numpad.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('7734')
     },
     {
         title: "The Perfectionist",
         flavor: "A, B, C, D... all the way to Z. In perfect alphabetical order. You are a person of focus, commitment, and sheer flipping will.",
-        isExclusive: true,
-        condition: (s) => s.typedString.toUpperCase().includes('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+        condition: (s) => s.typedString.toUpperCase().includes('ABCDEFGHIJKLMNOP')
+    },
+    {
+        title: "The Alphabet Tourist",
+        flavor: "A, B, C, D... You pressed every single letter of the alphabet at least once. Did you think this was a typing test? Gold star for literacy.",
+        condition: (s) => {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let count = 0;
+            for (const ch of letters) {
+                if (s.keyCounts['Key' + ch] && s.keyCounts['Key' + ch] >= 1) count++;
+            }
+            return count === 26;
+        }
+    },
+    {
+        title: "The Countdown",
+        flavor: "1, 2, 3, 4, 5, 6, 7, 8, 9. You typed a perfect countdown. Were you launching a rocket or just procrastinating creatively?",
+        condition: (s) => s.typedString.includes('123456789')
+    },
+    {
+        title: "The Reverse Engineer",
+        flavor: "9, 8, 7, 6, 5, 4, 3, 2, 1. Counting backwards. Either you're defusing a bomb or you just really like dramatic countdowns. T-minus chaos.",
+        condition: (s) => s.typedString.includes('987654321')
     },
     {
         title: "The Pi Calculator",
         flavor: "3.14159265... You calculated Pi by smashing your keyboard. The scientific community is baffled, but we're just impressed.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('314159265')
     },
     {
         title: "The Fibonacci Sequence",
         flavor: "1, 1, 2, 3, 5, 8, 13... The golden ratio of keyboard smashing. Pure mathematical beauty hidden in the chaos.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('11235813')
     },
     {
         title: "The Palindrome",
         flavor: "Your keystroke string is exactly the same forwards as it is backwards. An incredibly rare symmetrical flex.",
-        isExclusive: true,
         condition: (s) => {
             let str = s.typedString.replace(/\s/g, '');
-            if (str.length < 10) return false;
+            if (str.length < 4) return false;
             let uniqueChars = new Set(str.split(''));
             if (uniqueChars.size < 2) return false; // "AAAA..." is not a real palindrome
             let rev = str.split('').reverse().join('');
@@ -178,96 +182,82 @@ const PROFILES = [
     {
         title: "The Typewriter",
         flavor: "Letter, space, letter, space. You perfectly alternated between keys and the spacebar for a prolonged period. *Ding!*",
-        isExclusive: true,
         condition: (s) => {
-            if (s.typedString.length < 20) return false;
+            if (s.typedString.length < 10) return false;
             let lettersCount = 0;
             // Check if every other character is strictly space/non-space
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 10; i++) {
                 const char = s.typedString[i];
                 if (i % 2 === 0 && char === ' ') return false;
                 if (i % 2 === 1 && char !== ' ') return false;
                 if (i % 2 === 0) lettersCount++;
             }
-            return lettersCount >= 10;
+            return lettersCount >= 5;
         }
     },
     {
         title: "The 69er",
         flavor: "You smashed 69. Nice.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('69')
     },
     {
         title: "The Any% Speedrunner",
         flavor: "Frame-perfect inputs. You probably skipped half the text just to get here. WR pace.",
-        isExclusive: true,
-        condition: (s) => s.typedString.toUpperCase().includes('SPEEDRUN') || s.typedString.toUpperCase().includes('FRAME')
+        condition: (s) => s.typedString.toUpperCase().includes('SPEEDRUN') || s.typedString.toUpperCase().includes('FRAME') || s.typedString.toUpperCase().includes('FAST') || s.typedString.toUpperCase().includes('ANY%')
     },
     {
         title: "The HackerMan",
         flavor: "I'm in. Bypassing the mainframe in 3... 2... 1...",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('HACK') || s.typedString.toUpperCase().includes('MAINFRAME')
     },
     {
         title: "The Botanist",
         flavor: "420. You are either very relaxed right now or you cannot count. Possibly both.",
-        isExclusive: true,
         condition: (s) => s.typedString.includes('420')
     },
     {
         title: "The 2013 Throwback",
         flavor: "YOLO. You Only Live Once, which is exactly why you spent one of your precious seconds typing this.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('YOLO')
     },
     {
         title: "The Yeet Lord",
         flavor: "YEET. Thrown with force. No regrets. This is peak human expression and we will not debate it.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('YEET')
     },
     {
         title: "The Dark Souls Veteran",
         flavor: "Git gud. You said it to yourself. In a game you are currently losing. Peak self-awareness.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('GITGUD') || s.typedString.toUpperCase().includes('GIT GUD')
     },
     {
         title: "The Hopeful Romantic",
         flavor: "Wrong window. The keyboard game cannot send nudes. Have you tried a different app?",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('SENDNUDES') || s.typedString.toUpperCase().includes('SEND NUDES')
     },
     {
         title: "The Confused",
         flavor: "W-T-F. The only valid reaction to this game. We understand completely.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('WTF')
     },
     {
         title: "The Drama Queen",
         flavor: "OMG. You are emotionally overwhelmed by a 5-second keyboard game. Valid, actually.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('OMG')
     },
     {
         title: "The Trash Talker",
         flavor: "You called yourself a noob mid-game. The self-awareness is both impressive and heartbreaking.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('NOOB')
     },
     {
         title: "The Disrespectful One",
         flavor: "EZ. You typed EZ. Bro. Please.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('EZ')
     },
     {
         title: "The Swear Jar",
         flavor: "Watch your language. This is a Muslim Minecraft server. That will be $1 per word. You owe us everything.",
-        isExclusive: true,
         condition: (s) => {
             const up = s.typedString.toUpperCase();
             return up.includes('FUCK') || up.includes('SHIT') || up.includes('BITCH') ||
@@ -278,7 +268,6 @@ const PROFILES = [
     {
         title: "The Instagram User",
         flavor: "You typed NI*** , Spending too much time on Instagram are we?",
-        isExclusive: true,
         condition: (s) => {
             const up = s.typedString.toUpperCase();
             return up.includes('NIGGA') || up.includes('NIGGER') || up.includes('NI***');
@@ -287,73 +276,57 @@ const PROFILES = [
     {
         title: "The Spacebar Supremacist",
         flavor: "Every single keypress was the spacebar. You discovered the biggest key and committed. No regrets. No thoughts. Just space.",
-        isExclusive: true,
         condition: (s) => s.spaceHits > 5 && s.spaceHits === s.totalKeys
     },
-    {
-        title: "The Start Menu Sommelier",
-        flavor: "You pressed the Windows key mid-game. The Start Menu opened. Your score survived. Your dignity did not.",
-        isExclusive: true,
-        condition: (s) => s.osHits > 0 && s.osHits / s.totalKeys > 0
-    },
+
     {
         title: "The Creator",
         flavor: "BESOSE detected. We bow to the architect of this beautiful madness.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('BESOSE')
     },
     {
         title: "The Meta Gamer",
         flavor: "You typed the name of the game you are currently playing. Extremely self-aware. Extremely unhinged. We respect it.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('BESOSMASH') && !s.typedString.toUpperCase().includes('BESOSE')
     },
     {
         title: "The Cry for Help",
         flavor: "H-E-L-P. In a keyboard smashing game. We cannot help you. No one can. But we appreciate the honesty.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('HELP')
     },
     {
         title: "The Polite Menace",
         flavor: "You said hello to a keyboard smashing game. That is either adorable or deeply concerning. Probably both.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('HELLO')
     },
     {
         title: "The 1337 Fossil",
         flavor: "l33tsp34k in the year of our lord? Did you time travel from a 2004 gaming forum? Welcome back, old timer. Nothing has gotten better.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('LEET') || s.typedString.includes('1337')
     },
     {
         title: "The Keyboard Tourist",
         flavor: "You traced the top row like a tourist reading a subway map. You were not smashing. You were sightseeing.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('QWERTY')
     },
     {
         title: "The E-Sports Veteran",
         flavor: "GG. Two letters. You typed GG and called it a session. Based.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().startsWith('GG') && s.totalKeys <= 5
     },
     {
         title: "The Home Row Devotee",
         flavor: "A-S-D-F. Your fingers never left home base. Touch typist? Or just too lazy to move? Either way, respect.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('ASDF')
     },
     {
         title: "The Nice Guy",
         flavor: "You typed NICE. We agree. It is, in fact, quite nice.",
-        isExclusive: true,
         condition: (s) => s.typedString.toUpperCase().includes('NICE')
     },
     {
         title: "The Mobile Smasher",
         flavor: "Tapping your screen to death. RIP to your oleophobic coating.",
-        isExclusive: true,
         condition: (s) => s.touchHits === s.totalKeys
     },
 
@@ -364,22 +337,22 @@ const PROFILES = [
     {
         title: "Suspected Cheater", // kps > 150
         flavor: "150+ keys per second with almost no variation. That's auto-clicker territory. Your score is saved, but we're watching.",
-        isCheater: true,
         isExclusive: true,
+        isCheater: true,
         condition: (s) => s.kps > 150 && s.ent < 20
     },
     {
         title: "Suspected Cheater", // kps > 100
         flavor: "Triple-digit KPS with near-zero entropy. Either you're a literal octopus or something fishy is going on.",
-        isCheater: true,
         isExclusive: true,
+        isCheater: true,
         condition: (s) => s.kps > 100 && s.kps <= 150 && s.ent < 15
     },
     {
         title: "Suspected Cheater", // kps > 80
         flavor: "High speed, one key. That's not smashing, that's a macro with extra steps.",
-        isCheater: true,
         isExclusive: true,
+        isCheater: true,
         condition: (s) => s.kps > 80 && s.kps <= 100 && s.ent < 5
     },
     {
@@ -435,7 +408,7 @@ const PROFILES = [
     {
         title: "The Flash Gamer",
         flavor: "Playing this like it's a 2004 browser game on Miniclip.",
-        condition: (s) => s.arrowHits > 0 && s.spaceHits > 0 && (s.arrowHits + s.spaceHits === s.totalKeys)
+        condition: (s) => s.arrowHits > 0 && s.spaceHits > 0 && (s.arrowHits + s.spaceHits) / s.totalKeys > 0.8
     },
     {
         title: "The Arrow Key Boomer",
@@ -455,7 +428,7 @@ const PROFILES = [
     {
         title: "The Osu! Addict",
         flavor: "Tapping Z and X at the speed of light. Have you blinked since 2019?",
-        condition: (s) => s.totalKeys > 80 && s.uniqueKeys <= 2 && ((s.keyCounts['KeyZ'] || 0) + (s.keyCounts['KeyX'] || 0) > 80)
+        condition: (s) => s.totalKeys > 40 && s.uniqueKeys <= 2 && ((s.keyCounts['KeyZ'] || 0) + (s.keyCounts['KeyX'] || 0) > 40)
     },
     {
         title: "The Fighting Game Scrub",
@@ -577,11 +550,7 @@ const PROFILES = [
         flavor: "Commas, periods, semicolons... Did you accidentally open your IDE? The compiler is going to reject your high score.",
         condition: (s) => s.punctuationHits / s.totalKeys > 0.15
     },
-    {
-        title: "The QA Tester",
-        flavor: "Smashing Tab. Are you checking the form accessibility index? The UI is fine, please stop filing Jira tickets.",
-        condition: (s) => s.tabHits / s.totalKeys > 0.10
-    },
+
     {
         title: "The Screamer",
         flavor: "WHY ARE WE YELLING? You hit CapsLock repeatedly. Your keyboard doesn't have a volume dial, but you certainly found a way to shout.",
@@ -645,12 +614,12 @@ const PROFILES = [
     {
         title: "The Pacifist",
         flavor: "Refusing to fight. Gandhi would be proud; your score is not.",
-        condition: (s) => s.totalKeys > 0 && s.firstHitTick > 40
+        condition: (s) => s.totalKeys > 0 && s.firstHitTick > 30
     },
     {
         title: "The AFK",
         flavor: "You were completely dead for 80% of the game and woke up at the very end in a panic. Ping 999ms.",
-        condition: (s) => s.firstHitTick > s.expectedTicks * 0.7 && !(s.totalKeys > 0 && s.firstHitTick > 40)
+        condition: (s) => s.totalKeys > 0 && s.firstHitTick > s.expectedTicks * 0.6
     },
     {
         title: "The Early Bird",
@@ -665,12 +634,12 @@ const PROFILES = [
     {
         title: "The Anime Comeback",
         flavor: "You unlocked your final form at the very last second.",
-        condition: (s) => s.lateStart > 40 && (s.totalKeys - s.lateStart) < 10 && s.expectedTicks === 100 // Updated the bug `=== 50` to `=== 100`
+        condition: (s) => s.lateStart > 30 && (s.totalKeys - s.lateStart) < 15 && s.expectedTicks === 100 // Updated the bug `=== 50` to `=== 100`
     },
     {
         title: "The Distracted",
         flavor: "Checking your phone during a 5-second match? Disrespectful.",
-        condition: (s) => s.tickTimestamps.length > 3 && s.maxGap > 20 && s.totalKeys > 5
+        condition: (s) => s.tickTimestamps.length > 3 && s.maxGap > 15 && s.totalKeys > 5
     },
     {
         title: "The Sloth",
@@ -700,38 +669,17 @@ const PROFILES = [
     {
         title: "The Rhythm Gamer",
         flavor: "Perfect alternating patterns. You found the beat and stuck to it. Are you playing Friday Night Funkin' in another tab?",
-        condition: (s) => s.uniqueKeys >= 4 && s.uniqueKeys <= 6 && s.ent >= 20 && s.kps > 10 && s.maxSingleKeyCount < s.totalKeys * 0.4
+        condition: (s) => s.uniqueKeys >= 3 && s.uniqueKeys <= 7 && s.ent >= 15 && s.kps > 8 && s.maxSingleKeyCount < s.totalKeys * 0.4
     },
     // -------------------------------------------------------
     // FUN PATTERN PROFILES
     // -------------------------------------------------------
     {
-        title: "The Alphabet Tourist",
-        flavor: "A, B, C, D... You pressed every single letter of the alphabet at least once. Did you think this was a typing test? Gold star for literacy.",
-        condition: (s) => {
-            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            let count = 0;
-            for (const ch of letters) {
-                if (s.keyCounts['Key' + ch] && s.keyCounts['Key' + ch] >= 1) count++;
-            }
-            return count === 26;
-        }
-    },
-    {
         title: "The F-Key Summoner",
         flavor: "You pressed nothing but function keys. F1 through F12 — like summoning the council of keyboard elders. The ritual is complete. Nothing happened.",
         condition: (s) => s.fKeyHits > 0 && s.fKeyHits === s.totalKeys && s.uniqueKeys >= 3
     },
-    {
-        title: "The Countdown",
-        flavor: "1, 2, 3, 4, 5, 6, 7, 8, 9. You typed a perfect countdown. Were you launching a rocket or just procrastinating creatively?",
-        condition: (s) => s.typedString.includes('123456789')
-    },
-    {
-        title: "The Piano Scales",
-        flavor: "You played the keyboard like an actual keyboard. A methodical left-to-right sweep across every letter. Beethoven would be confused but impressed.",
-        condition: (s) => s.typedString.includes('QWERTYUIOP') || s.typedString.includes('ASDFGHJKL') || s.typedString.includes('ZXCVBNM')
-    },
+
     {
         title: "The Binary Bot",
         flavor: "01100010 01110010 01110101 01101000. You only typed 0s and 1s. Either you're communicating with the mothership or you failed the Turing test. Beep boop.",
@@ -760,7 +708,7 @@ const PROFILES = [
     {
         title: "The Tab Destroyer",
         flavor: "Tab, Tab, Tab. You tabbed through approximately 47 invisible form fields. The web accessibility audit is complete. Everything failed.",
-        condition: (s) => s.tabHits > 10 && s.tabHits / s.totalKeys > 0.20
+        condition: (s) => s.tabHits > 5 && s.tabHits / s.totalKeys > 0.15
     },
     {
         title: "The Backspace Poet",
@@ -798,14 +746,9 @@ const PROFILES = [
         }
     },
     {
-        title: "The Reverse Engineer",
-        flavor: "9, 8, 7, 6, 5, 4, 3, 2, 1. Counting backwards. Either you're defusing a bomb or you just really like dramatic countdowns. T-minus chaos.",
-        condition: (s) => s.typedString.includes('987654321')
-    },
-    {
         title: "The Speed Demon",
         flavor: "60+ keys per second and somehow still human. Your fingers have their own heartbeat. Your keyboard is filing for workers' compensation.",
-        condition: (s) => s.kps >= 60 && s.kps < 85 && s.ent > 20
+        condition: (s) => s.kps >= 45 && s.kps < 85 && s.ent > 15
     },
     {
         title: "The Mechanical Switch Tester",
@@ -1017,7 +960,7 @@ class ProfileEngine {
     static analyze(keyHistory, mode) {
         if (!keyHistory || keyHistory.length === 0) {
             return {
-                profiles: [{ title: "The Ghost", flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up." }],
+                profiles: [],
                 entropy: 0.0,
                 isCheater: false
             };
@@ -1027,7 +970,7 @@ class ProfileEngine {
 
         if (stats.totalKeys === 0) {
             return {
-                profiles: [{ title: "The Ghost", flavor: "Did you even touch the keyboard? Zero keys detected. Please wake up." }],
+                profiles: [],
                 entropy: 0.0,
                 isCheater: false
             };
@@ -1054,10 +997,6 @@ class ProfileEngine {
             }
         }
 
-        if (matched.length === 0) {
-            matched.push({ title: "The Panic Button", flavor: "You smashed so randomly even the algorithm gave up." });
-        }
-
         if (isCheaterRun && !matched.some(p => p.title === "Suspected Cheater")) {
             matched.push({ title: "Suspected Cheater", flavor: "Your inputs were flagged by the anti-cheat system.", isCheater: true });
         }
@@ -1070,9 +1009,7 @@ class ProfileEngine {
     }
 
     // Now dynamically computed. We filter to unique titles since "Suspected Cheater" is in PROFILES multiple times
-    static TOTAL_PROFILES = [
-        "The Ghost", ...Array.from(new Set(PROFILES.map(p => p.title))), "The Panic Button"
-    ].filter((value, index, self) => self.indexOf(value) === index);
+    static TOTAL_PROFILES = Array.from(new Set(PROFILES.map(p => p.title)));
 
     static getTotalCount() {
         return ProfileEngine.TOTAL_PROFILES.length;

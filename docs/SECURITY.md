@@ -77,7 +77,6 @@ After the game ends, the entire keystroke history is passed to `ProfileEngine.an
 
 | Profile | Condition | Notes |
 |---|---|---|
-| **The Ghost** | 0 keys | No input at all |
 | **The Script Kiddie** | Any `Untrusted_` key | DOM-injected events have a distinct prefix |
 | **The Hardware Spoof** | KPS > 300 AND entropy < 10% | Physically impossible key rate |
 | **Suspected Cheater** | KPS > 80–150 AND entropy < 5–20% | Auto-clicker at moderate speed; score saved but flagged |
