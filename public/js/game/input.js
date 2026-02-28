@@ -13,13 +13,12 @@ const BLOCKED_KEYS = new Set([
     'BrowserBack', 'BrowserForward', 'BrowserRefresh', 'BrowserStop',
     'BrowserSearch', 'BrowserFavorites', 'BrowserHome',
     'BrightnessUp', 'BrightnessDown',
-    'Power', 'Sleep', 'WakeUp',
-    'PrintScreen', 'ScrollLock', 'Pause',
+    'Power', 'Sleep', 'WakeUp'
 ]);
 
 // Flush key buffer to server immediately (called on threshold and by interval)
 export function flushKeyBuffer() {
-    if (state.keyBuffer.length > 0 && state.gameToken) {
+    if (state.gameToken) {
         socket.emit('keyPressBatch', { keys: state.keyBuffer, token: state.gameToken });
         state.keyBuffer = [];
     }

@@ -597,9 +597,14 @@ const PROFILES = [
     },
 
     {
-        title: "The Sloth",
-        flavor: "Are you moving underwater? Check your pulse.",
-        condition: (s) => s.totalKeys > 0 && s.kps < 2
+        title: "The Pacifist",
+        flavor: "Refusing to fight. Gandhi would be proud; your score is not.",
+        condition: (s) => s.totalKeys > 0 && s.firstActiveTickAfterStart > 12
+    },
+    {
+        title: "The AFK",
+        flavor: "You were completely dead for 80% of the game and woke up at the very end in a panic. Ping 999ms.",
+        condition: (s) => s.totalKeys > 0 && s.firstActiveTickAfterStart > s.expectedTicks * 0.6
     },
     {
         title: "The Heartbeat",
@@ -761,6 +766,7 @@ class BlitzProfileEngine {
             konamiAchieved: false,
             firstHitTick: -1,
             lastHitTick: -1,
+            firstActiveTickAfterStart: -1,
             currentTickIndex: 0,
             leftHits: 0,
             rightHits: 0,
@@ -783,6 +789,10 @@ class BlitzProfileEngine {
 
             const tickCount = tick.length;
             if (tickCount === 0) continue;
+
+            if (s.currentTickIndex > 1 && s.firstActiveTickAfterStart === -1) {
+                s.firstActiveTickAfterStart = s.currentTickIndex;
+            }
 
             s.totalKeys += tickCount;
             s.tickTimestamps.push(s.currentTickIndex);

@@ -414,8 +414,8 @@ console.log('\n🧪 TEST SUITE: Accumulative Profiles\n');
     keys = [];
     // Omit 'KeyZ' so we have 25 letters + digits, preventing 'The Alphabet Tourist' from triggering
     const pool = ['KeyA', 'KeyQ', 'KeyW', 'KeyS', 'KeyX', 'KeyE', 'KeyD', 'KeyC', 'KeyR', 'KeyF', 'KeyV', 'KeyT', 'KeyG', 'KeyB', 'KeyY', 'KeyH', 'KeyN', 'KeyU', 'KeyJ', 'KeyM', 'KeyI', 'KeyK', 'KeyO', 'KeyL', 'KeyP', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5'];
-    for (let i = 0; i < 360; i++) keys.push(pool[i % pool.length]); // Highly diverse to boost entropy without spelling QWERTY
-    result = ClassicProfileEngine.analyze(makeHistory(keys, 8), 'classic'); // ~360 keys over 45 ticks (4.5s) = high KPS, no single tick too big
+    for (let i = 0; i < 500; i++) keys.push(pool[i % pool.length]); // Highly diverse to boost entropy without spelling QWERTY
+    result = ClassicProfileEngine.analyze(makeHistory(keys, 10), 'classic'); // 500 keys over 50 ticks (5.0s) = 100 KPS
     titles = result.profiles.map(p => p.title);
     assert(titles.includes('The Speed Demon'), '60-80 KPS + high entropy → The Speed Demon');
 })();

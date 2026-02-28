@@ -111,7 +111,12 @@ module.exports = (io) => {
                     return; // Silently drop late keys
                 }
 
-                if (Array.isArray(keys) && keys.length > 0) {
+                if (Array.isArray(keys)) {
+                    if (keys.length === 0) {
+                        // Empty batch (50ms passed with no keys). Just push to history to maintain time series.
+                        game.keyHistory.push([]);
+                        return;
+                    }
                     // Cap at 300 keys per batch — covers forearm slams with full N-key rollover
                     const capped = keys.slice(0, 300);
 
