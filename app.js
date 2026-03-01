@@ -19,6 +19,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 app.use('/', gameRoutes);
 
+// 404 Handler - MUST BE AFTER ALL OTHER ROUTES
+app.use((req, res) => {
+    res.status(404).render('404', { activePage: null });
+});
+
 // Socket Logic
 socketController(io);
 

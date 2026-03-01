@@ -1,0 +1,7 @@
+# robots.txt for https://besosmash.com/
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://besosmash.com/sitemap.xml

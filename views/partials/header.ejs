@@ -1,0 +1,63 @@
+<header class="text-center mt-6 mb-4 z-10 relative">
+    <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 opacity-40 pointer-events-none -z-10">
+        <svg viewBox="0 0 200 200" class="w-full h-full animate-[spin_15s_linear_infinite]">
+            <path fill="url(#explosionGrad)" filter="url(#glow)"
+                d="M100,0 L118,65 L195,15 L140,85 L200,125 L130,125 L155,195 L100,145 L45,195 L70,125 L0,125 L60,85 L5,15 L82,65 Z" />
+            <defs>
+                <linearGradient id="explosionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%"
+                        stop-color="<%= typeof explosionColor1 !== 'undefined' ? explosionColor1 : '#f43f5e' %>"
+                        stop-opacity="0.9" />
+                    <stop offset="50%"
+                        stop-color="<%= typeof explosionColor2 !== 'undefined' ? explosionColor2 : '#a855f7' %>"
+                        stop-opacity="0.9" />
+                    <stop offset="100%"
+                        stop-color="<%= typeof explosionColor3 !== 'undefined' ? explosionColor3 : '#eab308' %>"
+                        stop-opacity="0.9" />
+                </linearGradient>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="6" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+            </defs>
+        </svg>
+    </div>
+
+    <div onclick="window.location.href='/'"
+        class="relative inline-block transform -rotate-3 hover:scale-105 hover:-translate-y-2 hover:rotate-0 transition-all duration-300 pb-2 group cursor-pointer max-w-full">
+        <!-- Shadow Layer -->
+        <h1 aria-hidden="true"
+            class="absolute top-0 left-0 w-full h-full text-5xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter text-[#0f172a] select-none pr-4 transition-all duration-300 group-hover:drop-shadow-[0_15px_15px_rgba(244,63,94,0.3)] group-hover:translate-x-3 group-hover:translate-y-3"
+            style="-webkit-text-stroke: 12px #0f172a; transform: translate(6px, 6px);">
+            BeSo<span class="text-transparent">Smash</span>
+        </h1>
+        <h1 aria-hidden="true"
+            class="absolute top-0 left-0 w-full h-full text-5xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter text-[#0f172a] select-none pr-4 transition-all duration-300 group-hover:drop-shadow-[0_15px_15px_rgba(234,179,8,0.3)] group-hover:translate-x-3 group-hover:translate-y-3"
+            style="-webkit-text-stroke: 12px #0f172a; transform: translate(6px, 6px);">
+            <span class="text-transparent">BeSo</span>Smash
+        </h1>
+
+        <!-- Outline Layer -->
+        <h1 aria-hidden="true"
+            class="absolute top-0 left-0 w-full h-full text-5xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter text-[#0f172a] select-none pr-4"
+            style="-webkit-text-stroke: 12px #0f172a;">
+            BeSoSmash
+        </h1>
+
+        <!-- Foreground Layer -->
+        <h1
+            class="relative text-5xl md:text-8xl pb-2 font-black uppercase italic tracking-tighter group-hover:brightness-110 transition-all duration-300">
+            <span
+                class="inline-block pr-2 text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 via-purple-500 to-fuchsia-500 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">BeSo</span><span
+                class="inline-block pr-4 text-transparent bg-clip-text bg-gradient-to-br from-rose-500 via-orange-500 to-yellow-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]">Smash</span>
+        </h1>
+    </div>
+
+    <div class="mt-4 px-2">
+        <p
+            class="text-slate-200 font-black tracking-[0.1em] md:tracking-[0.2em] text-[10px] md:text-sm border-y-2 border-slate-500/50 py-1 inline-block px-4 md:px-6 bg-black/50 backdrop-blur-sm shadow-[0_0_15px_rgba(0,0,0,0.6)] transform rotate-1 uppercase max-w-full text-center">
+            GLOBAL KEYBOARD DESTRUCTION EVENT
+        </p>
+    </div>
+</header>
