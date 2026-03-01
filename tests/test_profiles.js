@@ -293,11 +293,13 @@ console.log('\n🧪 TEST SUITE: Time-Based Profiles\n');
 
 (function testTheWarmUpAct() {
     // totalKeys > 10, lateStart > fastStart*1.5, firstHitTick > 5
-    // 50 empty ticks, then 10 active ticks of 3 keys each (30 keys from tick 51-60), then 40 empty
+    // 10 empty ticks (no fastStart), then 30 empty ticks.
+    // lateStart (tick 40+) gets 40 keys. Total keys = 40.
+    // lateStart (40) > 40 * 0.7 = 28. fastStart (0) < 40 * 0.1 = 4.
     const history = [
-        ...Array(50).fill([]),
-        ...Array(10).fill(['KeyA', 'KeyB', 'KeyC']),
-        ...Array(40).fill([])
+        ...Array(40).fill([]),
+        ...Array(10).fill(['KeyA', 'KeyB', 'KeyC', 'KeyD']),
+        ...Array(50).fill([])
     ];
     const result = ClassicProfileEngine.analyze(history, 'classic');
     const titles = result.profiles.map(p => p.title);
@@ -383,10 +385,19 @@ console.log('\n🧪 TEST SUITE: Accumulative Profiles\n');
 })();
 
 (function testExecutioner() {
-    const keys = Array(20).fill('Enter').concat(Array(80).fill('KeyA'));
+    // Enter heavy -> Executioner (make sure total enters <= 30 so it doesn't trigger Terminal Typist instead)
+    const keys = Array(10).fill('Enter').concat(Array(80).fill('KeyA'));
     const result = ClassicProfileEngine.analyze(makeHistory(keys), 'classic');
     const titles = result.profiles.map(p => p.title);
-    assert(titles.includes('The Executioner'), `Enter heavy → Executioner`);
+    assert(titles.includes('The Executioner'), `Enter heavy (low count) → Executioner`);
+})();
+
+(function testTerminalTypist() {
+    // > 30 Enter keys
+    const keys = Array(35).fill('Enter').concat(Array(10).fill('KeyA'));
+    const result = ClassicProfileEngine.analyze(makeHistory(keys), 'classic');
+    const titles = result.profiles.map(p => p.title);
+    assert(titles.includes('The Terminal Typist'), `> 30 Enters → Terminal Typist`);
 })();
 
 (function testPunctuationPedant() {
