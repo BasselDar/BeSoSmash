@@ -47,7 +47,7 @@ export const profileCategoryMap = {
     'The Right-Handed Menace': 'keyboard', 'The Escape Artist': 'keyboard', 'The Typosquatter': 'keyboard',
     'The Executioner': 'keyboard', 'The Punctuation Pedant': 'keyboard',
     'The Screamer': 'keyboard', 'The IT Support': 'keyboard', 'The Windows Key Victim': 'keyboard',
-    'The Screenshot Hoarder': 'keyboard', 'The System Interrupter': 'keyboard', 'The Scroll Lock Champion': 'keyboard',
+    'The System Interrupter': 'keyboard', 'The Scroll Lock Champion': 'keyboard',
     'The Toggle Archaeologist': 'keyboard', 'The Mod Squad': 'keyboard',
     'The Numpad Astronaut': 'keyboard', 'The Shift Warrior': 'keyboard', 'The Tab Destroyer': 'keyboard',
     'The Backspace Poet': 'keyboard', 'The Perfect Balance': 'keyboard', 'The Number Cruncher': 'keyboard',
@@ -60,7 +60,7 @@ export const profileCategoryMap = {
     'The Overclocker': 'pacing', 'The Rhythm Gamer': 'pacing', 'The Mechanical Switch Tester': 'pacing',
     'The Countdown': 'pacing', 'The Speed Demon': 'pacing',
     'The Sniper': 'pacing', 'The Sprinter': 'pacing', 'The Marathon Runner': 'pacing',
-    'The Lag Spike': 'pacing', 'The Warm-Up Act': 'pacing',
+    'The Lag Spike': 'pacing',
     // Gamer (continued)
     'The Pure Smasher': 'gamer',
 };

@@ -292,7 +292,7 @@ const PROFILES = [
     {
         title: "The Crypto Bro",
         flavor: "TO THE MOON. 🚀 Sir this is a keyboard game, not a Coinbase wallet. Your portfolio is down 98% and so is your score.",
-        condition: (s) => s.typedString.toUpperCase().includes('BITCOIN') || s.typedString.toUpperCase().includes('CRYPTO')
+        condition: (s) => s.typedString.toUpperCase().includes('BITCOIN') || s.typedString.toUpperCase().includes('CRYPTO') || s.typedString.toUpperCase().includes('MOON') || s.typedString.toUpperCase().includes('HODL')
     },
     {
         title: "The Password",
@@ -554,11 +554,7 @@ const PROFILES = [
         flavor: "You opened the Start Menu, the game lost focus, and you typed exactly nothing useful. Skill issue.",
         condition: (s) => s.osHits > 0 && s.totalKeys < 5
     },
-    {
-        title: "The Screenshot Hoarder",
-        flavor: "PrintScreen during a keyboard smashing game. What exactly were you trying to document? The suffering?",
-        condition: (s) => s.printScreenHits > 0
-    },
+
     {
         title: "The System Interrupter",
         flavor: "You hit Pause. During a 5-second game. There is no pause in life either, but at least you tried.",

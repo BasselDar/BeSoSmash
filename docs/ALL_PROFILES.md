@@ -123,33 +123,31 @@ These relate to keyboard zones, pacing, and habits.
 | 40 | The Screamer | Raising your voice to the maximum. |
 | 41 | The IT Support | Seeking a functional fix. |
 | 42 | The Windows Key Victim | Losing focus entirely. |
-| 43 | The Screenshot Hoarder | Capturing the moment. |
-| 44 | The System Interrupter | Attempting to halt time. |
-| 45 | The Scroll Lock Champion | Toggling the useless. |
-| 46 | The Toggle Archaeologist | Unearthing a forgotten mode. |
-| 47 | The Mod Squad | Modifying nothing. |
-| 48 | The Two-Finger Peck | A cautious, slow approach. |
-| 49 | The Stutterer | A broken record on a single note. |
-| 50 | The Novelist | Taking your sweet, deliberate time. |
-| 51 | The Pacifist ⏱️ | Total inaction. |
-| 52 | The AFK ⏱️ | A late awakening. |
-| 53 | The Early Bird ⏱️ | A premature end to the effort. |
-| 54 | The Decaf Drinker ⏱️ | Lacking stamina. |
-| 55 | The Anime Comeback ⏱️ | A dramatic final push. |
-| 56 | The Distracted ⏱️ | A sudden, prolonged pause. |
-| 57 | The Sloth ⏱️ | Moving like molasses. |
-| 58 | The Heartbeat | A steady, metronomic pulse. |
-| 59 | The Chaotic Evil | Unpredictable madness. |
-| 60 | The Lawful Good | Predictable speed. |
-| 61 | The Overclocker | Running too hot too quickly. |
-| 62 | The Rhythm Gamer | Finding the groove. |
-| 63 | The Mechanical Switch Tester | Listening to every click. |
-| 64 | The Sniper ⏱️ | One shot, one opportunity. Silence after. |
-| 65 | The Sprinter ⏱️ | An explosive start with zero endurance. |
-| 66 | The Marathon Runner ⏱️ | Unwavering consistency from bell to bell. |
-| 67 | The Lag Spike ⏱️ | Buffering... buffering... EXPLOSION... buffering. |
-| 68 | The Warm-Up Act ⏱️ | A slow engine that ignites late. |
-| 69 | The Pure Smasher | Raw, unfiltered aggression. |
+| 43 | The System Interrupter | Attempting to halt time. |
+| 44 | The Scroll Lock Champion | Toggling the useless. |
+| 45 | The Toggle Archaeologist | Unearthing a forgotten mode. |
+| 46 | The Mod Squad | Modifying nothing. |
+| 47 | The Two-Finger Peck | A cautious, slow approach. |
+| 48 | The Stutterer | A broken record on a single note. |
+| 49 | The Novelist | Taking your sweet, deliberate time. |
+| 50 | The Pacifist ⏱️ | Total inaction. |
+| 51 | The AFK ⏱️ | A late awakening. |
+| 52 | The Early Bird ⏱️ | A premature end to the effort. |
+| 53 | The Decaf Drinker ⏱️ | Lacking stamina. |
+| 54 | The Anime Comeback ⏱️ | A dramatic final push. |
+| 55 | The Distracted ⏱️ | A sudden, prolonged pause. |
+| 56 | The Sloth ⏱️ | Moving like molasses. |
+| 57 | The Heartbeat | A steady, metronomic pulse. |
+| 58 | The Chaotic Evil | Unpredictable madness. |
+| 59 | The Lawful Good | Predictable speed. |
+| 60 | The Overclocker | Running too hot too quickly. |
+| 61 | The Rhythm Gamer | Finding the groove. |
+| 62 | The Mechanical Switch Tester | Listening to every click. |
+| 63 | The Sniper ⏱️ | One shot, one opportunity. Silence after. |
+| 64 | The Sprinter ⏱️ | An explosive start with zero endurance. |
+| 65 | The Marathon Runner ⏱️ | Unwavering consistency from bell to bell. |
+| 66 | The Lag Spike ⏱️ | Buffering... buffering... EXPLOSION... buffering. |
+| 67 | The Pure Smasher | Raw, unfiltered aggression. |
 
 ## 🎯 Fun Pattern Profiles
 These trigger based on specific key patterns, sequences, and keyboard coverage.

@@ -571,11 +571,7 @@ const PROFILES = [
         flavor: "You opened the Start Menu, the game lost focus, and you typed exactly nothing useful. Skill issue.",
         condition: (s) => s.osHits > 0 && s.totalKeys < 5
     },
-    {
-        title: "The Screenshot Hoarder",
-        flavor: "PrintScreen during a keyboard smashing game. What exactly were you trying to document? The suffering?",
-        condition: (s) => s.printScreenHits > 0
-    },
+
     {
         title: "The System Interrupter",
         flavor: "You hit Pause. During a 5-second game. There is no pause in life either, but at least you tried.",
@@ -691,11 +687,7 @@ const PROFILES = [
         flavor: "Nothing, nothing, nothing, EXPLOSION, nothing. Your gameplay looks like buffering on 2G internet.",
         condition: (s) => s.totalKeys > 8 && s.tickTimestamps.length >= 2 && s.tickTimestamps.length <= 8 && s.maxGap > 10
     },
-    {
-        title: "The Warm-Up Act",
-        flavor: "Slow start, explosive finish. You needed 3 seconds to remember where your keyboard was.",
-        condition: (s) => s.totalKeys > 10 && s.lateStart > s.fastStart * 1.5 && s.firstHitTick > 5
-    },
+
     {
         title: "The F-Key Summoner",
         flavor: "You pressed nothing but function keys. F1 through F12 — like summoning the council of keyboard elders. The ritual is complete. Nothing happened.",
