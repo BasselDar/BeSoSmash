@@ -96,5 +96,81 @@
                 </p>
             </div>
         </div>
+
+        <!-- SEO Mode Cloud Square -->
+        <div class="glass-panel rounded-3xl p-6 md:p-8 border border-slate-700/30 relative overflow-hidden group mt-4">
+            <!-- Animated gradient border effect on hover -->
+            <div class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                style="background: linear-gradient(90deg, rgba(168,85,247,0.1), rgba(244,63,94,0.1), rgba(234,179,8,0.1)); background-size: 300% 100%; animation: gradient-x 5s ease infinite;">
+            </div>
+
+            <div class="relative z-10">
+                <h3
+                    class="text-slate-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-4 text-center md:text-left opacity-70">
+                    Keywords</h3>
+                <div class="flex flex-wrap justify-center md:justify-start gap-2">
+                    <% const tags=[ "Rage Quit Simulator" , "Keyboard Mashing Test" , "Stress Relief Game"
+                        , "Aggressive Typing Test" , "Smash Keyboard Online" , "APM Checker" , "Keyboard Rollover Test"
+                        , "Mechanical Keyboard Tester" , "Anti-Ghosting Test" , "ADHD Clicking Game"
+                        , "Digital Fidget Toy" , "Boredom Cure" , "Unhinged Browser Games" , "Fast Typing Test"
+                        , "Keyboard Durability Test" , "Keyboard Sound Test" , "ASMR Keyboard" , "CPS Test"
+                        , "Click Speed Test" , "Unblocked Games" , "Keyboard Stress Test" , "Mechanical Switch Tester"
+                        , "Typing Practice" , "Gamer Personality Test" , "Button Masher" , "Quick Fire Typing"
+                        , "Rapid Key Press" , "Keyboard Latency Test" , "Polling Rate Checker" ]; %>
+                        <% tags.forEach(tag=> { %>
+                            <span
+                                class="footer-tag px-3 py-1.5 rounded-lg bg-slate-900/50 border border-slate-700/30 text-slate-400 text-[10px] font-medium hover:border-purple-500/50 hover:text-purple-300 hover:bg-purple-500/5 transition-all duration-300 cursor-pointer select-none">
+                                <%= tag %>
+                            </span>
+                            <% }); %>
+                </div>
+            </div>
+
+            <style>
+                @keyframes tag-flinch {
+                    0% {
+                        transform: scale(1);
+                    }
+
+                    25% {
+                        transform: scale(0.95) rotate(-2deg);
+                    }
+
+                    50% {
+                        transform: scale(1.05) rotate(2deg);
+                    }
+
+                    75% {
+                        transform: scale(0.98) rotate(-1deg);
+                    }
+
+                    100% {
+                        transform: scale(1);
+                    }
+                }
+
+                .animate-flinch {
+                    animation: tag-flinch 0.2s cubic-bezier(.36, .07, .19, .97) both;
+                    border-color: rgba(244, 63, 94, 0.5) !important;
+                    color: #fb7185 !important;
+                    background-color: rgba(244, 63, 94, 0.1) !important;
+                    box-shadow: 0 0 15px rgba(244, 63, 94, 0.3);
+                }
+            </style>
+
+            <script>
+                document.querySelectorAll('.footer-tag').forEach(tag => {
+                    tag.addEventListener('click', () => {
+                        tag.classList.remove('animate-flinch');
+                        void tag.offsetWidth; // Trigger reflow
+                        tag.classList.add('animate-flinch');
+
+                        setTimeout(() => {
+                            tag.classList.remove('animate-flinch');
+                        }, 250);
+                    });
+                });
+            </script>
+        </div>
     </div>
 </footer>
