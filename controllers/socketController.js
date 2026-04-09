@@ -49,10 +49,15 @@ module.exports = (io) => {
             return next(new Error('Blocked'));
         }
 
-        const isAllowed = ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed));
+        let isAllowed = ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed));
+
+        // If Referer is missing but browser explicitly confirms same-origin context
+        if (!origin && (fetchSite === 'same-origin' || fetchSite === 'same-site')) {
+            isAllowed = true;
+        }
 
         if (!isAllowed && process.env.NODE_ENV === 'production') {
-            console.warn(`🚫 Blocked socket from unauthorized origin: ${origin}`);
+            console.warn(`🚫 Blocked socket from unauthorized origin: ${origin || '[EMPTY ORIGIN/REFERER]'}`);
             return next(new Error('Unauthorized origin'));
         }
         next();

@@ -13,6 +13,7 @@ const socketController = require('./controllers/socketController');
 
 const app = express();
 app.use(helmet({
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
