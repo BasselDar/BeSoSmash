@@ -93,6 +93,4 @@ const initDB = async () => {
     }
 };
 
-initDB();
-
-module.exports = { pool, redisClient };
+module.exports = { pool, redisClient, initDB };

@@ -5,7 +5,9 @@ const { Server } = require("socket.io");
 const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const fs = require('fs');
 
+const { initDB } = require('./models/db');
 const gameRoutes = require('./routes/gameRoutes');
 const socketController = require('./controllers/socketController');
 
@@ -46,11 +48,26 @@ app.use((req, res) => {
     res.status(404).render('404', { activePage: null });
 });
 
+// 500 Global Error Handler for Production
+app.use((err, req, res, next) => {
+    const errorMsg = `[${new Date().toISOString()}] ${err.stack}\n`;
+    console.error(errorMsg);
+    fs.appendFile(path.join(__dirname, 'error.log'), errorMsg, (fsErr) => {
+        if (fsErr) console.error('Failed to write to error.log', fsErr);
+    });
+    res.status(500).send('<h1>500 Internal Server Error</h1><p>Something broke violently. The incident has been logged.</p>');
+});
+
 // Socket Logic
 socketController(io);
 
-// Start Server
+// Start Server safely after DB connects
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(` BeSoSmash running on http://localhost:${PORT}`);
+initDB().then(() => {
+    server.listen(PORT, () => {
+        console.log(` BeSoSmash running on http://localhost:${PORT}`);
+    });
+}).catch(err => {
+    console.error("FATAL: Failed to initialize database securely:", err);
+    process.exit(1);
 });
