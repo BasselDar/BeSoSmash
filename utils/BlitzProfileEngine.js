@@ -351,17 +351,17 @@ const PROFILES = [
     {
         title: "The Precision Striker",
         flavor: "You maintained a flawless unique key rate for a significant portion of the game. Absolute surgical accuracy.",
-        condition: (s) => s.uniqueKeys >= 25 && s.maxSingleKeyCount <= 2 && s.totalKeys >= 30
+        condition: (s) => s.uniqueKeys >= 15 && s.maxSingleKeyCount <= 3 && s.totalKeys >= 20
     },
     {
         title: "The Drummer",
         flavor: "A steady rhythm of alternating taps. You kept a high pace without ever flattening your hand on the board. Rock on.",
-        condition: (s) => s.kps >= 12 && s.maxRowSmashInSingleTick <= 2 && s.totalKeys >= 50
+        condition: (s) => s.kps >= 12 && s.maxRowSmashInSingleTick <= 2 && s.totalKeys >= 25
     },
     {
         title: "The Stenographer",
         flavor: "Typing faster than the speed of sound with zero wasted movements. Perfect distribution, no frantic repetition.",
-        condition: (s) => s.kps >= 10 && s.uniqueKeys >= 20 && s.maxSingleKeyCount / s.totalKeys < 0.15
+        condition: (s) => s.kps >= 10 && s.uniqueKeys >= 15 && s.maxSingleKeyCount / s.totalKeys < 0.15
     },
     {
         title: "The Forearm Sweep",
@@ -376,7 +376,7 @@ const PROFILES = [
     {
         title: "The Single-Key Murderer",
         flavor: "Please apologize to your key. Its warranty is void.",
-        condition: (s) => s.maxSingleKeyCount >= 50
+        condition: (s) => s.maxSingleKeyCount >= 25
     },
     {
         title: "The Center of Attention",
@@ -411,7 +411,7 @@ const PROFILES = [
     {
         title: "The Osu! Addict",
         flavor: "Tapping Z and X at the speed of light. Have you blinked since 2019?",
-        condition: (s) => s.totalKeys > 40 && s.uniqueKeys <= 2 && ((s.keyCounts['KeyZ'] || 0) + (s.keyCounts['KeyX'] || 0) > 40)
+        condition: (s) => s.totalKeys >= 25 && s.uniqueKeys <= 2 && ((s.keyCounts['KeyZ'] || 0) + (s.keyCounts['KeyX'] || 0) >= 25)
     },
     {
         title: "The Fighting Game Scrub",
@@ -466,7 +466,7 @@ const PROFILES = [
     {
         title: "The Terminal Typist",
         flavor: "Waiting for the command prompt to execute your garbage.",
-        condition: (s) => s.enterHits > 30
+        condition: (s) => s.enterHits >= 15
     },
     {
         title: "The Mad Scientist",
@@ -609,7 +609,7 @@ const PROFILES = [
     {
         title: "The Chaotic Evil",
         flavor: "100% Entropy. Maximum chaos. You touched every single key on your keyboard with no discernible pattern. True randomness achieved.",
-        condition: (s) => s.ent >= 95 && s.uniqueKeys >= 40
+        condition: (s) => s.ent >= 95 && s.uniqueKeys >= 25
     },
     {
         title: "The Lawful Good",
@@ -708,7 +708,7 @@ const PROFILES = [
     {
         title: "The Mechanical Switch Tester",
         flavor: "You methodically went through your keyboard just listening to the clicks. Satisfying, isn't it?",
-        condition: (s) => s.kps < 8 && s.uniqueKeys >= 30 && s.maxSingleKeyCount < 5
+        condition: (s) => s.kps <= 10 && s.uniqueKeys >= 15 && s.maxSingleKeyCount < 5
     },
     {
         title: "Nice",
