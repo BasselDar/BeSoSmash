@@ -4,11 +4,13 @@ BeSoSmash uses a layered, server-authoritative anti-cheat system. The client is 
 
 ## Anti-Cheat Layers
 
-### Layer 1 — Origin Validation
+### Layer 1 — Origin & Sec-Fetch Validation
 
 **File:** `controllers/socketController.js` (Socket.io middleware)
 
-All WebSocket connections are rejected in production if the `Origin` header does not match a known-good domain. Python `socketio.Client()` and raw curl scripts do not send browser `Origin` headers and are blocked before the handshake completes.
+All WebSocket connections are rigorously validated at the initial handshake. We perform two critical checks:
+1. **Origin Header:** Must match our exact known-good domains. 
+2. **sec-fetch-site Check:** We strictly demand that the request contains a `sec-fetch-site` attribute representing `same-origin` or `same-site`. Because basic scripts (Python/cURL) can trivially forge the `Origin` header but cannot replicate complex browser-behavior contexts organically unless using headless-browsers, this single check eliminates a vast majority of lightweight bots.
 
 ```
 Allowed: http://localhost:3000
@@ -17,10 +19,18 @@ Allowed: http://localhost:3000
          https://besosmash.onrender.com
          https://www.besosmash.onrender.com
 
-All others → connection refused (production only)
+All others or missing sec-fetch-site → connection refused (production only)
 ```
 
-This is the primary wall. Scripts that bypass it must know and spoof the exact origin header.
+This is the primary wall. Scripts that bypass it must know, spoof the exact origin header, and use browser-like headers.
+
+---
+
+### Layer 1.5 — Per-IP Connection Limiting
+
+**File:** `controllers/socketController.js` 
+
+To deter DDoS style flooding, farming attacks, and excessive script bots, we apply a hard limit of **3 concurrent WebSocket connections per IP address**. Sockets are actively monitored, and subsequent connections are immediately disconnected with a `Too many connections` error.
 
 ---
 
@@ -82,6 +92,7 @@ After the game ends, the entire keystroke history is passed to `ProfileEngine.an
 | **The Script Kiddie** | Any `Untrusted_` key | DOM-injected events have a distinct prefix |
 | **The Hardware Spoof** | KPS > 300 AND entropy < 10% | Physically impossible key rate |
 | **Suspected Cheater** | KPS > 80–150 AND entropy < 5–20% | Auto-clicker at moderate speed; score saved but flagged |
+| **The Heartbeat** | Score > 500 AND strict uniform intervals | Exposes perfectly timed macro scripts (Metronome bots) |
 
 High-entropy fast players (e.g., 238.7 KPS, 80% entropy with an N-key rollover keyboard) are **not flagged**. The entropy gate specifically protects legitimate forearm smashers.
 
@@ -108,6 +119,14 @@ Players must wait **3 seconds** between games. This prevents stat flooding from 
 
 ---
 
+## Outer HTTP Defenses
+
+Beyond WebSocket logic, basic HTTP routes are shielded using:
+1. **Helmet:** Enabled on all routes to instantly implement crucial security headers (x-dns-prefetch-control, x-frame-options, strict-transport-security, x-download-options, x-content-type-options, x-xss-protection, etc.) while disabling `X-Powered-By` so our tech stack remains concealed.
+2. **Express Rate Limit:** HTTP endpoints cap at 60 requests per minute per IP to neutralize brute-forcing and heavy web crawlers.
+
+---
+
 ## Score Authority
 
 The server is the sole authoritative source of truth for score:
@@ -123,11 +142,14 @@ The server is the sole authoritative source of truth for score:
 
 | Threat | Layer that stops it |
 |---|---|
-| Raw Python/curl bot | Layer 1 (Origin) |
+| Raw Python/curl bot | Layer 1 (sec-fetch-site & Origin checks) |
+| Multiple socket connections farming | Layer 1.5 (IP Limit of 3 Sockets) |
 | Forged batch without token | Layer 2 (Token) |
 | Flood bot (50,000+ KPS) | Layer 3 (Rate limiting) |
 | Micro-interval bot (4ms batches) | Layer 4 (Frequency check) |
 | Auto-clicker (moderate speed, 1 key) | Layer 5 (Entropy + KPS flag) |
+| Macro script with perfect timing | Layer 5 (The Heartbeat flag) |
 | DOM key injection from browser console | Layer 5 (Untrusted_ prefix flag) |
 | Score inflation via client-side edit | Server authority (client count ignored) |
 | Username tampering in localStorage | Base64 + URI obfuscation |
+| Rest API Abuse & Stack Sniffing | Outer HTTP Defenses (Helmet + Rate Limit) |

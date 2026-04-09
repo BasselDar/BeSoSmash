@@ -22,6 +22,7 @@ const ALLOWED_ORIGINS = [
 const MAX_KEYS_PER_SECOND = 300;    // Hard ceiling: max accepted keys per second (human max ~240 KPS forearm smash)
 const MIN_BATCH_INTERVAL_MS = 15;  // Minimum ms between batches (browser flushes every 50ms)
 const MAX_VIOLATIONS = 3;          // 3 rate limit strikes = game killed as cheater
+const connectedIPs = new Map();
 
 module.exports = (io) => {
 
@@ -29,7 +30,25 @@ module.exports = (io) => {
     // Reject connections that don't come from the actual website.
     // This kills raw Python/curl scripts dead on arrival.
     io.use((socket, next) => {
+        const ip = socket.handshake.address;
+        const count = connectedIPs.get(ip) || 0;
+        if (count >= 3) return next(new Error('Too many connections'));
+        connectedIPs.set(ip, count + 1);
+        socket.on('disconnect', () => {
+            const c = connectedIPs.get(ip) || 1;
+            if (c <= 1) connectedIPs.delete(ip);
+            else connectedIPs.set(ip, c - 1);
+        });
+
         const origin = socket.handshake.headers.origin || socket.handshake.headers.referer || '';
+        const fetchSite = socket.handshake.headers['sec-fetch-site'];
+
+        // Browser requests always have sec-fetch-site
+        // Scripts (Python/curl) don't — but they can fake origin
+        if (fetchSite && fetchSite !== 'same-origin' && fetchSite !== 'same-site') {
+            return next(new Error('Blocked'));
+        }
+
         const isAllowed = ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed));
 
         if (!isAllowed && process.env.NODE_ENV === 'production') {
@@ -182,6 +201,16 @@ async function endGame(socket, io) {
     // Analyze personality profiles based on keystroke history (can be multiple!)
     const engine = game.mode === 'blitz' ? BlitzProfileEngine : ClassicProfileEngine;
     const analysis = engine.analyze(game.keyHistory);
+
+    if (analysis.profiles.some(p => p.title === 'The Heartbeat') && game.score > 500) {
+        // Uniform timing + high score = likely bot
+        analysis.profiles.push({
+            title: 'Suspected Cheater',
+            flavor: 'Metronome-like timing at superhuman speed. Bot detected.',
+            isCheater: true
+        });
+        analysis.isCheater = true;
+    }
 
     let playerRank = null;
     let smashScore = null;

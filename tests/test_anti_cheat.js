@@ -168,6 +168,41 @@ async function testPerSessionToken() {
 }
 
 // ══════════════════════════════════════════════
+// TEST 6: Per-IP Connection Limit
+// ══════════════════════════════════════════════
+async function testIPConnectionLimit() {
+    console.log('\n🛑 TEST 6: Per-IP Connection Limit');
+
+    // Connect 3 sockets (should succeed)
+    const sockets = [];
+    for (let i = 0; i < 3; i++) {
+        const s = connectSocket();
+        sockets.push(s);
+        await new Promise((resolve) => s.once('connect', resolve));
+    }
+
+    assert(sockets[2].connected, '3 sockets connected successfully from same IP');
+
+    // Connect 4th socket (should fail)
+    const s4 = connectSocket();
+    const errorMsg = await new Promise(resolve => {
+        s4.once('connect_error', err => resolve(err.message));
+        setTimeout(() => resolve('timeout without error'), 1000);
+    });
+
+    assert(errorMsg === 'Too many connections', `4th socket rejected with correctly: ${errorMsg}`);
+
+    // Clean up
+    for (const s of sockets) {
+        s.disconnect();
+    }
+    s4.disconnect();
+
+    // Allow disconnects to sync
+    await sleep(500);
+}
+
+// ══════════════════════════════════════════════
 // Run all tests
 // ══════════════════════════════════════════════
 async function runAll() {
@@ -183,6 +218,7 @@ async function runAll() {
     await testRateLimiter();
     await testNoClientScoreTrust();
     await testPerSessionToken();
+    await testIPConnectionLimit();
 
     console.log('\n═══════════════════════════════════════════');
     console.log(`  RESULTS: ${passed} passed, ${failed} failed`);
